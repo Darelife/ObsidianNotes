@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Academic/DSTN/SSD.md",
+                "file": "Academic/DSTN/Designing a Simple File System.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "SSD"
+              "title": "Designing a Simple File System"
             }
           }
         ]
@@ -78,7 +78,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "801455d173a345d4",
@@ -205,13 +206,15 @@
   },
   "active": "ececaeec0ef99813",
   "lastOpenFiles": [
+    "Academic/OS/File System.md",
+    "Academic/DSTN/Designing a Simple File System.md",
+    "Academic/DSTN/Hard Disks.md",
+    "Academic/DSTN/SSD.md",
     "Academic/Deep Learning/Lecture Something Something.md",
     "Academic/College.md",
     "Academic/DSTN/Lab 1.md",
-    "Academic/DSTN/SSD.md",
     "Academic/Compiler/LEX DOCS.md",
     "Pasted image 20260127113113.png",
-    "Academic/DSTN/Hard Disks.md",
     "Competitive Programming/CF Div. 3 Round 1076.md",
     "Excalidraw/Drawing 2026-01-26 10.06.45.excalidraw.md",
     "Excalidraw"

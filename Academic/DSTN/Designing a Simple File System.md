@@ -1,200 +1,3 @@
-Each file has a low level name : inode number
-Each directory also has a low level name : inode number
-
-Contents:
-list of \<user-readable-name, low-level-name> pairs
-each entry can either be a file or a directory
-
-## Creating a file
-```c
-#include <fcntl.h>
-int open(const char *pathname, int flags, mode_t mode);
-
-int fd = open("foo", O_CREAT|O_WRONLY|O_TRUNC, S_IRUSR|S_IWUSR);
-```
-
-fd is a file descriptor. It's an integer, which is private per process, and is used to read/write to the file.
-
-Each process has a simple array of files in its struct
-`struct file *ofile[NOFILE]`
-
-## Reading a file
-```c
-#include <unistd.h>
-ssize_t read(int fd, void *buf, size_t count);
-```
-
-read upto count bytes from the file descriptor fd, into the buffer starting at buf.
-
-On success, the number of bytes read is returned, and the file position is advanced by this number.
-On error, -1 is returned.
-
-## Writing to a file
-```c
-#include <unistd.h>
-ssize_t write(int fd, void *buf, size_t count);
-```
-
-A successful write may transfer fewer than count bytes.
-1. Insufficient space on the disk device
-2. A blocked write to a socket, pipe, or similar was interrupted by a signal handler.
-3. The caller can make another write call to transfer the remaining bytes.
-4. It will either transfer further bytes, or may result in errors (disk full)
-
-
-## Reading and Writing not sequentially
-
-```c
-#include <unistd.h>
-off_t lseek(int fd, off_t offset, int whence);
-```
-
-Used to reposition the offset basically for the fd.
-
-if whence == 
-1. SEEK_SET, offset = offset
-2. SEEK_CUR, offset = current offset + offset
-3. SEEK_END, offset = file_end + offset 
-
-SEEK_END + |x| = adds some blank space, till |x| after the end, and then, puts the pointer there in the end. Like, the file size doesn't immediately change, but a hole is created later, if we write.
-
-we can also do SEEK_END + (-x)....but SEEK_END-x >=0...if it's < 0, it will cause an error `EINVAL`.
-
-SEEK_HOLE : The first empty point (\0)
-SEEK_DATA : The first data entry
-
-## The structs
-
-```c
-struct file {
-	enum { FD_NONE, FD_PIPE, FD_INODE } type;
-	int ref; // reference count...indegree
-	char readable;
-	char writable;
-	struct pipe *pipe;
-	struct inode *ip;
-	uint off;
-};
-
-struct pipe {
-	struct spinlock lock;
-	char data[PIPESIZE];
-	uint nread; // number of bytes read
-	uint nwrite; // number of bytes written
-	int readopen; // read fd is still open
-	int writeopen; // write fd is still open
-};
-```
-
-
-
-Process File Descriptor Table \[ File descriptor ] -> open file table pointer (struct file \* is the type)
-Open file table (has the struct file's) -> pointer to the inode in the memory
-
-## open file table
-
-```c
-struct {
-	struct spinlock lock;
-	struct file file[NFILE];
-} ftable;
-```
-
-
-each process has something like this,
-
-```c
-struct proc {
-	...
-	struct file *ofile[NOFILE];
-	...
-}
-```
-
-So, for a process,
-```
-ofile[0]   --> struct file *
-ofile[1]   --> struct file *
-ofile[2]   --> struct file *
-```
-
-## Shared file entries in the OFT
-
-```c
-int dup(int oldfd);
-int dup2(int oldfd, int newfd);
-```
-
-dup() basically allocates a new FD that refers to the same open file description as the descriptor oldfd.
-
-on success, it returns, 0, otherwise, -1
-
-## Write immediately to disk
-fsync()
-
-```c
-#include <unistd.h>
-int fsync(int fd);
-```
-
-flushes all the modified data of the file (modified buffer cache pages) referred to by the fd to the disk device.
-
-The call blocks until the device reports that the transfer is complete.
-
-On success, 0, otherwise -1
-
-## Renaming files
-
-```c
-#include <stdio.h>
-int rename(const char *oldpath, const char *newpath);
-```
-
-atomic operation.
-
-On success, 0, otherwise -1
-## Getting file info
-
-stat()
-We get the device id, inode number, protection, number of hard links, user id of owner, group id of owner, device if (if special file), total size, block size, number of blocks allocated, time of last access, time of last modification, and time of last status change.
-
-## Creating directories - int mkdir(const char \*pathname, mode_t mode);
-
-Permission = 0777 (in octal)
-=111111111 in binary
-(user, group, other)
-(read, write, execute)
-
-umask - mode is the default permission for creating files
-we have to use chmod to alter perms
-
-ls -al = --all (all files), long listing format (all the details)
-
-Also, it makes 2 entries, '.' and '..'
-like it hardlinks them properly to the things
-
-continue from page 23/28
-
-## Reading directories (Still sort of confused)
-opendir(), readdir(), closedir() 
-
-
-
-## rmdir()
-int rmdir(const char \*pathname)l;
-deletes a dir, which must be empty, except for '.' and '..'
-
-## Hardlink and softlink
-stuff....too lazy to type it now
-hardlink = same inode (also, if the new path exists, it won't be overwritten)...softlink is a file itself, and points to the file it wants to link to.
-
-hardlink is also a file, but its directory entry points to the same inode, while a softlink literally stores the path to the file, which has the inode in its directory entry.
-## Memory Mapping (mmap) need to go through this properly
-
-
-
-# Designing a file system
-
 A file system is mostly 3 things.
 1. Metadata structures
 2. Data block management
@@ -230,7 +33,124 @@ They answer:
 	- Where the inode table begins (index 3)
 	- Magic Number to denote the file system type (In this case, vsfs - very simple file system)
 
-## Making a file system
+
+Below is a **clean, side-by-side comparison** of the three ratios you’re asking about.
+
+**Interpretation of ratios (FS : Device)**
+
+* **1 : 8** → FS block **512 B**, device sector **4 KB**
+* **1 : 1** → FS block **4 KB**, device sector **4 KB**
+* **8 : 1** → FS block **32 KB**, device sector **4 KB**
+
+---
+
+# FS block size vs Device sector size
+
+| Aspect                  | **1 : 8** (512 B FS / 4 KB device) | **1 : 1** (4 KB / 4 KB) | **8 : 1** (32 KB / 4 KB) |
+| ----------------------- | ---------------------------------- | ----------------------- | ------------------------ |
+| Alignment               | ❌ Misaligned                       | ✅ Perfect               | ✅ Aligned (multiple)     |
+| Smallest physical I/O   | 4 KB                               | 4 KB                    | 32 KB (logical)          |
+| Read-Modify-Write       | ❌ Frequent                         | ✅ None                  | ❌ On partial writes      |
+| Random write latency    | ❌ Worst                            | ✅ Best                  | ⚠️ Moderate              |
+| Sequential throughput   | ⚠️ OK                              | ✅ Excellent             | ✅ Excellent              |
+| Small-file space usage  | ✅ Best                             | ⚠️ Moderate             | ❌ Worst                  |
+| Internal fragmentation  | ✅ Minimal                          | ⚠️ Moderate             | ❌ High                   |
+| Metadata overhead       | ❌ Very high                        | ✅ Low                   | ✅ Very low               |
+| Page-cache efficiency   | ❌ Poor                             | ✅ Best                  | ⚠️ Mixed                 |
+| SSD write amplification | ❌ Very high                        | ✅ Lowest                | ⚠️ Medium                |
+| HDD seek efficiency     | ❌ Poor                             | ✅ Good                  | ✅ Very good              |
+| fsck / recovery time    | ❌ Slow                             | ✅ Normal                | ✅ Fast                   |
+| Typical real usage      | ❌ Obsolete                         | ✅ Standard              | ⚠️ Niche                 |
+
+---
+
+## 🔍 What each ratio is *good* for
+
+### **1 : 8 (512 B FS / 4 KB device)**
+
+**Pros**
+
+* Excellent space efficiency for tiny files
+* Fine-grained allocation
+
+**Cons**
+
+* Heavy read-modify-write
+* Terrible for SSDs
+* High metadata and CPU overhead
+
+🚫 **Almost never used today**
+
+---
+
+### **1 : 1 (4 KB FS / 4 KB device)**
+
+**Pros**
+
+* Perfect alignment across CPU, OS, FS, and storage
+* Best overall performance
+* Lowest write amplification
+* Balanced for all workloads
+
+**Cons**
+
+* Some wasted space for small files
+
+✅ **Default choice for almost all systems**
+
+---
+
+### **8 : 1 (32 KB FS / 4 KB device)**
+
+**Pros**
+
+* Very high sequential throughput
+* Fewer metadata lookups
+* Great for large, streaming files
+
+**Cons**
+
+* Large internal fragmentation
+* Poor small-file efficiency
+* Partial writes cause RMW
+
+⚠️ **Used in specialized workloads**
+
+* Media storage
+* Backups
+* Data lakes
+* Some DB / log-structured designs
+
+---
+
+## 🧠 Mental model (easy to remember)
+
+```
+Too small  → RMW + overhead
+Just right → alignment heaven
+Too large  → fragmentation + partial-write pain
+```
+
+---
+
+## 🏁 Final takeaway
+
+| Ratio     | Verdict                                     |
+| --------- | ------------------------------------------- |
+| **1 : 8** | ❌ Avoid                                     |
+| **1 : 1** | ⭐ Optimal default                           |
+| **8 : 1** | ⚠️ Use only if workload is large-file heavy |
+
+If you want, next we can:
+
+* plug in **real numbers** (IOPS, latency)
+* show **SSD erase-block interactions**
+* map this to **databases (8K/16K pages)**
+
+Just say.
+
+
+# Making a file system
 
 ```bash
 mkfs [options] [-t type] [fs-options] device [size]
@@ -269,7 +189,7 @@ Mount sort of fakes it..like, we mount a file system onto a directory. We often 
 - sizeof(inode) = 256 bytes
 - inodeStartAddr = 12KB
 - To go to inode 32, inodeStartAddr + (32\*sizeof(inode)) = 20KB
-- Sector number on disk: Assume sector size = 512 bytes
+- Sector number on disk: (Assume sector size = 512 bytes)
   = (20 \* 1024) / 512 = 40
 
 Inode is divided into a bunch of blocks
@@ -316,6 +236,7 @@ if the file grows larger, inode -> \[block full of pointers] -> \[data blocks]..
 - Less flexible
 - More Compact
 - Work well when there's enough free space on the disk, and files can be laid out continuously.
+- basically like a linked list, but in it, each pointer node, has a range of addresses (like, each extent pointer node stores the start, and the length of the range)
 
 **In linked based approach (FAT uses this)**
 Now, inside an inode, 1 pointer points to the first block of the file, and another pointer is at the end of that data block (to handle larger files). To access the last data block, we have to go through all the blocks. We'll have an in memory
@@ -326,9 +247,17 @@ It points to the next block. -1 could mean the end of the file. There could also
 
 Also, this faster than reading from the disk. Like, instead of storing the next block at the end of the current block in the disk, we can just store it in the table, and since the memory is faster, we can essentially have a random access directly, by going through the memory super quick, and finding the 500th block or whatever...like the last block and then, directly go to that block in the disk. So, we reduce the number of disk I/O operations significantly, from 500 or which ever block we wanted to visit to 1.
 
+There's a FAT table, (there are no inodes...block 0 points to the root...then go through the file structure to find the file you want to read)
+The table is indexed by the address of a data block D. The table maps it to the next data block D'. (-1) indicates the EOF. Could be some other marker to show empty data blocks.
+
 ## Directory Organization
 
 Dirs are themselves special types of files. The data block of a directory contains filename, inode number, record length, strlen. On deletion, the reclen still stays, and it ensures that a new smaller file name can reuse the entry...as it's basically a dynamic table, or it could also be a linked list, or a B-Tree (in XFS).
+
+> [!info] Reserved INODE numbers
+inode 0 : NULL block / a deleted dir, which hasn't be removed from the FS
+inode 1 : BAD / Corrupted block
+inode 2 : root
 
 ## Free Space Management
 
