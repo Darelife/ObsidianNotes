@@ -1,0 +1,2 @@
+# What's a Foundation Model?
+ It's a large pre-trained neural network trained on broad diverse data at a scale, which learns general purpose representations that can be adapted to many downstream tasks through finetuning, or prompting.
