@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Academic/Deep Learning/Lecture.md",
+                "file": "Academic/Deep Learning/Lecture 4 & 5 Neural Network Models.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Lecture"
+              "title": "Lecture 4 & 5 Neural Network Models"
             }
           }
         ]
@@ -206,7 +206,10 @@
   "active": "ececaeec0ef99813",
   "lastOpenFiles": [
     "Academic/Deep Learning/Lecture Something.md",
-    "Academic/Deep Learning/Lecture.md",
+    "Academic/Deep Learning/Lecture 4 & 5 Neural Network Models.md",
+    "Academic/Deep Learning/Lecture 1,2,3.md",
+    "Academic/Deep Learning/Back-Propagation at Scale.md",
+    "Academic/Deep Learning/Lecture Something Something.md",
     "Academic/DSTN/Hard Disks.md",
     "Academic/DSTN/Designing a Simple File System.md",
     "Academic/OS/File System.md",

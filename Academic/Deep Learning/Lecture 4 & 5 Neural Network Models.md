@@ -189,3 +189,18 @@ It should be
 > If it's 0, all the networks neurons become clones of each other, and never learn diff features (symmetry).
 > 
 > Neuron 1's output = neuron 2's output. Gradients during backprop = same. Update = same. so, it learns just 1 feature basically, and will all become identical.
+
+## Hebbs Rule
+(here we can start with zeroes btw)
+we mainly just update the active inputs. If none, we update the bias
+$$
+w_{i,j} = w_{i,j} + \eta(y-\hat y)x
+$$
+
+## Perceptron Learning Rule
+$$
+\sigma(\Sigma w_i x_i + b) = \sigma(w^T x + b)
+$$
+if a model misclassifies a point, shift the decision boundary slightly toward the correct side. Hebbs won't work here, as the weights aren't binary. 
+1. Initialize $w \leftarrow 0$
+2. While there are misclassified points, pick a misclassified point, $x_n$ , and update$w \leftarrow w + y_n x_n$

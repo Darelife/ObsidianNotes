@@ -16,5 +16,14 @@
       ],
       "key": "R"
     }
+  ],
+  "inline-spoilers:create-spoiler": [
+    {
+      "modifiers": [
+        "Alt",
+        "Mod"
+      ],
+      "key": "S"
+    }
   ]
 }
