@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "6eb6f926dbbefff2",
+        "id": "06f0eb32b91cda9f",
         "type": "tabs",
         "children": [
           {
-            "id": "ececaeec0ef99813",
+            "id": "67bdd9f6e8931dff",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Academic/Deep Learning/Lecture 4 & 5 Neural Network Models.md",
+                "file": "Academic/Deep Learning/Model Capacity.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Lecture 4 & 5 Neural Network Models"
+              "title": "Model Capacity"
             }
           }
         ]
@@ -203,12 +203,15 @@
       "obsidian-kanban:Create new board": false
     }
   },
-  "active": "ececaeec0ef99813",
+  "active": "67bdd9f6e8931dff",
   "lastOpenFiles": [
-    "Academic/Deep Learning/Lecture Something.md",
-    "Academic/Deep Learning/Lecture 4 & 5 Neural Network Models.md",
+    "Academic/Theory Of Computation/Introduction.md",
+    "Academic/Deep Learning/Model Capacity.md",
+    "[[Lecture.md",
     "Academic/Deep Learning/Lecture 1,2,3.md",
+    "Academic/Deep Learning/Lecture 4 & 5 Neural Network Models.md",
     "Academic/Deep Learning/Back-Propagation at Scale.md",
+    "Academic/Deep Learning/Lecture Something.md",
     "Academic/Deep Learning/Lecture Something Something.md",
     "Academic/DSTN/Hard Disks.md",
     "Academic/DSTN/Designing a Simple File System.md",
