@@ -1,4 +1,4 @@
-Prev : [[Operating System/Introduction]]
+Prev : [[Academic/OS/Introduction|Introduction]]
 
 A process is basically  a program that's running. The OS allots memory, initializes the CPU context, and starts the process (runs in the CPU) in the **User Mode**, atleast until a system call, interrupt, or a program fault occurs, when it switches to **Kernel Mode**.
 

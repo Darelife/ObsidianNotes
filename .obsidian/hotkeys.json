@@ -1,6 +1,5 @@
 {
-  "editor:toggle-bold": [],
-  "app:toggle-left-sidebar": [
+  "editor:toggle-bold": [
     {
       "modifiers": [
         "Mod"
@@ -24,6 +23,14 @@
         "Mod"
       ],
       "key": "S"
+    }
+  ],
+  "app:toggle-left-sidebar": [
+    {
+      "modifiers": [
+        "Alt"
+      ],
+      "key": "F"
     }
   ]
 }

@@ -1,3 +1,6 @@
+[[Back-Propagation]]
+[[Deep Learning.canvas]]
+
 - Training NN isn't hard cuz of the calculus, it's hard cuz of inefficient computation of gradients at scale.
 - In the end, we just have to do DP on DAG.
 
@@ -49,3 +52,4 @@ Reverse mode starts from the loss. It doesn't start from the differentiation of 
 > Forward mode is still efficient when there are fewer inputs.
 > There's also a mixed mode auto differentiation that's used in DL.
 
+[[Model Capacity]]

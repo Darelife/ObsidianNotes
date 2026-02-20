@@ -1,0 +1,19 @@
+{
+	"nodes":[
+		{"id":"c364d4933c53761d","type":"group","x":-760,"y":-440,"width":3080,"height":1640,"label":"Notes"},
+		{"id":"a94ff1729a82cd3b","type":"file","file":"Academic/Deep Learning/Lecture 1,2,3.md","x":-600,"y":-280,"width":400,"height":400},
+		{"id":"9a359861def9cbfa","type":"file","file":"Academic/Deep Learning/Lecture 4,5,6,7,8 Neural Network Models.md","x":60,"y":-20,"width":400,"height":400},
+		{"id":"63159681496f43fd","type":"file","file":"Academic/Deep Learning/Back-Propagation at Scale.md","x":1160,"y":-20,"width":400,"height":400},
+		{"id":"c8656dd428eb0b18","type":"file","file":"Academic/Deep Learning/Model Capacity.md","x":1720,"y":-280,"width":400,"height":400},
+		{"id":"2cd3d0ec47476eb4","type":"file","file":"Academic/Deep Learning/Back-Propagation.md","x":640,"y":-280,"width":400,"height":400},
+		{"id":"15c3f7d3bc4ac2e1","type":"file","file":"Academic/Deep Learning/Neural Network Basic.md","x":60,"y":640,"width":400,"height":400},
+		{"id":"1d08dc129617cfd3","x":-760,"y":1280,"width":400,"height":400,"type":"file","file":"Academic/Deep Learning/prompts.md"}
+	],
+	"edges":[
+		{"id":"1df88e72e3b1a6fb","fromNode":"a94ff1729a82cd3b","fromSide":"right","toNode":"9a359861def9cbfa","toSide":"left"},
+		{"id":"9a1e90e53fe26f06","fromNode":"63159681496f43fd","fromSide":"right","toNode":"c8656dd428eb0b18","toSide":"left"},
+		{"id":"63c2840aa896b1a3","fromNode":"9a359861def9cbfa","fromSide":"bottom","toNode":"15c3f7d3bc4ac2e1","toSide":"top"},
+		{"id":"4a8caab00e10b57c","fromNode":"9a359861def9cbfa","fromSide":"right","toNode":"2cd3d0ec47476eb4","toSide":"left"},
+		{"id":"911f14f75f84c0d6","fromNode":"2cd3d0ec47476eb4","fromSide":"right","toNode":"63159681496f43fd","toSide":"left"}
+	]
+}

@@ -1,3 +1,7 @@
+[[Lecture 1,2,3]]
+[[Neural Network Basic]]
+[[Deep Learning.canvas]]
+
 # McCulloch Pitts Neuron 1943
 
 - There was no learning in this. It was just computation. 
@@ -197,6 +201,19 @@ $$
 w_{i,j} = w_{i,j} + \eta(y-\hat y)x
 $$
 
+- Cells that fire together, wire together.
+- It updates weights based on the product of the input and error
+- In this, we can use zeroes for all the weights because, ...because all the inputs are already included in the weights. The weights just need to be updated based on the product of the input and the error. 
+
+This way, the network can learn a combination of features that contribute to the output, rather than just one feature at a time.
+
+Hebb's rule is also known as Hebbian learning or synaptic plasticity. It is a simple yet powerful concept that has been widely used in neural networks and brain-inspired computing. 
+
+One of the key advantages of Hebb's rule is that it allows the network to learn complex patterns and relationships
+
+So, what's hebbs rule basically??
+
+
 ## Perceptron Learning Rule
 $$
 \sigma(\Sigma w_i x_i + b) = \sigma(w^T x + b)
@@ -204,3 +221,5 @@ $$
 if a model misclassifies a point, shift the decision boundary slightly toward the correct side. Hebbs won't work here, as the weights aren't binary. 
 1. Initialize $w \leftarrow 0$
 2. While there are misclassified points, pick a misclassified point, $x_n$ , and update$w \leftarrow w + y_n x_n$
+
+[[Back-Propagation]]
