@@ -1,3 +1,17 @@
+# Structure of a Hard Disk
+
+## Track
+Circular ring
+
+## Sector
+Smallest Addressable unit of a disk (512 or 520 bytes)
+SATA : 512 bytes 
+SAS : 520 to implement end to end data protection (EDP). 8 additional bytes - block guarding - data protection metadata is appended from file system to the storage medium.
+
+## Zoned Data Recording
+More sectors are squeezed to the outer tracks, allowing them to store more data
+
+
 # LBA, CHS
 
 ## Controller 

@@ -4,30 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "b017fb21c7860122",
+        "id": "eae6c66682a59a37",
         "type": "tabs",
         "children": [
           {
-            "id": "cd6c594657bbc9f8",
+            "id": "115dae1a2201afec",
             "type": "leaf",
             "state": {
-              "type": "kanban",
+              "type": "markdown",
               "state": {
-                "file": "Academic/College.md",
-                "kanbanViewState": {
-                  "kanban-plugin": "board",
-                  "list-collapse": [
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false
-                  ]
-                }
+                "file": "Academic/DSTN/Hard Disks.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-trello",
-              "title": "College"
+              "icon": "lucide-file",
+              "title": "Hard Disks"
             }
           }
         ]
@@ -209,41 +200,35 @@
       "bases:Create new base": false,
       "obsidian-git:Open Git source control": false,
       "obsidian-excalidraw-plugin:New drawing": false,
-      "obsidian-kanban:Create new board": false,
-      "companion:Toggle completion": false
+      "obsidian-kanban:Create new board": false
     }
   },
-  "active": "cd6c594657bbc9f8",
+  "active": "115dae1a2201afec",
   "lastOpenFiles": [
-    "Academic/College.md",
-    "Competitive Programming/CF Div. 3 Round 1076.md",
-    "Academic/Theory Of Computation/Introduction.md",
-    "Academic/OS/Processes.md",
-    "Operating System/Introduction.md",
-    "Operating System",
-    "Academic/Deep Learning/Deep Learning.canvas",
-    "Academic/Deep Learning/Back-Propagation.md",
-    "Academic/Deep Learning/Back-Propagation at Scale.md",
-    "Academic/Deep Learning/Lecture 1,2,3.md",
-    "Academic/Deep Learning/Lecture 4,5,6,7,8 Neural Network Models.md",
-    "Academic/Deep Learning/prompts.md",
-    "Academic/Deep Learning/Lecture Something.md",
+    "Academic/Deep Learning/Some stuff about NN.md",
     "Academic/Deep Learning/Neural Network Basic.md",
     "Academic/Deep Learning/Model Capacity.md",
-    "Academic/Deep Learning/Lecture Something Something.md",
-    "Academic/Deep Learning/Deep Learning.base",
+    "Academic/Deep Learning/prompts.md",
+    "Academic/Deep Learning/Lecture 4,5,6,7,8 Neural Network Models.md",
+    "Academic/Deep Learning/Deep Learning.canvas",
+    "Academic/Deep Learning/Back-Propagation.md",
+    "Academic/Deep Learning/Something about NN Power.md",
     "Academic/DSTN/Designing a Simple File System.md",
-    "conflict-files-obsidian-git.md",
-    "Academic/OS/os doc.md",
-    "Academic/OS/File System.md",
-    "Pasted image 20260127113113.png",
-    "Academic/CN/Physical Layer.md",
-    "Academic/CN/Application Layer.md",
-    "Academic/Compiler/LEX DOCS.md",
+    "Academic/Theory Of Computation/Introduction.md",
+    "[[Lecture.md",
+    "Academic/Deep Learning/Lecture 1,2,3.md",
+    "Academic/Deep Learning/Lecture 4 & 5 Neural Network Models.md",
+    "Academic/Deep Learning/Back-Propagation at Scale.md",
+    "Academic/Deep Learning/Lecture Something.md",
+    "Academic/Deep Learning/Lecture Something Something.md",
     "Academic/DSTN/Hard Disks.md",
-    "Competitive Programming/CF Div. 2 Round 1077.md",
+    "Academic/OS/File System.md",
     "Academic/DSTN/SSD.md",
+    "Academic/College.md",
     "Academic/DSTN/Lab 1.md",
+    "Academic/Compiler/LEX DOCS.md",
+    "Pasted image 20260127113113.png",
+    "Competitive Programming/CF Div. 3 Round 1076.md",
     "Excalidraw/Drawing 2026-01-26 10.06.45.excalidraw.md",
     "Excalidraw"
   ]
