@@ -78,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "801455d173a345d4",
@@ -207,12 +206,12 @@
   },
   "active": "f9ebe60c2f507d4d",
   "lastOpenFiles": [
-    "Academic/CN/Application Layer.md",
+    "Academic/CN/Physical Layer.md",
     "Academic/CN/Transport Layer.md",
+    "Academic/CN/Application Layer.md",
     "Pasted image 20260307145507.png",
     "Competitive Programming/CF Div. 3 Round 1076.md",
     "Pasted image 20260127113113.png",
-    "Academic/CN/Physical Layer.md",
     "Academic/DSTN/Hard Disks.md",
     "Academic/Deep Learning/Some stuff about NN.md",
     "Academic/Deep Learning/Neural Network Basic.md",

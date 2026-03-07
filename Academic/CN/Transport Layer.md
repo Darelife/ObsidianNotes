@@ -334,17 +334,14 @@ UDP exists because it is:
 Examples include:
 
 - DNS
-    
 - SNMP
-    
 - Streaming media
-    
 - Online games
-    
 - HTTP/3
-    
 
 These applications can tolerate **some packet loss**.
+
+[UDP Request For Comment (RFC) 768](https://datatracker.ietf.org/doc/html/rfc768)
 
 ---
 
@@ -365,37 +362,26 @@ UDP segment format:
 Fields:
 
 - **Source Port** → sender application
-    
-- **Destination Port** → receiver application
-    
-- **Length** → total segment size
-    
+- **Destination Port** → receiver application (the ports are for multiplexing and demultiplexing)
+- **Length** → total segment size (as the payload can be of variable length)
 - **Checksum** → error detection
-    
 
 ---
 
 # 12. UDP Checksum
 
 Purpose: **detect transmission errors**.
+Eg: i send 2 numbers, as well as their sum. Then, on the receivers side, he/she can check if the sum = sum of the 2 numbers received..if not, then, there's a transmission error.
 
 Sender:
-
 1. Divide data into **16-bit words**
-    
 2. Add them using **one's complement addition**
-    
 3. Store result as checksum
-    
 
 Receiver:
-
 1. Compute checksum again
-    
-2. Compare with received checksum
-    
+2. Compare with received checksum (or just add it to the sum...as sum + checksum = (11111...111)b (2^17-1))
 3. If mismatch → error detected
-    
 
 ---
 
@@ -412,13 +398,9 @@ Certain bit errors may still go undetected.
 Reliable data transfer ensures:
 
 - No data loss
-    
 - Correct order
-    
 - No corruption
-    
 - No duplication
-    
 
 However, the underlying network channel may be **unreliable**.
 
@@ -474,13 +456,9 @@ Reliable protocols are defined using **FSM (Finite State Machines)**.
 Components:
 
 - States
-    
 - Events
-    
 - Actions
-    
 - State transitions
-    
 
 ---
 
@@ -489,22 +467,18 @@ Components:
 Assumptions:
 
 - No packet loss
-    
 - No corruption
-    
 
 Sender:
 
 ```
-rdt_send(data)
-send packet
+original state -> rdt_send(data) -> send packet -> original state 
 ```
 
 Receiver:
 
 ```
-receive packet
-deliver_data()
+original state -> receive packet -> deliver_data() (to application) -> original state
 ```
 
 No need for ACKs.
@@ -516,11 +490,8 @@ No need for ACKs.
 Now channel may **corrupt packets**.
 
 Solution:
-
 - Use **checksum**
-    
 - Use **ACK/NAK**
-    
 
 ---
 
@@ -536,6 +507,11 @@ Negative acknowledgment indicating packet error.
 
 Sender retransmits packet when NAK received.
 
+
+At the same time, for the receiver, if there's an error, it will send NAK, otherwise, AK (it will check for corruption in the data)
+
+What if the ACK or NAK is corrupted???
+
 ---
 
 # 18. Stop-and-Wait Protocol
@@ -545,14 +521,11 @@ Sender sends **one packet at a time** and waits for ACK before sending next pack
 Advantages:
 
 - Simple
-    
 - Reliable
-    
 
 Disadvantages:
 
 - Very inefficient
-    
 
 ---
 
@@ -562,10 +535,8 @@ If **ACK or NAK becomes corrupted**, sender cannot know receiver state.
 
 Solution:
 
-- Add **sequence numbers**
-    
-- Detect **duplicate packets**
-    
+- Add **sequence numbers**, basically if a ACK or NAK isn't received, the server doesn't know if the receiver received it or not...so, it will send it again
+- Detect **duplicate packets**. Receiver can see the sequence number, and tell if it's a duplicate or not
 
 ---
 
@@ -574,13 +545,15 @@ Solution:
 Improvements:
 
 - Sequence numbers (0,1)
-    
 - Detect corrupted ACK/NAK
-    
 - Handle duplicates
-    
 
 Receiver keeps track of expected sequence number.
+
+
+Initially sequence number is 0. If it's not corrupt, and it gets an ACK, then the sequence number will change to 1...check for ACK or NAK again, and then, change sequence number back to 0. If the server doesn't receive an ACK or NAK, then, it will retransmit the data with the same sequence number.
+
+From the receivers side, it will have 2 states. If it's in state 0, and receives something with sequence 0, that's not corrupt, it will send ACK, and switch to state 1, similarly from state 1. For both states, if a corrupted packet is received, it will send a NAK to the server, and stay in the same state. If the receiver is in the state 1, and a packet with sequence 0 is received, it will send an ACK, and stay in state 1, as basically sequence 0 got duplicated, as the previous ACK message must have gotten corrupt, and now it's again waiting for something with sequence id 1. Same for state 0.
 
 ---
 
@@ -589,13 +562,13 @@ Receiver keeps track of expected sequence number.
 Further improvement:
 
 - Remove NAK
-    
 - Use only ACK
-    
 
 Receiver sends ACK for **last correctly received packet**.
-
 Duplicate ACK acts like NAK.
+like, the receiver never sends a NAK, it just sends ACK0, or ACK1....if the last correct one was 0, and 1 was corrupt, it will send ACK0 again...the sender won't care about NAK...it will just see that instead of ACK1, it got ACK0, so it must send it again, and if it didn't receive anything (ACK got corrupted), it will send it again, and then, the receiver will send ACK1.
+
+Note: If just the ACK failed, then, the receiver has the correct data...So, if the sender sends the duplicate, the receiver will just not send the data to the application layer, and will just simply reply with ACK again.
 
 ---
 
@@ -604,21 +577,18 @@ Duplicate ACK acts like NAK.
 Now channel may:
 
 - Lose packets
-    
 - Lose ACKs
-    
 
 Solution:
-
 - Use **timeout mechanism**
-    
+
+Note that here, it doesn't send ACK1 for indicating NAK for sequence 0...it just doesn't send anything, and making the sender wait for a timeout
 
 ---
 
 ### Timeout
 
 Sender starts timer after sending packet.
-
 If ACK not received within time:
 
 ```
@@ -627,7 +597,7 @@ retransmit packet
 
 ---
 
-# 23. Stop-and-Wait Performance
+# 23. Stop-and-Wait Performance (Performance of RDT 3.0)
 
 Example:
 
@@ -636,6 +606,13 @@ Link speed = 1 Gbps
 Packet size = 8000 bits
 Propagation delay = 15 ms
 ```
+
+Time to transmit a packet into a channel = D_trans = Length / Speed = 8000/1e9 = 8 microsec.
+
+At time t = 0, it will send
+At time t = RTT + D_trans
+
+Utilization = Time it's sending bits in the channel / Time it takes to receive the acknowledgement from the time it starts sending = D_trans/(RTT + D_trans) = 0.008 / 30.008 = 0.00027
 
 Utilization becomes extremely low.
 
@@ -652,16 +629,14 @@ Sender sends **multiple packets without waiting**.
 Advantages:
 
 - Better link utilization
-    
 - Higher throughput
-    
 
 Requires:
 
 - Larger sequence numbers
-    
 - Buffers at sender/receiver
-    
+
+D_trans = (number of packets pipelined) * OLD D_trans
 
 ---
 
@@ -685,9 +660,10 @@ nextseqnum → next packet to send
 Receiver:
 
 - Accepts only **in-order packets**
-    
 - Discards out-of-order packets
-    
+
+If it received 1,2,3,5,6
+It will get ACK0,1,0,0, (The ACK for packet 5 is sent...double ACK0...will be ignored...the initial 0,1,0 will cause the other packets to send...we will get a timeout for packet 4, and then, ignore all the other packets sent after, and start sending again from packet 4) and force the sender to send again a transmission of size N, from 4
 
 Sender:
 
@@ -705,64 +681,839 @@ Improvement over Go-Back-N.
 
 Receiver:
 
-- Accepts **out-of-order packets**
-    
-- Buffers them
-    
+- Accepts **out-of-order packets** 
+- Buffers them (as soon as the older packet is found again, it will send all the stuff from the old one, and the ones in the buffer to the application layer)
+- Sends ACK(n), instead of just 0, or 1
 
 Sender:
 
 - Retransmits **only lost packets**
-    
 
 ---
 
 ### Features
 
 - Higher efficiency
-    
 - More complex implementation
-    
 - Requires more buffering
+
+
+# 1. Selective Repeat (SR) Protocol
+
+## Motivation
+
+Stop-and-wait and Go-Back-N waste bandwidth because:
+
+- Lost packets cause **many unnecessary retransmissions**
     
+- Receiver discards packets that arrived correctly but **out of order**
+    
+
+Selective Repeat solves this.
 
 ---
 
-# 27. Summary
+## Key Idea
 
-Transport layer provides **end-to-end communication between applications**.
+Each packet is **acknowledged individually**.
 
-Key features include:
+Sender retransmits **only the missing packets**.
 
-- Multiplexing / demultiplexing
+---
+
+## Sender Behavior
+
+Sender maintains a **window of N packets**.
+
+For each packet:
+
+- Start a **separate timer**
     
+- Retransmit **only the packet whose timer expires**
+    
+
+Sender window:
+
+```
+|--- acknowledged ---|--- sent not ACKed ---|--- allowed to send ---|
+```
+
+Variables:
+
+```
+send_base = smallest unacknowledged sequence number
+next_seq_num = next sequence number to send
+```
+
+---
+
+## Receiver Behavior
+
+Receiver:
+
+- **ACKs every correctly received packet**
+    
+- Buffers packets received **out of order**
+    
+- Delivers packets to application **in order**
+    
+
+Receiver window:
+
+```
+|--- already received ---|--- acceptable ---|--- outside window ---|
+```
+
+---
+
+## Selective Repeat Operation
+
+Example:
+
+Sender sends
+
+```
+0 1 2 3
+```
+
+Suppose packet **1 is lost**
+
+Receiver gets:
+
+```
+0 2 3
+```
+
+Receiver:
+
+```
+ACK0
+ACK2
+ACK3
+```
+
+Sender:
+
+- Retransmits **only packet 1**
+    
+
+Receiver then delivers:
+
+```
+0 1 2 3
+```
+
+---
+
+## Window Size Constraint
+
+Important rule:
+
+```
+Window size ≤ (Sequence Number Space / 2)
+```
+
+Reason:
+
+To avoid ambiguity between:
+
+```
+old packets
+new packets
+```
+
+Example:
+
+If sequence numbers = 3 bits:
+
+```
+0–7
+```
+
+Max window:
+
+```
+4
+```
+
+---
+
+# 2. TCP Overview
+
+TCP = **Transmission Control Protocol**
+
+Features:
+
 - Reliable data transfer
-    
+- Connection oriented
 - Flow control
-    
 - Congestion control
-    
+- Full duplex communication
 
-Two main protocols:
+---
 
-|Protocol|Type|Reliability|
+## TCP Characteristics
+
+TCP provides:
+
+### Reliable Delivery
+
+- No packet loss
+- No duplication
+- No corruption
+
+### Ordered Delivery
+
+Data delivered **in order**
+
+### Flow Control
+
+Sender adapts to **receiver buffer capacity**
+
+### Congestion Control
+
+Sender adapts to **network congestion**
+
+---
+
+## TCP Segment Structure
+
+A TCP segment contains:
+
+```
+| Source Port | Destination Port |
+| Sequence Number |
+| Acknowledgment Number |
+| Header Length | Flags | Receive Window |
+| Checksum | Urgent Pointer | (not really used though)
+| Options (variable length) | 
+| Data |
+```
+
+---
+
+## TCP Header Fields
+
+### 1. Source Port
+
+Port of sending application.
+
+Example:
+
+```
+443
+80
+```
+
+---
+
+### 2. Destination Port
+
+Receiving application.
+
+---
+
+### 3. Sequence Number
+
+Identifies **first byte of data** in segment.
+
+Example:
+
+```
+Seq = 100
+```
+
+means:
+
+```
+First byte number = 100
+```
+
+---
+
+### 4. Acknowledgment Number
+
+Next byte expected.
+
+Example:
+
+```
+ACK = 500
+```
+
+Means:
+
+```
+Received bytes up to 499
+```
+
+---
+
+### 5. Flags
+
+Common flags:
+
+|Flag|Meaning|
+|---|---|
+|SYN|Connection setup|
+|ACK|Acknowledgment|
+|FIN|Connection termination|
+|RST|Reset connection|
+|PSH|Push data|
+|URG|Urgent data|
+
+---
+
+### 6. Receive Window (rwnd)
+
+Flow control field.
+
+Indicates:
+
+```
+Receiver buffer space available
+```
+
+---
+
+### 7. Checksum
+
+Detects corruption.
+
+---
+
+# 3. TCP Reliable Data Transfer
+
+TCP reliability uses:
+
+1. Checksums
+2. Sequence numbers
+3. Acknowledgments
+4. Retransmissions
+5. Timers
+
+
+---
+
+## Cumulative Acknowledgment
+
+TCP uses **cumulative ACKs**.
+Example:
+Packets:
+
+```
+1 2 3 4
+```
+
+Receiver receives:
+
+```
+1 2
+```
+
+Receiver sends:
+
+```
+ACK = 3
+```
+
+Meaning:
+
+```
+Expecting packet 3
+```
+
+---
+
+## Duplicate ACKs
+
+If packet missing:
+
+Example:
+
+Packets sent:
+
+```
+1 2 3 4
+```
+
+Packet 2 lost.
+
+Receiver gets:
+
+```
+1 3 4
+```
+
+Receiver sends:
+
+```
+ACK2
+ACK2
+ACK2
+```
+
+---
+
+# 4. Retransmission Timeout (RTO)
+
+Sender must decide:
+
+```
+How long to wait before retransmitting
+```
+
+Too small:
+
+```
+Unnecessary retransmissions
+```
+
+Too large:
+
+```
+Slow recovery
+```
+
+---
+
+## RTT Estimation
+
+TCP estimates RTT using:
+
+```
+SampleRTT
+EstimatedRTT
+DevRTT
+```
+
+---
+
+### Estimated RTT
+
+```
+EstimatedRTT =
+(1 − α) * EstimatedRTT + α * SampleRTT
+```
+
+Typical:
+
+```
+α = 0.125
+```
+
+---
+
+### Deviation RTT
+
+Measures variability.
+
+```
+DevRTT =
+(1 − β) * DevRTT + β * |SampleRTT − EstimatedRTT|
+```
+
+Typical:
+
+```
+β = 0.25
+```
+
+---
+
+### Timeout Interval
+
+```
+Timeout = EstimatedRTT + 4 * DevRTT
+```
+
+---
+
+# 5. Fast Retransmit
+
+If sender receives:
+
+```
+3 duplicate ACKs
+```
+
+Sender **immediately retransmits** missing segment.
+
+No need to wait for timeout.
+
+Example:
+
+```
+ACK 100
+ACK 100
+ACK 100
+ACK 100
+```
+
+Sender retransmits segment **100**.
+
+If for example, even 101 failed, and if the stream ends before we get 3 ACK 101's, then, we'll wait for the time out for 101, as we can't stop it, as we haven't received the 3 ACK 101's.
+
+---
+
+# 6. TCP Flow Control
+
+Purpose:
+
+Prevent sender from **overwhelming receiver buffer**.
+
+---
+
+## Receiver Window (rwnd)
+
+Receiver advertises:
+
+```
+available buffer space
+```
+
+Sender must obey:
+
+```
+bytes in flight ≤ rwnd
+```
+
+---
+
+Example:
+
+Receiver buffer:
+
+```
+10 KB
+```
+
+Receiver sends:
+
+```
+rwnd = 5000
+```
+
+Sender can send **only 5000 bytes**.
+
+---
+
+# 7. TCP Connection Management
+
+TCP is **connection oriented**.
+
+If it's a 2 way handshake, then we could potentially have a case where client opens a connection, server accepts, and then, the connection somehow closes (client terminates or something), but then, the client had earlier requested a connection again, maybe cuz of a timeout or something....that would cause the server to accept the connection and wait, but the client has already ended its connection. 
+
+Now also, what if instead of just the 2nd connection request, there was also some data that was sent by the client to the server a 2nd time, it will also accept the message again (if that message was to remove $100, then, it will accidentally remove $100 twice!!!)
+
+Connection establishment uses:
+
+```
+3-way handshake
+```
+
+---
+
+## Three-Way Handshake
+
+
+Right after creating the socket, the client and the server are in the listening state
+Step 1:
+
+Client → Server
+
+Client enters the SYNSENT state
+Server receives the message, and enters the SYNRCVD state
+
+```
+SYN
+Seq = x
+```
+
+---
+
+Step 2:
+
+Server → Client
+Client receives the SYN ACK, and then, goes into the ESTAB state.
+
+```
+SYN + ACK
+Seq = y
+ACK = x + 1
+```
+
+---
+
+Step 3:
+
+Client → Server
+Server receives the ACK, and goes into the ESTAB state. This is when the wait on the server side's `accept` call finally returns.
+
+```
+ACK
+ACK = y + 1
+```
+
+Connection established.
+
+---
+
+# 8. TCP Connection Termination
+
+Uses **FIN handshake**.
+
+---
+
+## Connection Close Steps
+
+1️⃣ Client sends
+
+```
+FIN
+```
+
+2️⃣ Server replies
+
+```
+ACK
+```
+
+3️⃣ Server sends
+
+```
+FIN
+```
+
+4️⃣ Client replies
+
+```
+ACK
+```
+
+Connection closed.
+
+---
+
+# 9. TCP Congestion Control
+
+Goal:
+
+Avoid **network overload**.
+
+TCP adjusts sending rate based on congestion.
+
+Flow control was about a single sender and a single receiver, but congestion control is about multiple senders sending too fast in aggregate.
+
+---
+
+## Congestion Window (cwnd)
+
+Sender maintains:
+
+```
+cwnd
+```
+
+Actual sending window:
+
+```
+min(cwnd, rwnd)
+```
+
+1. The best that can happen is that the throughput = rate at which the traffic is being passed down from the senders application layer, and once a link reaches its capacity, sending more traffic won't improve its throughput
+2. Delay increases as the capacity is approached
+3. When there's loss, re-transmitted packets whether required or not, decreases the effective throughput
+4. Upstream resources buffers bandwidth for packets that are eventually lost downstream are wasted resources. It can even cause the overall throughput to reach 0
+
+---
+
+# 10. TCP Congestion Control Algorithms
+
+### AIMD (Additive Increase, Multiplicative Decrease)
+
+Senders can increase sending data rate (increase sending rate by 1 every RTT), until the packet loss occurs, then decrease sending rate on loss event (by half).
+
+The loss is detected by the triple duplicate ACK.
+If there's a timeout, TCP will decrease its maximum segment size to 1
+
+
+### 1. Slow Start
+
+Start with:
+
+```
+cwnd = 1 MSS
+```
+
+Increase exponentially:
+
+```
+1 → 2 → 4 → 8 → 16
+```
+
+Every RTT:
+
+```
+cwnd doubles
+```
+
+Stops when it reaches the point where it's 1/2 of where there was the last timeout
+
+---
+
+### 2. Congestion Avoidance
+
+After threshold reached:
+
+Increase **linearly**.
+
+```
+cwnd += 1 MSS per RTT
+```
+
+---
+
+### 3. Fast Retransmit
+
+Triggered by:
+
+```
+3 duplicate ACKs
+```
+
+Retransmit immediately.
+
+---
+
+### 4. Fast Recovery
+
+After fast retransmit:
+
+```
+cwnd = threshold
+```
+
+Avoid going back to slow start.
+
+---
+
+# 11. TCP Congestion Control Graph
+
+Typical behavior:
+
+```
+cwnd
+  |
+  |        /\
+  |       /  \
+  |      /    \__
+  |     /
+  |____/
+        time
+```
+
+Pattern:
+
+```
+Slow Start → Congestion Avoidance → Loss → Reduce → Repeat
+```
+
+### TCP CUBIC
+- K: point in time when TCP window size will reach W_max. (window max)
+	- K itself is tunable
+- Increase W as a function of the cube of the distance between current time and K. 
+	- Larger increases when further away from K
+	- Smaller increases when its close to K
+
+### Delay based TCP Control
+
+Server knows its measured throughput, as it knows the amount of data it transferred and the RTT measured. It will use its RTT(min) as the uncongested RTT value. Uncongested throughput = cwnd/RTT(min).
+
+If the measured throughput is close to the uncongested throughput, then the path isnt congested, and then, we can increase cwnd linearly. But if the measured throughput is far below the uncongested throughput, then, we'll have to decrease cwnd linearly.
+
+Keep the file almost full basically.
+
+
+### Explicit Congestion Notification
+
+TCP will send ECN = 10, and then the router will make ECN = 11, to show congestion. The TCP receiver will then inform the sender about this congestion (via the ECE bit of the ACK segment. It involves both the IP (IP header ECN bit marking), and the TCP (TCP header C, E bit marking))
+
+## TCP Fairness
+
+ If K TCP sessions share the same bottleneck link of bandwidth R, each should have an average rate of R/K. In general it is fair, as it eventually heads towards it, with congestion control, however, there's no control with UDP. And also, some websites open multiple connections with the client, increasing their throughput....is that fair?? No one cares.
+
+---
+
+# 12. Evolution of Transport Protocols
+
+Transport layer has evolved to support:
+
+- QUIC
+- HTTP/3
+- Multipath TCP
+- Improved congestion algorithms
+
+---
+
+## QUIC
+
+Runs over:
+
+```
+UDP
+```
+
+But provides:
+
+- reliability
+- congestion control
+- encryption
+
+Benefits:
+
+- faster connection setup
+- reduced latency
+- multiplexed streams
+
+---
+
+# 13. Key Comparison
+
+|Feature|UDP|TCP|
 |---|---|---|
-|TCP|Connection-oriented|Reliable|
-|UDP|Connectionless|Unreliable|
+|Connection|No|Yes|
+|Reliability|No|Yes|
+|Ordering|No|Yes|
+|Flow control|No|Yes|
+|Congestion control|No|Yes|
+|Speed|Fast|Slower|
 
-Reliable data transfer protocols evolved from:
+---
+
+# Final Summary
+
+Transport layer responsibilities:
+
+1. Process-to-process communication
+2. Reliable data transfer
+3. Flow control
+4. Congestion control
+5. Multiplexing / demultiplexing
+
+Protocols:
 
 ```
-rdt1.0 → rdt2.0 → rdt2.1 → rdt2.2 → rdt3.0
+UDP → simple, fast
+TCP → reliable, complex
 ```
 
-Advanced mechanisms like:
+Core mechanisms:
 
-- Pipelining
-    
-- Go-Back-N
-    
-- Selective Repeat
-    
-
-improve performance significantly.
+```
+ACKs
+Sequence numbers
+Retransmissions
+Timers
+Sliding windows
+```
