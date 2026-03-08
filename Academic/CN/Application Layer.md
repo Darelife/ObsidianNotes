@@ -1,4 +1,4 @@
-[[Physical Layer|Previous Slide]]
+[[Physical Layer|Previous Topic : Physical Layer]]
 # Client Server
 Regular Stuff (HTTP, IMAP, FTP)
 
@@ -475,3 +475,5 @@ Link-layer protocols for media access:
 - **Polling:** A master node "invites" slave nodes to transmit in turn; it suffers from polling overhead and is a single point of failure.
     
 - **Token Passing:** A control token is passed sequentially from one node to the next; only the node with the token can transmit.
+
+[[Transport Layer|Next Topic : Transport Layer]]

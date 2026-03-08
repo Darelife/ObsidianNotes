@@ -73,7 +73,7 @@ Transfer Rate
 
 ## Track Skew
 
-Basically, since my disk is rotating, once we read 10 (suppose 10 tracks in a cycle), then, we'll have to switch to 11, which will take some time. So, we'll have to ensure that we have 11, not directly below 10, but a bit ahead. Skewing is done by manufacturers. 
+Basically, since my disk is rotating, once we read 10 (suppose 10 sectors in a track), then, we'll have to switch to 11 (next track), which will take some time. So, we'll have to ensure that we have 11, not directly below 10, but a bit ahead. Skewing is done by manufacturers. 
 
 ```c
 T_sector = (60/RPM)/number of sectors
@@ -163,7 +163,7 @@ The disk uses its internal knowledge of the head position, and the detailed trac
 		1. Synchronous Requests (Eg: Blocked Reads) (A lot of db things, where we need to order the reqs)
 		2. Async Reqs (Eg: Writes) (The OS will do the ordering, and all)
 	3. There are strict limits on the number of request operations sent to the queues.
-	4. This limits the time waiting for requests to be dispatched provifing quick completion time for requests that are high priority.
+	4. This limits the time waiting for requests to be dispatched providing quick completion time for requests that are high priority.
 4. BFQ (Budget Fair Queuing)
 	1. Fair sharing based on the number of sectors requested rather than a time slice. Has a thing like MLFQ (low priority gets more time, when it runs)
 	2. Complex I/O scheduler with high per operation overhead.
@@ -379,3 +379,6 @@ hardlink is also a file, but its directory entry points to the same inode, while
 ## Memory Mapping (mmap) need to go through this properly
 
 Maps the memory to a particular process or a file.
+
+`mmap` (**memory mapping**) is a system call that maps a **file or device directly into a process’s virtual address space**, allowing the program to access file contents **as if they were a normal memory array** instead of using `read()` and `write()`. Internally, the kernel creates a mapping between **virtual memory pages and file blocks**, but the file data is **not loaded immediately**; when the program accesses a mapped address, a **page fault occurs** and the OS loads the corresponding block from disk into RAM (**demand paging**). This avoids extra copying between kernel and user buffers, making I/O faster and enabling **efficient random access to large files**. The syntax is `void *mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset);`, where `addr` is the preferred starting address (usually `NULL`), `length` is the number of bytes to map, `prot` specifies permissions (`PROT_READ`, `PROT_WRITE`, `PROT_EXEC`), `flags` define the mapping type (`MAP_SHARED` shares changes with other processes and writes back to the file, `MAP_PRIVATE` uses copy-on-write, `MAP_ANONYMOUS` maps memory not backed by a file), `fd` is the file descriptor from `open()`, and `offset` is the page-aligned starting position in the file; the mapping returns a pointer to the mapped memory (or `MAP_FAILED` on error) and is released using `munmap(addr, length)`.
+

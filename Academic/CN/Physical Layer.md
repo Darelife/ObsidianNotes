@@ -206,3 +206,5 @@ Abrupt voltage changes introduce high-frequency components, increasing bandwidth
 ### 4. Too Many Signal Levels (Noise Sensitivity)
 
 Using multiple voltage levels makes the system more vulnerable to noise, increasing the probability of incorrect signal detection.
+
+[[Application Layer|Next Topic : Application Layer]]

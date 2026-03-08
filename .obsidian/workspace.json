@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "311a0337d8d14b12",
+        "id": "a3f56584a6aea18c",
         "type": "tabs",
         "children": [
           {
-            "id": "f9ebe60c2f507d4d",
+            "id": "daac6a997c558b25",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -204,15 +204,16 @@
       "obsidian-kanban:Create new board": false
     }
   },
-  "active": "f9ebe60c2f507d4d",
+  "active": "daac6a997c558b25",
   "lastOpenFiles": [
-    "Academic/CN/Physical Layer.md",
-    "Academic/CN/Transport Layer.md",
     "Academic/CN/Application Layer.md",
+    "Academic/CN/Transport Layer.md",
+    "Academic/DSTN/SSD.md",
+    "Academic/DSTN/Hard Disks.md",
+    "Academic/CN/Physical Layer.md",
     "Pasted image 20260307145507.png",
     "Competitive Programming/CF Div. 3 Round 1076.md",
     "Pasted image 20260127113113.png",
-    "Academic/DSTN/Hard Disks.md",
     "Academic/Deep Learning/Some stuff about NN.md",
     "Academic/Deep Learning/Neural Network Basic.md",
     "Academic/Deep Learning/Model Capacity.md",
@@ -230,7 +231,6 @@
     "Academic/Deep Learning/Lecture Something.md",
     "Academic/Deep Learning/Lecture Something Something.md",
     "Academic/OS/File System.md",
-    "Academic/DSTN/SSD.md",
     "Academic/College.md",
     "Academic/DSTN/Lab 1.md",
     "Academic/Compiler/LEX DOCS.md",
