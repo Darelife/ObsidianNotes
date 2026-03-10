@@ -44,6 +44,7 @@ kanban-plugin: board
 ## College & AlgoX
 
 - [ ] Codejam post
+- [ ] Merch
 
 
 ## DSA + CP
