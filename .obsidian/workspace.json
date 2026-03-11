@@ -4,30 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "d9e76567102e034c",
+        "id": "a3f56584a6aea18c",
         "type": "tabs",
         "children": [
           {
-            "id": "8264a2cfaa0a5e1a",
+            "id": "daac6a997c558b25",
             "type": "leaf",
             "state": {
-              "type": "kanban",
+              "type": "markdown",
               "state": {
-                "file": "Academic/College.md",
-                "kanbanViewState": {
-                  "kanban-plugin": "board",
-                  "list-collapse": [
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false
-                  ]
-                }
+                "file": "Academic/CN/Transport Layer.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-trello",
-              "title": "College"
+              "icon": "lucide-file",
+              "title": "Transport Layer"
             }
           }
         ]
@@ -87,7 +78,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 285.5,
+    "collapsed": true
   },
   "right": {
     "id": "801455d173a345d4",
@@ -200,6 +192,7 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "companion:Toggle completion": false,
       "switcher:Open quick switcher": false,
       "graph:Open graph view": false,
       "canvas:Create new canvas": false,
@@ -209,44 +202,41 @@
       "bases:Create new base": false,
       "obsidian-git:Open Git source control": false,
       "obsidian-excalidraw-plugin:New drawing": false,
-      "obsidian-kanban:Create new board": false,
-      "companion:Toggle completion": false,
-      "big-calendar:Big Calendar": false
+      "obsidian-kanban:Create new board": false
     }
   },
-  "active": "8264a2cfaa0a5e1a",
+  "active": "31cff965fa22405d",
   "lastOpenFiles": [
-    "Academic/Compiler/Lexical Analysis.md",
-    "Academic/Deep Learning/Deep Learning.canvas",
-    "Pasted image 20260307145507.png",
-    "Academic/Deep Learning/Some stuff about NN.md",
-    "Academic/CN/Transport Layer.md",
-    "Academic/College.md",
-    "Academic/Deep Learning/Back-Propagation.md",
-    "Academic/Deep Learning/Back-Propagation at Scale.md",
     "daily/2026-02-21.md",
-    "Competitive Programming/CF Div. 3 Round 1076.md",
-    "Pasted image 20260127113113.png",
     "daily",
     "Academic/Drawing 2026-02-21 11.02.32.excalidraw.md",
-    "Academic/Theory Of Computation/Introduction.md",
-    "Academic/OS/Processes.md",
-    "Operating System/Introduction.md",
-    "Operating System",
-    "Academic/Deep Learning/Lecture 1,2,3.md",
-    "Academic/Deep Learning/Lecture 4,5,6,7,8 Neural Network Models.md",
-    "Academic/Deep Learning/prompts.md",
-    "Academic/Deep Learning/Lecture Something.md",
+    "Academic/Compiler/Lexical Analysis.md",
+    "Academic/CN/Application Layer.md",
+    "Academic/CN/Transport Layer.md",
+    "Academic/DSTN/SSD.md",
+    "Academic/DSTN/Hard Disks.md",
+    "Academic/CN/Physical Layer.md",
+    "Pasted image 20260307145507.png",
+    "Competitive Programming/CF Div. 3 Round 1076.md",
+    "Pasted image 20260127113113.png",
+    "Academic/Deep Learning/Some stuff about NN.md",
     "Academic/Deep Learning/Neural Network Basic.md",
     "Academic/Deep Learning/Model Capacity.md",
-    "Academic/Deep Learning/Lecture Something Something.md",
-    "Academic/Deep Learning/Deep Learning.base",
+    "Academic/Deep Learning/prompts.md",
+    "Academic/Deep Learning/Lecture 4,5,6,7,8 Neural Network Models.md",
+    "Academic/Deep Learning/Deep Learning.canvas",
+    "Academic/Deep Learning/Back-Propagation.md",
+    "Academic/Deep Learning/Something about NN Power.md",
     "Academic/DSTN/Designing a Simple File System.md",
-    "conflict-files-obsidian-git.md",
-    "Academic/OS/os doc.md",
+    "Academic/Theory Of Computation/Introduction.md",
+    "[[Lecture.md",
+    "Academic/Deep Learning/Lecture 1,2,3.md",
+    "Academic/Deep Learning/Lecture 4 & 5 Neural Network Models.md",
+    "Academic/Deep Learning/Back-Propagation at Scale.md",
+    "Academic/Deep Learning/Lecture Something.md",
+    "Academic/Deep Learning/Lecture Something Something.md",
     "Academic/OS/File System.md",
-    "Academic/CN/Physical Layer.md",
-    "Academic/CN/Application Layer.md",
+    "Academic/College.md",
     "Excalidraw"
   ]
 }
