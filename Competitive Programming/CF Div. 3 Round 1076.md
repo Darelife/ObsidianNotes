@@ -1,5 +1,7 @@
 # E. Product Queries
 
+(so....that day, cf was down or something...later, my code failed. IDK why though. I checked other ppl's codes too...looks similar only. Now, idrc)
+
 > [!question] We have an array of size $n$. There are n questions. In the $i$-th question, we need to tell the minimum number of elements (repetitions are allowed) that we can multiply, to get $i$
 
 > [!info] Test Case 1: 3 2 2 3 7 3 6 7

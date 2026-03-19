@@ -11,14 +11,14 @@
             "id": "daac6a997c558b25",
             "type": "leaf",
             "state": {
-              "type": "split-diff-view",
+              "type": "markdown",
               "state": {
-                "aFile": "Academic/DSTN/1. Hard Disks.md",
-                "bFile": "Academic/DSTN/1. Hard Disks.md",
-                "aRef": ""
+                "file": "Competitive Programming/CSES/DP.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "diff",
-              "title": "Diff: 1. Hard Disks  (Working Tree)"
+              "icon": "lucide-file",
+              "title": "DP"
             }
           }
         ]
@@ -78,7 +78,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 285.5
+    "width": 285.5,
+    "collapsed": true
   },
   "right": {
     "id": "801455d173a345d4",
@@ -206,6 +207,10 @@
   },
   "active": "daac6a997c558b25",
   "lastOpenFiles": [
+    "Dice Combinations.md",
+    "Competitive Programming/CSES/DP.md",
+    "Competitive Programming/CSES",
+    "Competitive Programming/CF Div. 3 Round 1076.md",
     "Academic/DSTN/1. Hard Disks.md",
     "Academic/DSTN/3. Designing a Simple File System.md",
     "Academic/DSTN/2. SSD.md",
@@ -217,7 +222,6 @@
     "Academic/CN/Application Layer.md",
     "Academic/CN/Physical Layer.md",
     "Pasted image 20260307145507.png",
-    "Competitive Programming/CF Div. 3 Round 1076.md",
     "Pasted image 20260127113113.png",
     "Academic/Deep Learning/Some stuff about NN.md",
     "Academic/Deep Learning/Neural Network Basic.md",
@@ -234,8 +238,6 @@
     "Academic/Deep Learning/Back-Propagation at Scale.md",
     "Academic/Deep Learning/Lecture Something.md",
     "Academic/Deep Learning/Lecture Something Something.md",
-    "Academic/OS/File System.md",
-    "Academic/College.md",
     "Excalidraw"
   ]
 }
