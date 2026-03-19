@@ -147,11 +147,60 @@ void solve() {
 > **Constraints:** n ≤ 1000
 > **Idea:** Classic grid DP; dp[i][j] = ways from top or left if cell is not blocked.
 
+```cpp
+void solve() {
+  int n;
+  cin >> n;
+  vector<string> grid(n);
+  forr(i, n) cin >> grid[i];
+  vector<vector<int>> dp(n, vector<int>(n, 0));
+  dp[0][0] = grid[0][0] == '.' ? 1 : 0;
+  if (grid[0][0] == '*') {
+    cout << 0 << endl;
+    return;
+  }
+  forr(i, n) {
+    forr(j, n) {
+      if (grid[i][j] == '*') {
+        dp[i][j] = 0;
+        continue;
+      }
+      if (i > 0) {
+        dp[i][j] += dp[i - 1][j];
+      }
+      if (j > 0) {
+        dp[i][j] += dp[i][j - 1];
+      }
+      dp[i][j] %= 1000000007;
+    }
+  }
+  cout << dp[n - 1][n - 1] << endl;
+}
+```
+
 # Q7
 > [!abstract] ### [Book Shop](https://cses.fi/problemset/task/1158)
 > **Goal:** Maximize total pages with a limited budget.
 > **Constraints:** n ≤ 1000, x ≤ 10^5
 > **Idea:** 0/1 Knapsack DP.
+
+```cpp
+void solve() {
+  int n, x;
+  cin >> n >> x;
+  vint cost(n), pages(n);
+  vcin(cost, n);
+  vcin(pages, n);
+  vint dp(x + 1, 0);
+  // dp[i] = max pages that can be bought with i money
+  for (int i = 0; i < n; i++) {
+    for (int j = x; j >= cost[i]; j--) {
+      dp[j] = max(dp[j], dp[j - cost[i]] + pages[i]);
+    }
+  }
+  cout << dp[x] << endl;
+}
+```
 
 # Q8
 > [!abstract] ### [Array Description](https://cses.fi/problemset/task/1746)
@@ -159,11 +208,65 @@ void solve() {
 > **Constraints:** n ≤ 10^5, values ≤ 100
 > **Idea:** DP over index and value.
 
+```cpp
+void solve() {
+  int n, m;
+  cin >> n >> m;
+  vint a(n);
+  vcin(a, n);
+  vector<vint> dp(n, vint(m + 1, 0));
+  if (a[0] == 0) {
+    for (int j = 1; j <= m; j++) {
+      dp[0][j] = 1;
+    }
+  } else dp[0][a[0]] = 1;
+  for (int i = 1; i < n; i++) {
+    if (a[i]) {
+      int j = a[i];
+      dp[i][j] = (dp[i - 1][j]) % MOD;
+      if (j > 1) dp[i][j] = (dp[i - 1][j - 1] + dp[i][j]) % MOD;
+      if (j < m) dp[i][j] = (dp[i - 1][j + 1] + dp[i][j]) % MOD;
+    } else {
+      for (int j = 1; j <= m; j++) {
+        dp[i][j] = (dp[i - 1][j]) % MOD;
+        if (j > 1) dp[i][j] = (dp[i - 1][j - 1] + dp[i][j]) % MOD;
+        if (j < m) dp[i][j] = (dp[i - 1][j + 1] + dp[i][j]) % MOD;
+      }
+    }
+  }
+  int ans = 0;
+  for (int i = 1; i <= m; i++) {
+    ans = (ans + dp[n - 1][i]) % MOD;
+  }
+  cout << ans << endl;
+}
+```
+
 # Q9
 > [!abstract] ### [Counting Towers](https://cses.fi/problemset/task/2413)
 > **Goal:** Count ways to build towers using 2×n blocks.
 > **Constraints:** n ≤ 10^6
 > **Idea:** DP with state transitions for full and partial fillings.
+
+dp(i,0) → Number of ways to build from column i to n when the current column is fully filled (aligned)
+
+dp(i,1) → Number of ways when the current column is split/misaligned
+
+```cpp
+int const MOD = 1e9 + 7;
+vector<vint> dp(1e6 + 1, vint(2));
+void solve() {
+  int n;
+  cin >> n;
+  dp[n][0] = 1;
+  dp[n][1] = 1;
+  for (int i = n - 1; i >= 0; i--) {
+    dp[i][0] = (2 * dp[i + 1][0] + dp[i + 1][1]) % MOD;
+    dp[i][1] = (dp[i + 1][0] + 4 * dp[i + 1][1]) % MOD;
+  }
+  cout << (dp[1][0] + dp[1][1]) % MOD << endl;
+}
+```
 
 # Q10
 > [!abstract] ### [Edit Distance](https://cses.fi/problemset/task/1639)
@@ -171,11 +274,95 @@ void solve() {
 > **Constraints:** length ≤ 5000
 > **Idea:** Classic DP with insert, delete, replace.
 
+3 cases...insert, delete, and replace
+for the 2 strings, (m,n) length.
+
+if i == 0, then, you have to insert j times...so like, dp(i,j) = j if (i == 0)
+if j == 0, then, the same thing but for i.
+if the last char is same, then, you don't have to do anything
+otherwise, it's 1 + min cost for insert or deletion or replace like thing
+
+dp(i,j) = min operations to convert a[0..i-1] to b[0..j-1]
+
+
+```cpp
+void solve() {
+  string a, b;
+  cin >> a >> b;
+  int n = a.size(), m = b.size();
+  vector<vector<int>> dp(n + 1, vector<int>(m + 1, 0));
+  dp[0][0] = 0;
+  // dp[i][j] = min operations to convert a[0..i-1] to b[0..j-1]
+  for (int i = 1; i <= n; i++) dp[i][0] = i;
+  for (int i = 1; i <= m; i++) dp[0][i] = i;
+  for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= m; j++) {
+      if (a[i - 1] == b[j - 1]) dp[i][j] = dp[i - 1][j - 1];
+      else dp[i][j] = 1 + min(dp[i- 1][j - 1], min(dp[i - 1][j], dp[i][j - 1]));
+    }
+  }
+  cout << dp[n][m] << endl;
+}
+```
+
 # Q11
 > [!abstract] ### [Longest Common Subsequence](https://cses.fi/problemset/task/1143)
 > **Goal:** Find the length of the longest common subsequence of two strings.
 > **Constraints:** length ≤ 1000
 > **Idea:** Standard 2D DP.
+
+dp(i, j) = max len of common subsequence
+like, then, 
+if a[i] == b[j], then, dp(i, j) = 1 + dp(i-1, j-1)
+else dp(i, j) = max(dp(i-1, j), dp(i, j-1))
+
+```cpp
+void solve() {
+  int n, m;
+  cin >> n >> m;
+ 
+  vint a(n), b(m);
+  vcin(a, n); vcin(b, m);
+ 
+  vector<vector<pair<int, vector<int>>>> dp(n + 1, vector<pair<int, vector<int>>>(m + 1, { 0, {} }));
+  for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= m; j++) {
+      if (a[i - 1] == b[j - 1]) {
+        dp[i][j].first = dp[i - 1][j - 1].first + 1;
+        dp[i][j].second = dp[i - 1][j - 1].second;
+        // dp[i][j].second.push_back(a[i - 1]); removed this to decrease the space usage... gonna calculate this in the end
+      } else {
+        // dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
+        if (dp[i - 1][j].first > dp[i][j - 1].first) {
+          dp[i][j] = dp[i - 1][j];
+        } else {
+          dp[i][j] = dp[i][j - 1];
+        }
+      }
+    }
+  }
+ 
+  cout << dp[n][m].first << endl;
+  // vpin(dp[n][m].second);
+  stack<int> s;
+  int i = n, j = m;
+  while (i && j) {
+    if (a[i - 1] == b[j - 1]) {
+      i--, j--;
+      s.push(a[i]);
+    } else if (dp[i - 1][j] > dp[i][j - 1]) {
+      i--;
+    } else {
+      j--;
+    }
+  }
+  while (!s.empty()) {
+    cout << s.top() << " ";
+    s.pop();
+  }
+  cout << endl;
+}
+```
 
 # Q12
 > [!abstract] ### [Rectangle Cutting](https://cses.fi/problemset/task/1744)
@@ -183,11 +370,97 @@ void solve() {
 > **Constraints:** a, b ≤ 500
 > **Idea:** DP over dimensions, try all cuts.
 
+dp(i, j) = min cuts for a rectangle sized $i \times j$
+Then, if (i < j) dp(i, j) = 1 + dp(i, j-i)
+else if (i > j) dp(i, j) = 1 + dp(i-j, j)
+else dp(i, j) = 0
+
+this was my idea, but apparently, we've to iterate for all the possible cuts using a loop both along the width and height.
+
+```cpp
+void solve() {
+  int a, b;
+  cin >> a >> b;
+  // vector<vint> dp(a + 1, vint(b + 1, 0));
+  vector<vint> dp(a + 1, vint(b + 1, inf));
+  for (int i = 1; i <= a; i++) {
+    for (int j = 1; j <= b; j++) {
+      // dp[i][j] = 1;
+      // if (i > j) dp[i][j] += dp[i - j][j];
+      // else dp[i][j] += dp[i][j - i];
+      if (i == j) dp[i][j] = 0;
+      else {
+        for (int k = 1; k < i; k++) {
+          dp[i][j] = min(dp[i][j], dp[k][j] + dp[i - k][j] + 1);
+        }
+        for (int k = 1; k < j; k++) {
+          dp[i][j] = min(dp[i][j], dp[i][k] + dp[i][j - k] + 1);
+        }
+      }
+    }
+  }
+  cout << dp[a][b] << endl;
+}
+```
+
 # Q13
 > [!abstract] ### [Minimal Grid Path](https://cses.fi/problemset/task/1638)
 > **Goal:** Find minimum cost path in a grid.
 > **Constraints:** n ≤ 1000
-> **Idea:** DP or Dijkstra on grid.
+> **Idea:** DP on grid (actually sort of greedy)
+
+just iterating on every possible position that I can be, after `i` steps....via `next` and `curPos`
+
+```cpp
+void solve() {
+  int n;
+  cin >> n;
+  vector<string> grid(n);
+  for (int i = 0; i < n; i++) {
+    cin >> grid[i];
+  }
+  string ans = "";
+  ans += grid[0][0];
+ 
+  vector<pair<int, int>> curPos;
+  curPos.pba({ 0, 0 });
+ 
+  int dx[2] = { 0, 1 };
+  int dy[2] = { 1, 0 };
+ 
+  vector<vector<bool>> visited(n, vector<bool>(n, false));
+  visited[0][0] = true;
+ 
+ 
+ 
+  for (int i = 1; i < 2 * n - 1; i++) {
+    vector<pair<int, int>> next;
+    char minn = 'Z';
+ 
+    for (auto [x, y] : curPos) {
+      for (int dir = 0; dir < 2; ++dir) {
+        int nx = x + dx[dir];
+        int ny = y + dy[dir];
+ 
+        if (nx < n && ny < n && !visited[nx][ny]) {
+          visited[nx][ny] = true;
+          char c = grid[nx][ny];
+          if (c < minn) {
+            minn = c;
+            next.clear();
+            next.pba({ nx, ny });
+          } else if (c == minn) {
+            next.pba({ nx, ny });
+          }
+        }
+      }
+    }
+    ans += minn;
+    curPos = next;
+  }
+  cout << ans << endl;
+}
+```
 
 # Q14
 > [!abstract] ### [Money Sums](https://cses.fi/problemset/task/1745)
@@ -195,11 +468,52 @@ void solve() {
 > **Constraints:** n ≤ 100, sum ≤ 10^5
 > **Idea:** Subset sum DP.
 
+dp(i,j) = true if we can make sum j using first i coins
+dp(i,j) = dp(i - 1,j) || dp(i - 1,j - a[i])
+
+literally just like the ways question....just that here we've to ensure that we use each coin only once.
+
+```cpp
+ 
+void solve() {
+  int n;
+  cin >> n;
+  vint a(n);
+  vcin(a, n);
+  vector<vector<bool>> dp(n + 1, vector<bool>(100001, 0));
+  dp[0][0] = 1;
+ 
+  for (int i = 1; i <= n; i++) {
+    for (int j = 0; j <= 100000; j++) {
+      dp[i][j] = dp[i - 1][j]; 
+      if (j - a[i - 1] >= 0) {
+        dp[i][j] = dp[i][j] || dp[i - 1][j - a[i - 1]];
+        // If we're using coin i, then, we're only considering the dp's till coin i-1...and not the past of the things that we've processed for coin i till now. Hence, here we're ensuring that we use each coin only once
+      }
+    }
+  }
+  cout << accumulate(dp[n].begin(), dp[n].end(), 0) - 1 << endl;
+  for (int i = 1; i <= 100000; i++) {
+    if (dp[n][i]) {
+      cout << i << " ";
+    }
+  }
+  cout << endl;
+}
+```
+
 # Q15
 > [!abstract] ### [Removal Game](https://cses.fi/problemset/task/1097)
 > **Goal:** Maximize score assuming optimal play from both ends.
 > **Constraints:** n ≤ 5000
 > **Idea:** DP on intervals.
+
+I believe for the states, we just need the left and right boundaries. Thought of the turn number or something, but in the end, no matter the user, we just want the final ans assuming any particular user, with a given `l` and `r`.
+
+dp(l, r) = max(dp(l+1,r), dp(l, r-1))
+dp(i,i) = $a_{i}$
+
+
 
 # Q16
 > [!abstract] ### [Two Sets II](https://cses.fi/problemset/task/1093)
