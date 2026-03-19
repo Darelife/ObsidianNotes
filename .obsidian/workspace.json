@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Competitive Programming/CSES/DP.md",
+                "file": "Competitive Programming/CSES/DP ~ darelife.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "DP"
+              "title": "DP ~ darelife"
             }
           }
         ]
@@ -207,8 +207,8 @@
   },
   "active": "daac6a997c558b25",
   "lastOpenFiles": [
+    "Competitive Programming/CSES/DP ~ darelife.md",
     "Dice Combinations.md",
-    "Competitive Programming/CSES/DP.md",
     "Competitive Programming/CSES",
     "Competitive Programming/CF Div. 3 Round 1076.md",
     "Academic/DSTN/1. Hard Disks.md",

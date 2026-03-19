@@ -10,7 +10,7 @@ hideWhenEmpty: false # Hide TOC if no headings are found
 debugInConsole: false # Print debug info in Obsidian console
 ```
 
-# Q1
+# Q1: Dice Combinations
 > [!abstract] ### [Dice Combinations](https://cses.fi/problemset/task/1633)
 > **Goal:** Count the number of ways to construct a sum $n$ by throwing a die one or more times.
 > **Constraints:** $1 \le n \le 10^6$ | Time: 1.00s | Memory: 512MB
@@ -32,7 +32,7 @@ void solve() {
 }
 ```
 
-# Q2
+# Q2: Minimizing Coins
 > [!abstract] ### [Minimizing Coins](https://cses.fi/problemset/task/1634)
 > **Goal:** Find the minimum number of coins needed to produce a sum $x$.
 > **Constraints:** $n \le 100$ coins, target sum $x \le 10^6$
@@ -61,7 +61,7 @@ void solve() {
 }
 ```
 
-# Q3
+# Q3: Coin Combinations I
 > [!abstract] ### [Coin Combinations I](https://cses.fi/problemset/task/1635) 
 > **Goal:** Count the number of ways to produce a sum x using available coins (order matters). 
 > **Constraints:** n≤100 coins, target sum x≤$10^6$ 
@@ -87,7 +87,7 @@ void solve() {
 }
 ```
 
-# Q4
+# Q4: Coin Combinations II
 > [!abstract] ### [Coin Combinations II](https://cses.fi/problemset/task/1636)
 > **Goal:** Count the number of ways to produce a sum x using available coins (order **does not** matter).
 > **Constraints:** n≤100 coins x≤$10^6$ target sum
@@ -115,7 +115,7 @@ void solve() {
 }
 ```
 
-# Q5
+# Q5: Removing Digits
 > [!abstract] ### [Removing Digits](https://cses.fi/problemset/task/1637) 
 > **Goal:** Given an integer nnn, remove one of its digits at each step. Find the **minimum number of steps** to make it 0. 
 > **Constraints:** 1≤n≤1061 \le n \le 10^61≤n≤106 
@@ -141,7 +141,7 @@ void solve() {
 }
 ```
 
-# Q6
+# Q6: Grid Paths I
 > [!abstract] ### [Grid Paths I](https://cses.fi/problemset/task/1638)
 > **Goal:** Count the number of ways to move from the top-left to bottom-right of a grid with obstacles.
 > **Constraints:** n ≤ 1000
@@ -178,7 +178,7 @@ void solve() {
 }
 ```
 
-# Q7
+# Q7: Book Shop
 > [!abstract] ### [Book Shop](https://cses.fi/problemset/task/1158)
 > **Goal:** Maximize total pages with a limited budget.
 > **Constraints:** n ≤ 1000, x ≤ 10^5
@@ -202,7 +202,7 @@ void solve() {
 }
 ```
 
-# Q8
+# Q8: Array Description
 > [!abstract] ### [Array Description](https://cses.fi/problemset/task/1746)
 > **Goal:** Count arrays satisfying adjacent difference ≤ 1 with some fixed values.
 > **Constraints:** n ≤ 10^5, values ≤ 100
@@ -242,7 +242,7 @@ void solve() {
 }
 ```
 
-# Q9
+# Q9: Counting Towers
 > [!abstract] ### [Counting Towers](https://cses.fi/problemset/task/2413)
 > **Goal:** Count ways to build towers using 2×n blocks.
 > **Constraints:** n ≤ 10^6
@@ -268,7 +268,7 @@ void solve() {
 }
 ```
 
-# Q10
+# Q10: Edit Distance
 > [!abstract] ### [Edit Distance](https://cses.fi/problemset/task/1639)
 > **Goal:** Find minimum operations to convert one string to another.
 > **Constraints:** length ≤ 5000
@@ -305,7 +305,7 @@ void solve() {
 }
 ```
 
-# Q11
+# Q11: LCS
 > [!abstract] ### [Longest Common Subsequence](https://cses.fi/problemset/task/1143)
 > **Goal:** Find the length of the longest common subsequence of two strings.
 > **Constraints:** length ≤ 1000
@@ -364,7 +364,7 @@ void solve() {
 }
 ```
 
-# Q12
+# Q12: Rectangle Cutting
 > [!abstract] ### [Rectangle Cutting](https://cses.fi/problemset/task/1744)
 > **Goal:** Minimum cuts to divide rectangle into squares.
 > **Constraints:** a, b ≤ 500
@@ -403,7 +403,7 @@ void solve() {
 }
 ```
 
-# Q13
+# Q13: Minimal Grid Path
 > [!abstract] ### [Minimal Grid Path](https://cses.fi/problemset/task/1638)
 > **Goal:** Find minimum cost path in a grid.
 > **Constraints:** n ≤ 1000
@@ -462,7 +462,7 @@ void solve() {
 }
 ```
 
-# Q14
+# Q14: Money Sums
 > [!abstract] ### [Money Sums](https://cses.fi/problemset/task/1745)
 > **Goal:** Find all possible sums from given coins.
 > **Constraints:** n ≤ 100, sum ≤ 10^5
@@ -502,7 +502,7 @@ void solve() {
 }
 ```
 
-# Q15
+# Q15: Removal Game
 > [!abstract] ### [Removal Game](https://cses.fi/problemset/task/1097)
 > **Goal:** Maximize score assuming optimal play from both ends.
 > **Constraints:** n ≤ 5000
@@ -551,7 +551,7 @@ void solve() {
 ```
 
 
-# Q16
+# Q16: Two Sets II
 > [!abstract] ### [Two Sets II](https://cses.fi/problemset/task/1093)
 > **Goal:** Count ways to divide numbers 1..n into two sets with equal sum.
 > **Constraints:** n ≤ 500
@@ -589,11 +589,18 @@ void solve() {
  
 ```
 
-# Q17
+# Q17: Mountain Range
 > [!abstract] ### [Mountain Range](https://cses.fi/problemset/task/1748)
 > **Goal:** Count valid mountain sequences.
 > **Constraints:** n ≤ 10^6
 > **Idea:** Catalan-like DP.
+
+I've no idea how to solve this question. I've tried it like, 3-4 times, and I've even read the solution.
+
+Ek baar bas try karunga khudse karne ka though firse....nahi hua, toh lite!!! FUCK THIS QUESTION!!!
+
+Okay...so, i just read a solution for it. They made a Binary Tree basically. And in that, they ensured that the largest element is the root. For each side from the root, find the largest element for that segment...and keep going. 
+Then, ans = depth of the tree + 1. Nvm, ig this is also wrong. Lite.
 
 # Q18
 > [!abstract] ### [Increasing Subsequence](https://cses.fi/problemset/task/1145)
