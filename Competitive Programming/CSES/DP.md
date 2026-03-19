@@ -513,6 +513,42 @@ I believe for the states, we just need the left and right boundaries. Thought of
 dp(l, r) = max(dp(l+1,r), dp(l, r-1))
 dp(i,i) = $a_{i}$
 
+So like, the appropriate way to go ahead with this intuition, is to make the value stored in the DP the difference between the 2 players, instead of the max we can get from that range or something of that sort.
+
+dp(l, r) = player1 - player2 for that range
+
+if we pick a[l], then, from the opponents perspective, the best diff would be dp(l+1,r)...So, from our side, it would be -dp(l+1,r)...and since we gain a[l]...the difference between the values = a[l] - dp(l+1,r). Same thing for a[r]
+
+Since dp(i,i) = a[i], we'll have to make the initial loop on the length of the range, as we'll iterate over it.
+
+```cpp
+void solve() {
+    int n;
+    cin >> n;
+    vint a(n);
+    vcin(a,n);
+    
+    vector<vector<int>> dp(n, vector<int>(n, 0));
+    for (int i = 0; i < n; i++) {
+        dp[i][i] = a[i];
+    }
+    
+    for (int len = 2; len <= n; len++) {
+        for (int l = 0; l + len - 1 < n; l++) {
+            int r = l + len - 1;
+            
+            dp[l][r] = max(
+                a[l] - dp[l+1][r],
+                a[r] - dp[l][r-1]
+            );
+        }
+    }
+    
+    int total = accumulate(a.begin(), a.end(), 0LL);
+    int ans = (total + dp[0][n-1]) / 2;
+    cout << ans << endl;
+}
+```
 
 
 # Q16
@@ -520,6 +556,38 @@ dp(i,i) = $a_{i}$
 > **Goal:** Count ways to divide numbers 1..n into two sets with equal sum.
 > **Constraints:** n ≤ 500
 > **Idea:** Subset sum DP with symmetry handling.
+
+Basically now, we'll have to store the ways to get sum/2...just like regular subset sum only...
+
+2d dp. one val for the index range that we'll consider, and the other for the target. We'll store the number of ways, instead of a bool for whether its possible or not.
+
+So, that's dp(i,j). Now, 
+dp(i, j) = dp(i-1, j) + dp(i-1, j-a[i])...just realized that we don't have any array...so, a[i] = i in this q. Hence, just replace that.
+also yeah, dp(0,0) = 1 so that later on we can keep adding to it.
+
+```cpp
+void solve() {
+  int n;
+  cin >> n;
+  int x = n * (n + 1) / 2;
+  if (x % 2 != 0) {
+    cout << 0 << endl;
+    return;
+  }
+  x /= 2;
+  vector<vector<int>> dp(n + 1, vector<int>(x + 1, 0));
+  dp[0][0] = 1;
+  for (int i = 1; i <= n; i++) {
+    for (int j = 0; j <= x; j++) {
+      dp[i][j] = (j - i >= 0) ? dp[i - 1][j] + dp[i - 1][j - i] : dp[i - 1][j];
+      dp[i][j] = (dp[i][j]) % MOD;
+    }
+  }
+  debug(dp);
+  cout << dp[n - 1][x];
+}
+ 
+```
 
 # Q17
 > [!abstract] ### [Mountain Range](https://cses.fi/problemset/task/1748)
