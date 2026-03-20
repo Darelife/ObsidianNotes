@@ -600,40 +600,350 @@ I've no idea how to solve this question. I've tried it like, 3-4 times, and I've
 Ek baar bas try karunga khudse karne ka though firse....nahi hua, toh lite!!! FUCK THIS QUESTION!!!
 
 Okay...so, i just read a solution for it. They made a Binary Tree basically. And in that, they ensured that the largest element is the root. For each side from the root, find the largest element for that segment...and keep going. 
-Then, ans = depth of the tree + 1. Nvm, ig this is also wrong. Lite.
+Then, ans = depth of the tree + 1. Nvm, ig this is also wrong. Lite. Here's someone's solution
 
-# Q18
+```cpp
+const int maxN = 2e5+1;
+const int INF = 0x3f3f3f3f;
+
+int N, dp[maxN];
+vector<int> tallers;
+vector<pii> mountains;
+set<int,greater<int>> S_l;
+set<int> S_r;
+
+int main(){
+    scanf("%d", &N);
+
+    for(int i = 1, h; i <= N; i++){
+        scanf("%d", &h);
+        mountains.push_back({h, i});
+    }
+    sort(mountains.begin(), mountains.end(), greater<pii>());
+
+    int last_height = INF;
+    for(pii m : mountains){
+        int h = m.first, i = m.second;
+
+        if(last_height != h){
+            for(int t : tallers){
+                S_l.insert(t);
+                S_r.insert(t);
+            }
+            tallers.clear();
+        }
+
+        auto l_ptr = S_l.lower_bound(i);
+        auto r_ptr = S_r.lower_bound(i);
+        int l = (l_ptr == S_l.end() ? 0 : *l_ptr);
+        int r = (r_ptr == S_r.end() ? 0 : *r_ptr);
+        dp[i] = max(dp[l], dp[r]) + 1;
+
+        tallers.push_back(i);
+        last_height = h;
+    }
+
+    int best = 0;
+    for(int i = 1; i <= N; i++)
+        best = max(best, dp[i]);
+    printf("%d\n", best);
+}
+```
+
+# Q18: Increasing Subsequence (LIS)
 > [!abstract] ### [Increasing Subsequence](https://cses.fi/problemset/task/1145)
 > **Goal:** Find length of longest increasing subsequence.
 > **Constraints:** n ≤ 2×10^5
 > **Idea:** Greedy + binary search.
 
-# Q19
+Just keep pushing back elements larger than the last element in the vector. And, otherwise, just replace the element next to the lower_bound. In the end, the ans is the size of the array.
+(btw)
+```cpp
+void solve() {
+    int n;
+    cin >> n;
+    
+    vint a(n);
+    vcin(a,n);
+    
+    vector<int> lis;
+    for (int x : a) {
+        if (lis.empty() || x > lis.back()) {
+            lis.push_back(x);
+        } else {
+            int idx = lower_bound(lis.begin(), lis.end(), x) - lis.begin();
+            lis[idx] = x;
+        }
+    }
+
+    cout << lis.size() << endl;
+}
+```
+
+# Q19: Projects
 > [!abstract] ### [Projects](https://cses.fi/problemset/task/1140)
 > **Goal:** Maximize reward from non-overlapping projects.
 > **Constraints:** n ≤ 2×10^5
 > **Idea:** Weighted interval scheduling + DP + binary search.
 
-# Q20
+We can maybe, have one of our dp states as the number of projects we've done so far....but we'll need a sorted thing of sorts. Hmm...sort based on ending?
+Or sort based on start??. For each project i, we'll find the project that ends just before it. For any project that ends on time t, (ig we should sort by ending time only) we know that the best answer is either \<something> or ans for a project that ends just before it (doesn't matter if it overlaps). (like, if we skip the current project)
+
+Now, it's time to find the "something". (if we pick the current project). Then, we'll have to find the project that ends just before our current project starts. So, ans for that project + reward for the current project. Yeah done!!!
+
+```cpp
+
+void solve() {
+    int n; cin >> n;
+    
+    vector<tuple<int,int,int>> a(n);
+    for (auto &[s,e,r] : a) cin >> s >> e >> r;
+    
+    sort(a.begin(), a.end(), [](auto &x, auto &y){
+        return get<1>(x) < get<1>(y);
+    });
+    
+    vector<int> dp(n), ends(n);
+    for (int i = 0; i < n; i++) ends[i] = get<1>(a[i]);
+    
+    for (int i = 0; i < n; i++) {
+        auto [s,e,r] = a[i];
+        int take = r;
+        int j = upper_bound(ends.begin(), ends.end(), s - 1) - ends.begin() - 1;
+        if (j >= 0) take += dp[j];
+        dp[i] = max((i ? dp[i-1] : 0), take);
+    }
+    cout << dp[n-1];
+}
+```
+
+# Q20: Elevator Rides
 > [!abstract] ### [Elevator Rides](https://cses.fi/problemset/task/1653)
 > **Goal:** Minimize number of rides given weight constraints.
 > **Constraints:** n ≤ 20
 > **Idea:** Bitmask DP.
 
-# Q21
+Here n <= 20. So, we have to do bitmask!!!
+So just iterate on every possible combination of people who can go up.
+
+In this question like, initially it's (11111)b, but then, via bitmask, maybe select some people, and then, it's (11111)b & ~(x) people left..so that state???
+ig this is completely off the track. Lets just do dp(x) = best way to serve this combination.
+
+We'll have to store the people (for the best case of this bitmask), like, 
+dp(x) = {min rides for this combination, weight of the last lift}
+
+(we'll iterate for all the people who we didn't select in this ride, We'll calculate the value for )
+if (last weight + w[i] <= x) then, last weight += w[i]
+else rides++, and last weight = w[i]
+
+```cpp
+void solve() {
+    int n, x; cin >> n >> x;
+    vint w(n);
+    vcin(w,n);
+    
+    vector<pair<int,int>> dp(1<<n, {n+1, 0});
+    dp[0] = {1, 0};
+    
+    for (int mask = 0; mask < (1<<n); mask++) {
+        for (int i = 0; i < n; i++) {
+            if (!(mask & (1<<i))) {
+                auto [rides, wt] = dp[mask];
+                if (wt + w[i] <= x) {
+                    wt += w[i];
+                } else {
+                    rides++;
+                    wt = w[i];
+                }
+                dp[mask | (1<<i)] = min(dp[mask | (1<<i)], {rides, wt});
+            }
+        }
+    }
+    
+    cout << dp[(1<<n)-1].first << endl;
+}
+```
+
+# Q21: Counting Tilings
 > [!abstract] ### [Counting Tilings](https://cses.fi/problemset/task/2181)
 > **Goal:** Count ways to tile a grid.
 > **Constraints:** n ≤ 1000
 > **Idea:** DP with bitmasking / profile DP.
 
-# Q22
+nxm grid, using 2x1 and 1x2. Yaar, this Q is actually hard, solution pata hai, lekin fir bhi darr lagta hai is q hai.
+
+mask = elements of the column that have already been filled.
+our goal is to fill all the elements in the column we're at, and then move to the next column.
+
+```cpp
+ 
+vector<vector<int>> dp(1001, vector<int>(1 << 11, -1));
+ 
+void generateNextMasks(int mask, int i, int nextMask, int n, vint& nextMasks) {
+  if (i == n + 1) {
+    nextMasks.pba(nextMask);
+    return;
+  }
+ 
+  if ((mask & (1 << i)) != 0) {
+    generateNextMasks(mask, i + 1, nextMask, n, nextMasks);
+  }
+ 
+  if (i != n) {
+    if ((mask & (1 << i)) == 0 && (mask & (1 << i + 1)) == 0) {
+      generateNextMasks(mask, i + 2, nextMask, n, nextMasks);
+    }
+  }
+ 
+  if ((mask & (1 << i)) == 0) {
+    generateNextMasks(mask, i + 1, nextMask | (1 << i), n, nextMasks);
+  }
+}
+ 
+int solve(int col, int mask, int m, int n) {
+  if (col == m + 1) {
+    if (mask == 0) {
+      return 1;
+    }
+    return 0;
+  }
+ 
+  if (dp[col][mask] != -1) {
+    return dp[col][mask];
+  }
+ 
+  int ans = 0;
+  vint nextMasks;
+  generateNextMasks(mask, 1, 0, n, nextMasks);
+ 
+  for (int i : nextMasks) {
+    ans = (ans + solve(col + 1, i, m, n)) % MOD;
+  }
+  return dp[col][mask] = ans;
+}
+
+int32_t main() {
+  ios::sync_with_stdio(0);
+  cin.tie(0);
+  int t = 1;
+  // cin >> t;
+  while (t--) {
+    int n, m;
+    cin >> n >> m;
+    cout << solve(1, 0, m, n);
+    // debug(dp);
+  }
+}
+```
+
+# Q22: Counting Numbers
 > [!abstract] ### [Counting Numbers](https://cses.fi/problemset/task/2220)
 > **Goal:** Count numbers in range without adjacent equal digits.
 > **Constraints:** up to 10^18
 > **Idea:** Digit DP.
 
-# Q23
+IDK digit dp. Here's someone else's solution (i'll learn it someday)
+
+```cpp
+const int maxN = 20;
+
+bool tight[maxN];
+ll dp[10][maxN];
+
+ll solve(ll x){
+    if(x <= 10) return x;
+
+    vector<int> D;
+    memset(dp, 0, sizeof(dp));
+    memset(tight, 0, sizeof(tight));
+    for(int i = 0; x; i++){
+        D.push_back(x%10);
+        x /= 10;
+    }
+    reverse(D.begin(), D.end());
+    int N = (int) D.size();
+
+    tight[0] = true;
+    for(int i = 1; i < N; i++)
+        tight[i] = tight[i-1] && (D[i] != D[i-1]);
+    for(int d = 1; d < D[0]; d++)
+        dp[d][0] = 1;
+
+    for(int i = 1; i < N; i++){
+        // Prefix [0..i-1] is same as X
+        if(tight[i-1])
+            for(int d = 0; d < D[i]; d++)
+                if(d != D[i-1])
+                    dp[d][i]++;
+
+        // Prefix [0..i-1] is all leading zeros
+        for(int d = 1; d <= 9; d++)
+            dp[d][i]++;
+
+        //  All other cases
+        for(int d1 = 0; d1 <= 9; d1++)
+            for(int d2 = 0; d2 <= 9; d2++)
+                if(d1 != d2)
+                    dp[d2][i] += dp[d1][i-1];
+    }
+
+    ll cnt = tight[N-1];
+    for(int d = 0; d <= 9; d++)
+        cnt += dp[d][N-1];
+    return cnt;
+}
+
+int main(){
+    ll a, b;
+    scanf("%lld %lld", &a, &b);
+    printf("%lld\n", solve(b) - solve(a-1));
+}
+```
+
+# Q23: Increasing Subsequence II
 > [!abstract] ### [Increasing Subsequence II](https://cses.fi/problemset/task/1748)
 > **Goal:** Count number of increasing subsequences.
 > **Constraints:** n ≤ 2×10^5
 > **Idea:** DP + Fenwick Tree / Segment Tree.
+
+I barely know segment tree. Here's someone else's solution.
+
+```cpp
+const int maxN = 2e5+5;
+const ll MOD = 1e9+7;
+
+int N;
+ll ans, ds[maxN];
+struct Operation { int x, idx; } ops[maxN];
+
+void update(int idx, ll val){
+    for(int i = idx; i < maxN; i += -i&i)
+        ds[i] = (ds[i] + val) % MOD;
+}
+
+ll query(int idx){
+    ll sum = 0;
+    for(int i = idx; i > 0; i -= -i&i)
+        sum = (sum + ds[i]) % MOD;
+    return sum;
+}
+
+int main(){
+    scanf("%d", &N);
+    for(int i = 0, x; i < N; i++){
+        scanf("%d", &x);
+        ops[i] = {x, i+1};
+    }
+    sort(ops, ops+N, [](Operation A, Operation B){
+        return A.x == B.x ? B.idx < A.idx : A.x < B.x;
+    });
+
+    for(int i = 0; i < N; i++){
+        int idx = ops[i].idx;
+        ll amnt = query(idx)+1;
+        ans = (ans + amnt) % MOD;
+        update(idx, amnt);
+    }
+    printf("%lld\n", ans);
+}
+```
