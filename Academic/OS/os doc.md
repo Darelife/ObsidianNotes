@@ -164,3 +164,5 @@ handle_client_request
 - joins the print_doc_thread
 - sends REQ_SHUTDOWN to server
 - cleans up its down queues
+
+[[Academic/OS/Introduction|Introduction]]

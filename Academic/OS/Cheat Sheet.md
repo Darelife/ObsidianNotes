@@ -17,3 +17,5 @@ Make locks do spinlock (`while(TestAndSet(&isLocked, 1));` ) for a bit, and then
 ### CV
 - Shouldn't add T2 to the waiting queue of T1 directly, as it's a very poor design choice. We'll literally have to put T1 and T2 in the same lock, and then, force T1 to start first somehow. It's inefficient, and isn't the best choice.
 - when a thread does wait(cv, mutex), it gets put in the queue of cv (and the mutex is in it, to release the mutex to avoid dead locks). Then, when signal(cv) comes, it selects the thread to run again. `lock(mutex); if (!done) wait(cv, mutex)`, and then, in the other thread, `lock(mutex); done = true; signal(cv); unlock(mutex);` 
+
+[[Academic/OS/Introduction|Introduction]]
