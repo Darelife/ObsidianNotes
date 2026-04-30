@@ -4,17 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "29091d7f13279b11",
+        "id": "aa9d365d5cb230f1",
         "type": "tabs",
         "children": [
           {
-            "id": "2880fb3f6cb3334b",
+            "id": "148ec4f4239ea147",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "type": "markdown",
+              "state": {
+                "file": "Academic/CN/Network Layer.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Network Layer"
             }
           }
         ]
@@ -74,7 +78,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 285.5
+    "width": 285.5,
+    "collapsed": true
   },
   "right": {
     "id": "801455d173a345d4",
@@ -201,36 +206,38 @@
       "webpage-html-export:Export as HTML": false
     }
   },
-  "active": "c7379874029b748b",
+  "active": "148ec4f4239ea147",
   "lastOpenFiles": [
-    "Academic/OS/Cheat Sheet.md",
-    "Academic/OS/os doc.md",
-    "Academic/DSTN/MPI.md",
-    "Academic/DSTN/DSTN.canvas",
-    "Academic/DSTN/GFS.md",
-    "Academic/DSTN/8. Network File System.md",
-    "Academic/DSTN/7. Distributed Systems.md",
-    "Academic/DSTN/6. Log File System.md",
-    "Academic/DSTN/5. Crashes & Journaling.md",
-    "Academic/DSTN/4. Fast File System.md",
-    "Academic/DSTN/3. Designing a Simple File System.md",
-    "Academic/DSTN/2. SSD.md",
-    "Academic/DSTN/1. Hard Disks.md",
-    "Academic/DSTN/Labs/Lab 1.md",
-    "Academic/DSTN/Labs/Lab 3.md",
-    "Academic/DSTN/Labs/Group 13.md",
-    "Academic/DSTN/Labs/project Report.md",
-    "Academic/DSTN/Labs",
+    "Academic/CN/Transport Layer.md",
     "Academic/CN/Network Layer.md",
+    "Academic/CN/Physical Layer.md",
+    "Academic/CN/Application Layer.md",
+    "Academic/Compiler/LEX DOCS.md",
+    "Academic/Deep Learning/Some stuff about NN.md",
+    "Competitive Programming/Competitive Programming.canvas",
+    "Competitive Programming/CF Div. 3 Round 1076.md",
+    "Competitive Programming/CSES/CSES.canvas",
     "Competitive Programming/CSES/Graphs ~ darelife.md",
     "Competitive Programming/CSES/DP ~ darelife.md",
     "Academic/IR.md",
-    "Academic/OS/Virtual Memory and Paging.md",
-    "Academic/OS/Scheduling.md",
-    "Academic/OS/Locks.md",
-    "Academic/OS/Introduction.md",
-    "Academic/OS/CV's and Semaphores.md",
+    "Academic/Drawing 2026-02-21 11.02.32.excalidraw.md",
+    "Academic/College.md",
     "Academic/Theory Of Computation/Introduction.md",
+    "Academic/DSTN/Labs/project Report.md",
+    "Academic/DSTN/DSTN.canvas",
+    "Academic/DSTN/Labs/Lab 3.md",
+    "Academic/DSTN/Labs/Lab 1.md",
+    "Academic/DSTN/Labs/Group 13.md",
+    "Academic/DSTN/7. Distributed Systems.md",
+    "Academic/DSTN/8. Network File System.md",
+    "Academic/OS/Cheat Sheet.md",
+    "Academic/OS/os doc.md",
+    "Academic/DSTN/MPI.md",
+    "Academic/DSTN/GFS.md",
+    "Academic/DSTN/6. Log File System.md",
+    "Academic/DSTN/5. Crashes & Journaling.md",
+    "Academic/DSTN/4. Fast File System.md",
+    "Academic/DSTN/Labs",
     "Academic/Deep Learning/Deep Learning.canvas",
     "ObsidianNotes.html",
     "Competitive Programming/CSES",

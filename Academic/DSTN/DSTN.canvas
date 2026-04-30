@@ -1,15 +1,19 @@
 {
 	"nodes":[
-		{"id":"e023866f8a018ac4","x":3815,"y":-49,"width":400,"height":400,"type":"file","file":"Academic/DSTN/MPI.md"},
+		{"id":"e023866f8a018ac4","type":"file","file":"Academic/DSTN/MPI.md","x":3815,"y":-49,"width":400,"height":400},
 		{"id":"d9f5603eaa9ae137","type":"file","file":"Academic/DSTN/1. Hard Disks.md","x":-144,"y":-50,"width":400,"height":400},
-		{"id":"ea28b9c146d4d798","x":280,"y":-50,"width":400,"height":400,"type":"file","file":"Academic/DSTN/2. SSD.md"},
-		{"id":"d778909c1399d866","x":720,"y":-50,"width":400,"height":400,"type":"file","file":"Academic/DSTN/3. Designing a Simple File System.md"},
-		{"id":"acc025ffce552eed","x":1160,"y":-50,"width":400,"height":400,"type":"file","file":"Academic/DSTN/4. Fast File System.md"},
-		{"id":"0de5e0c43cc03de5","x":1600,"y":-50,"width":400,"height":400,"type":"file","file":"Academic/DSTN/5. Crashes & Journaling.md"},
-		{"id":"50a50294679a9e4c","x":2040,"y":-47,"width":400,"height":400,"type":"file","file":"Academic/DSTN/6. Log File System.md"},
-		{"id":"15fd85a1fd47d4d2","x":2480,"y":-47,"width":400,"height":400,"type":"file","file":"Academic/DSTN/7. Distributed Systems.md"},
-		{"id":"d092d272ab75e1de","x":2920,"y":-47,"width":400,"height":400,"type":"file","file":"Academic/DSTN/8. Network File System.md"},
-		{"id":"25616aaf8491f0c6","x":3360,"y":-47,"width":400,"height":400,"type":"file","file":"Academic/DSTN/GFS.md"}
+		{"id":"ea28b9c146d4d798","type":"file","file":"Academic/DSTN/2. SSD.md","x":280,"y":-50,"width":400,"height":400},
+		{"id":"d778909c1399d866","type":"file","file":"Academic/DSTN/3. Designing a Simple File System.md","x":720,"y":-50,"width":400,"height":400},
+		{"id":"acc025ffce552eed","type":"file","file":"Academic/DSTN/4. Fast File System.md","x":1160,"y":-50,"width":400,"height":400},
+		{"id":"0de5e0c43cc03de5","type":"file","file":"Academic/DSTN/5. Crashes & Journaling.md","x":1600,"y":-50,"width":400,"height":400},
+		{"id":"50a50294679a9e4c","type":"file","file":"Academic/DSTN/6. Log File System.md","x":2040,"y":-47,"width":400,"height":400},
+		{"id":"15fd85a1fd47d4d2","type":"file","file":"Academic/DSTN/7. Distributed Systems.md","x":2480,"y":-47,"width":400,"height":400},
+		{"id":"d092d272ab75e1de","type":"file","file":"Academic/DSTN/8. Network File System.md","x":2920,"y":-47,"width":400,"height":400},
+		{"id":"25616aaf8491f0c6","type":"file","file":"Academic/DSTN/GFS.md","x":3360,"y":-47,"width":400,"height":400},
+		{"id":"7f31f89e039effb9","x":1200,"y":1148,"width":400,"height":400,"type":"file","file":"Academic/DSTN/Labs/Lab 3.md"},
+		{"id":"c6693d43c85a98bd","x":1640,"y":1148,"width":400,"height":400,"type":"file","file":"Academic/DSTN/Labs/project Report.md"},
+		{"id":"430ae9550091b524","x":760,"y":1148,"width":400,"height":400,"type":"file","file":"Academic/DSTN/Labs/Lab 1.md"},
+		{"id":"a9cc23712e3be702","x":320,"y":1148,"width":400,"height":400,"type":"file","file":"Academic/DSTN/Labs/Group 13.md"}
 	],
 	"edges":[]
 }

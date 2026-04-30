@@ -38,3 +38,5 @@ Generalization = If my model will work on inputs that it hasn't been trained on.
 
 As model capacity increases, training error decreases, while the test error first decreases, and then increases.
 But then, n double descent...test risk goes up, and then, starts going down again.....(if it's over-parameterized....if the data is very less, but we're using a massive neural network)
+
+[[Lecture 4,5,6,7,8 Neural Network Models]]
