@@ -1,0 +1,280 @@
+<html>
+<head>
+  <link rel="stylesheet" href="./retroma.css">
+</head>
+<body>
+<p>It’s one of the most important layers. (In every single internet
+device, including hosts and routers)</p>
+<p>It has 2 parts 1. Data Plane - It’s about local, per router
+functions. - Decides how the traffic from the input port is forwarded to
+the output port 2. Control Plane - It’s a network wide logic. - It’s the
+entire view of getting packets from 1 end of the world to the other end.
+- 2 Approaches - Traditional Routing Algorithms (in routers) - Each
+router has a forwarding table (header -&gt; router)(Computed by having a
+routing algorithm run on every router, to track the time for every other
+router) - Software Defined Networking (SDN) in remote servers. - There’s
+a remote controller that computes, and distributes the forwarding tables
+in the routers</p>
+<p>Has a sender and receiver. Sender sends segments to the link layer.
+Receiver delivers the segments to the transport layer.</p>
+<p>Routers go through all the header fields, and move datagrams from its
+input ports to the output ports.</p>
+<p><strong>Network Layer Functions</strong> - Forwarding: Move packets
+from a routers own input to output port. Happens in nano seconds, and is
+implemented via hardware. - Routing: Determines the route taken by the
+packet.</p>
+<h3 id="network-layer-service-model">Network Layer Service Model</h3>
+<p>“BEST EFFORT” service model. No guarantee on: - Successful datagram
+delivery to destination - Timing or order of delivery. - Bandwidth
+availability to end-end flow</p>
+<p>It’s very simple to implement, maintain, and manage.</p>
+<p>Most applications run good enough most of the time, in best effort,
+as there’s sufficient provisioning of bandwidth.</p>
+<p>Allows distributed services to be provided from multiple locations
+cuz of best effort.</p>
+<h1 id="whats-inside-a-router">What’s Inside a Router</h1>
+<p>There’s basically a network within a network, and like, there’s a
+processor that controls it all (also acts as the SDN, and sets
+forwarding tables for all the input ports of the router)</p>
+<h2 id="input-port">Input Port</h2>
+<p>Has the Line termination (physical layer), the link layer protocol,
+and then the networking layer (decentralised switching), that deals with
+the lookup, forwarding, and queuing.</p>
+<p>In the decentralised switching, 1. We’ll look at the header field
+values, and then, lookup the output port using the forwarding table 2.
+Destination based forwarding: based on the destination IP address 3.
+Generalised Forwarding: based on a set of header field values</p>
+<h3 id="destination-based-forwarding">Destination based forwarding</h3>
+<ol type="1">
+<li><p>Range based approach</p></li>
+<li><p>Longest Prefix Match 10101010 01010101 10101*** ******** = 0
+10101010 01010101 10101010 ******** = 1 10101010 01010101 10100***
+******** = 2 else = 3</p>
+<p>Use the longest address prefix that matches the destination
+address.</p>
+<p>Often performed using ternary content addressable memories (TCAMs).
+The content gets delivered in 1 clock cycle, regardless of the size of
+the table</p></li>
+</ol>
+<h2 id="switching-fabric">Switching Fabric</h2>
+<p>Moves the packets from the input port to the output port. Switching
+Rate = Rate at which the packets can be transferred from the input port
+to the output port.</p>
+<h3 id="switching-via-memory">Switching Via Memory</h3>
+<p>Packet copied to memory, and then, to the output port. So like, the
+ports were basically like IO devices. Depends on memory bandwidth.</p>
+<h3 id="switching-via-bus">Switching Via Bus</h3>
+<p>Packet is written directly to the Output port. Depends on bus
+bandwidth.</p>
+<h3 id="switching-via-interconnection-networks">Switching Via
+Interconnection Networks</h3>
+<p>Made via connecting multistage switching networks in parallel, with
+smaller switches. <span
+class="math inline"><em>N</em> × <em>N</em></span> switches. We can
+exploit parallelism further, by stacking multiple planes together.</p>
+<h2 id="input-port-queuing">Input Port Queuing</h2>
+<p>If the switching fabric is slower than the input ports combined,
+queuing may occur at input queues. All the packets that are waiting,
+wait at the input port.</p>
+<p>This is called HOL (head of line) blocking</p>
+<h2 id="output-port-queuing">Output Port Queuing</h2>
+<blockquote>
+<p>[!important] Read this part again Why is it bad to have infinite
+buffering</p>
+</blockquote>
+<p>Bits arrive at <span
+class="math inline"><em>N</em> × <em>R</em></span>, but only leave at
+<span class="math inline"><em>R</em></span>. Thus, it requires
+buffering. So, we’ll need a drop policy as well, if the buffer is full.
+There will also be a scheduling discipline, which could give priority to
+specific packets.</p>
+<p>RFC 3439 says that the amount of buffering should be <span
+class="math inline"><em>R</em><em>T</em><em>T</em> × <em>C</em></span>
+(link capacity).</p>
+<p>A more recent recommendation says, <span
+class="math inline">$\frac{RTT \times C}{\sqrt{ N }}$</span>, with N
+flows crossing the link.</p>
+<p>Large buffers = larger delays, and larger RTTs</p>
+<h2 id="buffer-management">Buffer Management</h2>
+<ol type="1">
+<li>Drop: Which packet to add or drop when the buffers are full. Could
+just drop the last packet (tail dropping), or we could remove the least
+important packet (priority based dropping)</li>
+<li>Marking: We can mark some of the packets to show congestion (ECN,
+RED)</li>
+</ol>
+<h2 id="packet-scheduling">Packet Scheduling</h2>
+<ol type="1">
+<li>FCFS (FIFO)</li>
+<li>Priority</li>
+<li>Round Robin</li>
+<li>Weighted Fair Queuing</li>
+</ol>
+<h1 id="the-internet-protocol">The Internet Protocol</h1>
+<h2 id="ip-datagram-format">IP Datagram format</h2>
+<pre><code>|&lt;--------------------------- 32 bits ---------------------------&gt;|
+
+| ver | head. len | type of service |           length           |
+|----------------|------------------|----------------------------|
+|      16-bit identifier           | flgs |   fragment offset   |
+|----------------------------------|------|---------------------|
+| time to live | upper layer |      header checksum             |
+|---------------------------------------------------------------|
+|                     source IP address                         |
+|---------------------------------------------------------------|
+|                   destination IP address                      |
+|---------------------------------------------------------------|
+|                    options (if any)                           |
+|---------------------------------------------------------------|
+|                                                            |
+|                  payload data (variable length,            |
+|                  typically a TCP or UDP segment)           |
+|                                                            |</code></pre>
+<ul>
+<li>Ver = IP version number</li>
+<li>header length (bytes)</li>
+<li>length: total datagram length (bytes)</li>
+<li>max length = 64k bytes. But usually, 1500 bytes or less</li>
+<li>type of service: diffserv(0:5), ECN (6:7) (ECN was for congestion
+control)</li>
+<li>TTL: the count that gets decremented by 1 each time it passes by a
+router. If it reaches 0, it must be dropped. Basically ensures that the
+packet doesn’t loop forever, if there are forwarding loops.</li>
+<li>Upper Layer: Upper layer protocol. The protocol in which the IP
+layer will be passed. 6 = TCP, 17 = UDP</li>
+<li>IP ID, flags, and fragment offset fields are used when a large IP
+datagram is fragmented into multiple mini datagrams.</li>
+<li>Header Checksum = Checksum</li>
+</ul>
+<p>Usually 20 bytes of IP, and 20 bytes for TCP. So, 40 Bytes + app
+layer overhead.</p>
+<h2 id="ip-addressing">IP Addressing</h2>
+<p>An IP address is unique for every link layer interface on a host or
+router.</p>
+<p>Usually all routers have multiple interfaces, and hosts do to. (eg:
+Ethernet, 80211 (wifi), etc) IP address: &lt;8 bits&gt;.&lt;8
+bits&gt;.&lt;8 bits&gt;.&lt;8 bits&gt; = 4 bytes</p>
+<h3 id="subnet">Subnet</h3>
+<p>Device interfaces that can physically reach each other without
+passing through an intervening router</p>
+<p>And IP address has 2 parts. Subnet part (high order bits), and the
+host part (low order bits). So, if 2 devices are in the same subnet,
+they’ll have the same subnet part in their IP addr.</p>
+<h3 id="cidr">CIDR</h3>
+<p>Classless InterDomain Routing 223.1.1.0/24 = 223.1.1.******** = 24
+bits are filled.</p>
+<p>a.b.c.d/x, where x is the number of bits in the subnet potion.
+Sometimes the <code>d</code> is emitted, when it’s 0.</p>
+<h3 id="how-to-get-an-ip-address-dhcp">How to get an IP Address?
+DHCP</h3>
+<p>Used to be hardcoded in /etc/rc.config now, it’s via
+<code>DHCP</code>.</p>
+<p>The network will have a DHCP server. The host will request for an IP
+address via the DHCP protocol, from the DHCP server. The IP addresses
+can later be reused too, by another host, or renewed.</p>
+<p>DHCP runs over UDP Client uses port 68, and the server uses port
+67</p>
+<p>host: DHCP discover msg <code>[optional]</code> src: 0.0.0.0, 68
+dest: 255.255.255.255, 67 transaction id: 654 yiaddr: 0.0.0.0</p>
+<p>dhcp: DHCP offer msg <code>[optional]</code> src: 223.1.2.5, 67 dest:
+255.255.255.255, 68 <strong>yiaddr: 223.1.2.4</strong> transaction id:
+654 lifetime: 3600 seconds</p>
+<p>host: DHCP request src: 0.0.0.0, 68 dest: 255.255.255.255, 67 yiaddr:
+223.1.2.4 transaction id: 655 lifetime: 3600 seconds</p>
+<p>dhcp: DHCP ACK sec: 223.1.2.5, 67 dest: 255.255.255.255, 68 yiaddr:
+223.1.2.4 transaction id: 655 lifetime: 3600 seconds</p>
+<p>DHCP also usually returns more stuff 1. Address of the first hop
+router for the client 2. Name and address of the DNS server 3. The
+network mask (the number of bits and the ip address belonging to the
+subnet)</p>
+<p>ISP’s block: 200.23.16.0/20 ISP can allocate out its address space in
+8 blocks 200.23.16.0/23 200.23.18.0/23 … 200.23.30.0/23</p>
+<p>Now, ISP-A : 200.23.16.0/20 and, ISP-B : 199.31.0.0/16</p>
+<p>What if org1 of ISP-A switches to ISP-B, but with the same address,
+200.23.18.0/23</p>
+<p>Now, ISP-A: 200.23.16.0/20 and, ISP-B: 199.31.0.0/16 or
+200.23.18.0/23</p>
+<p>200.23.18.0/23 qualifies for both ISPs, but ISP-B has a longer 23 bit
+prefix <span class="math inline">⇒</span> More specific prefix than the
+20 bit prefix in ISP-A. Hence, it’ll qualify for ISP-B, and not
+ISP-A.</p>
+<blockquote>
+<p>[!question] How does an ISP get an address space? The IPv4 space is
+owned by ICANN (IPv6 is governed by IANA, which is a part of ICANN too).
+ICANN allocates IP addresses through 5 regional registries (RR’s), who
+then allocate to ISPs.</p>
+<p>ICANN also manages root DNS, domain names, and allocating protocol
+numbers.</p>
+<p>In 2011, ICANN allocated the last chunk of IPv4 addresses to RRs</p>
+</blockquote>
+<h3 id="nat-network-address-translation">NAT (Network Address
+Translation)</h3>
+<p>All devices in a local network share just 1 IPv4.</p>
+<p>All devices in a local network have 32 bit addresses (private IP),
+10/8, 172.16/12, 192.168/16</p>
+<blockquote>
+<p>[!question] Now, if A sends a req to B, B will get the IP of the
+router that A’s connected to. Then, like, when it sends the response
+back, how will the outer know which device is A from all the devices
+connected to it? A sends src: 192.168.1.5:1234 dst: 8.8.8.8:80</p>
+<p>Router modifies it src: 45.10.20.30:5678 dst: 8.8.8.8:80</p>
+<p>Router stores a mapping 45.10.20.30:5678 <span
+class="math inline">→</span> 192.168.1.5:1234</p>
+<p>B sends dst: 45.10.20.30:5678</p>
+<p>Router checks 5678 <span class="math inline">→</span>
+192.168.1.5:1234</p>
+<p>so, it modifies it to src: 8.8.8.8:80 dst: 192.168.1.5:1234</p>
+</blockquote>
+<h3 id="ipv6">IPv6</h3>
+<p>32 bit ipv4 <span class="math inline">→</span> 128 bit ipv6 ipv6 also
+has additional features like, faster processing, and better forwarding.
+A 40 byte fixed length header</p>
+<p>ipv6 abstracted datagrams into flows</p>
+<pre class="ipv6"><code>+--------------------------------------------------------------+
+|                          32 bits                             |
++--------+--------+--------------------------------------------+
+|  ver   |  pri   |               flow label                   |
++--------------------------------------------------------------+
+|           payload len          |  next hdr  |  hop limit     |
++--------------------------------------------------------------+
+|                source address (128 bits)                     |
++--------------------------------------------------------------+
+|              destination address (128 bits)                  |
++--------------------------------------------------------------+
+|                     payload (data)                           |
++--------------------------------------------------------------+</code></pre>
+<ul>
+<li>flow label: identify datagrams in the same flow (not properly
+defined…up to the ISP on how to do stuff with it)</li>
+<li>128 bit addresses</li>
+<li>pri = priority (8 bit)</li>
+</ul>
+<p>There’s NO checksum, TTL, fragmentation/reassembly, or options in
+ipv6. It makes the header of a fixed length, and allows for faster
+processing</p>
+<p>Checksum is removed as other layers already have error checking, and
+the checksum ends up happening at every router hop, which required it to
+be recomputed at every hop, making it slow. Router’s also have to modify
+the TTL field, which also takes time. In ipv6, udp checksum is also
+mandatory, whereas in ipv4, it’s not, and can just be 0x0000.</p>
+<p>Fragmentation and reassembly needs to be done at the end points, and
+the options can be sent as an IPv6 datagram payload upto an upper layer
+protocol at the router (responsibility of the sender)</p>
+<h2 id="tunnelling">Tunnelling</h2>
+<p>There are different kinds of routers. IPv6 only, IPv4 only, and ones
+who support both. Now basically, IPv6 and IPv4 only routers can’t
+communicate directly with each other.</p>
+<p>Suppose, A wants to send a packet to F (both are IPv6). - A, B, E, F
+have IPv6 addresses - B, C, D, E have IPv4 addresses</p>
+<ol type="1">
+<li>At A, ipv6 forwarding table tells it to go to B</li>
+<li>At B, ipv6 forwarding table tells it to tunnel to E, the ipv4
+forwarding table tells it to go to C</li>
+<li>At C, ipv4 forwarding table tells it to go to D</li>
+<li>At D, ipv4 forwarding table tells it to go to E</li>
+<li>At E, ipv6 forwarding table tells it to go to F</li>
+</ol>
+<p>Tunnelling = <code>[IP v4 packet [IP v6 packet]]</code> IPv6 packet
+gets encapsulated within the IPv4 packet.</p>
+</body>
+</html>

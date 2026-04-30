@@ -13,5 +13,7 @@
   "companion",
   "automatic-table-of-contents",
   "obsidian-enhancing-export",
-  "webpage-html-export"
+  "webpage-html-export",
+  "obsidian-pandoc",
+  "obsidian-day-planner"
 ]

@@ -1,0 +1,10 @@
+{
+	"nodes":[
+		{"id":"c72a157987ffef41","type":"file","file":"Academic/CN/Application Layer.md","x":-345,"y":-121,"width":400,"height":400},
+		{"id":"7c3efb5ac09d2327","type":"file","file":"Academic/CN/Transport Layer.md","x":90,"y":-118,"width":400,"height":400},
+		{"id":"d95c368133087a07","type":"file","file":"Academic/CN/Network Layer.md","x":569,"y":-121,"width":400,"height":400},
+		{"id":"745602493c6ffe9f","x":1040,"y":-121,"width":400,"height":400,"type":"file","file":"Academic/CN/Link Layer.md"},
+		{"id":"97cb5413ad64aac9","type":"file","file":"Academic/CN/Physical Layer.md","x":1520,"y":-121,"width":400,"height":400}
+	],
+	"edges":[]
+}

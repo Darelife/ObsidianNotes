@@ -230,4 +230,146 @@ and, ISP-B: 199.31.0.0/16 or 200.23.18.0/23
 > 
 > In 2011, ICANN allocated the last chunk of IPv4 addresses to RRs
 
+### NAT (Network Address Translation)
 
+All devices in a local network share just 1 IPv4.
+
+All devices in a local network have 32 bit addresses (private IP), 10/8, 172.16/12, 192.168/16
+
+> [!question] Now, if A sends a req to B, B will get the IP of the router that A's connected to. Then, like, when it sends the response back, how will the outer know which device is A from all the devices connected to it?
+> A sends
+> src: 192.168.1.5:1234
+> dst: 8.8.8.8:80
+> 
+> Router modifies it
+> src: 45.10.20.30:5678
+> dst: 8.8.8.8:80
+> 
+> Router stores a mapping
+> 45.10.20.30:5678 $\longrightarrow$ 192.168.1.5:1234
+> 
+> B sends
+> dst: 45.10.20.30:5678
+> 
+> Router checks
+> 5678 $\longrightarrow$ 192.168.1.5:1234
+> 
+> so, it modifies it to
+> src: 8.8.8.8:80 
+> dst: 192.168.1.5:1234
+
+### IPv6
+
+32 bit ipv4 $\longrightarrow$ 128 bit ipv6
+ipv6 also has additional features like, faster processing, and better forwarding. A 40 byte fixed length header
+
+ipv6 abstracted datagrams into flows
+
+```ipv6
++--------------------------------------------------------------+
+|                          32 bits                             |
++--------+--------+--------------------------------------------+
+|  ver   |  pri   |               flow label                   |
++--------------------------------------------------------------+
+|           payload len          |  next hdr  |  hop limit     |
++--------------------------------------------------------------+
+|                source address (128 bits)                     |
++--------------------------------------------------------------+
+|              destination address (128 bits)                  |
++--------------------------------------------------------------+
+|                     payload (data)                           |
++--------------------------------------------------------------+
+```
+
+- flow label: identify datagrams in the same flow (not properly defined...up to the ISP on how to do stuff with it)
+- 128 bit addresses
+- pri = priority (8 bit)
+
+
+There's NO checksum, TTL, fragmentation/reassembly, or options in ipv6.
+It makes the header of a fixed length, and allows for faster processing
+
+Checksum is removed as other layers already have error checking, and the checksum ends up happening at every router hop, which required it to be recomputed at every hop, making it slow. Router's also have to modify the TTL field, which also takes time. In ipv6, udp checksum is also mandatory, whereas in ipv4, it's not, and can just be 0x0000.
+
+Fragmentation and reassembly needs to be done at the end points, and the options can be sent as an IPv6 datagram payload upto an upper layer protocol at the router (responsibility of the sender)
+
+## Tunnelling
+
+There are different kinds of routers. IPv6 only, IPv4 only, and ones who support both. Now basically, IPv6 and IPv4 only routers can't communicate directly with each other. 
+
+Suppose, A wants to send a packet to F (both are IPv6).
+- A, B, E, F have IPv6 addresses
+- B, C, D, E have IPv4 addresses
+
+1. At A, ipv6 forwarding table tells it to go to B
+2. At B, ipv6 forwarding table tells it to tunnel to E, the ipv4 forwarding table tells it to go to C
+3. At C, ipv4 forwarding table tells it to go to D
+4. At D, ipv4 forwarding table tells it to go to E
+5. At E, ipv6 forwarding table tells it to go to F
+
+Tunnelling = `[IP v4 packet [IP v6 packet]]`
+IPv6 packet gets encapsulated within the IPv4 packet.
+
+# Generalized Forwarding
+
+In destination based forwarding, we forward based on the destination ip address, whereas in generalized forwarding, we can forward based on many header fields, and can perform many actions like, drop, copy, modify, log packet, forward, etc.
+
+The forwarding table is sometimes referred to as the flow table.
+
+```flow_table
+| match                          | action              |  
+|------------------------ -------|---------------------|  
+| src = *.*.*.*, dest = 3.4.*.*  | forward(2)          |  
+| src = 1.2.*.*, dest = *.*.*.*  | drop                |  
+| src = 10.1.2.3, dest = *.*.*.* | send to controller  |
+```
+
+
+## Open Flow
+
+Any of 12 header fields can be used in the match (Network Layer, Transport Layer, and Link Layer + ingress port)
+
+Actions
+- Packet could be forwarded to a port
+- Drop
+- Modify header fields
+- Encapsulate and forward to the controller
+
+# Middle Boxes
+
+Anything that's doing something different from the funcs of a regular IP router on the data path between a source host and destination host.
+
+Usually closed source, but nowadays, ppl are moving towards whitebox hardware, where we can write our own software.
+
+NFV: Network functions virtualization: Takes the notion of virtualization, control plane, data plane separation, hardware whiteboxes specialized by software, and takes these to more generalised in network services that require not just networking, but computation and storage as well.
+
+basically, running the middlebox functions, and running them as software on general purpose machines, instead of a dedicated hardware.
+
+# Architectural Principles of the Internet
+
+3 beliefs:
+1. Simple connectivity
+2. IP Protocol
+3. Intelligence is end to end, complexity at network edge
+
+## End to End Argument
+
+Some of the network functionality (eg: reliablity, congestion control, etc)  are implemented in the TCP at the network edge.
+
+But these things could also be implemented hop by hop between each router along the path. (It's actually done in some special scenarios).
+
+> Basically the functions can completely and correctly by implemented only at the end points in the communication system. 
+
+Only the endpoints (the applications/hosts) have enough context to implement certain functions correctly and completely.
+
+Routers (the network core) only see packets. They don’t know:
+
+- What the data means
+- Whether it _really_ arrived correctly
+- What the application actually needs
+
+So if routers try to implement things like reliability, they can only do it partially.
+
+In the telephone era, the end devices were dumb, so all the intelligence was implemented in the network. In the internet era, all the end points and switches were programmable, hence the intelligence switched to the network edge.
+
+[[Link Layer]]
