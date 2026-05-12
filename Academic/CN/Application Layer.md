@@ -476,4 +476,5 @@ Link-layer protocols for media access:
     
 - **Token Passing:** A control token is passed sequentially from one node to the next; only the node with the token can transmit.
 
+Source: J.F Kurose and K.W. Ross Computer Networks Textbook
 [[Transport Layer|Next Topic : Transport Layer]]

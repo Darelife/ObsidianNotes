@@ -207,4 +207,5 @@ Abrupt voltage changes introduce high-frequency components, increasing bandwidth
 
 Using multiple voltage levels makes the system more vulnerable to noise, increasing the probability of incorrect signal detection.
 
+Source: J.F Kurose and K.W. Ross Computer Networks Textbook
 [[Application Layer|Next Topic : Application Layer]]

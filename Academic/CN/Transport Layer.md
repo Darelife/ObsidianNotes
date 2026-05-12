@@ -1519,4 +1519,5 @@ Timers
 Sliding windows
 ```
 
+Source: J.F Kurose and K.W. Ross Computer Networks Textbook
 [[Network Layer]]

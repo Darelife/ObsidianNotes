@@ -21,6 +21,7 @@ Routers go through all the header fields, and move datagrams from its input port
 - Forwarding: Move packets from a routers own input to output port. Happens in nano seconds, and is implemented via hardware.
 - Routing: Determines the route taken by the packet.
 
+# Data Plane
 ### Network Layer Service Model
 "BEST EFFORT" service model.
 No guarantee on:
@@ -372,4 +373,8 @@ So if routers try to implement things like reliability, they can only do it part
 
 In the telephone era, the end devices were dumb, so all the intelligence was implemented in the network. In the internet era, all the end points and switches were programmable, hence the intelligence switched to the network edge.
 
+# Control Plane
+
+
+Source: J.F Kurose and K.W. Ross Computer Networks Textbook
 [[Link Layer]]
