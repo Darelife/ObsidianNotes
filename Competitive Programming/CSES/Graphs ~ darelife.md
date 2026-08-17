@@ -17,6 +17,49 @@ debugInConsole: false # Print debug info in Obsidian console
 
 Simply count the number of times you had to run DFS.
 
+```cpp
+void dfs(pair<int, int> u, pair<int, int> p, vector<vector<int>>& vis, vector<vector<int>>& a) {
+  int dx[] = { -1, 1, 0, 0 };
+  int dy[] = { 0, 0, -1, 1 };
+  int x = u.first, y = u.second;
+  vis[x][y] = 1;
+  for (int i = 0; i < 4; i++) {
+    if (x + dx[i] < 0 || x + dx[i] >= a.size()) continue;
+    if (y + dy[i] < 0 || y + dy[i] >= a[0].size()) continue;
+    if (x + dx[i] == p.first && y + dy[i] == p.second) continue;
+    if (!vis[x + dx[i]][y + dy[i]] && a[x + dx[i]][y + dy[i]]) {
+      dfs({ x + dx[i], y + dy[i] }, u, vis, a);
+    }
+  }
+}
+
+void solve() {
+  int n, m;
+  cin >> n >> m;
+  vector<vector<int>> a(n, vector<int>(m));
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m; j++) {
+      char c;
+      cin >> c;
+      if (c == '#') a[i][j] = 0;
+      else a[i][j] = 1;
+    }
+  }
+
+  int ans = 0;
+  vector<vector<int>> vis(n, vector<int>(m));
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m;j++) {
+      if (!vis[i][j] && a[i][j]) {
+        dfs({ i, j }, { -1, -1 }, vis, a);
+        ans++;
+      }
+    }
+  }
+  cout << ans << endl;
+}
+```
+
 # Q2: Labyrinth
 
 > [!abstract] ### [Labyrinth](https://cses.fi/problemset/task/1193) 
@@ -27,6 +70,80 @@ Simply count the number of times you had to run DFS.
 1. Just run a simple BFS
 2. Store parents
 3. Iterate from the last point along the parents, to find the path
+
+```cpp
+void solve() {
+  int n, m;
+  cin >> n >> m;
+  vector<vector<int>> a(n, vector<int>(m));
+  char c;
+  int sx, sy;
+  int ex, ey;
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m; j++) {
+      cin >> c;
+      if (c == 'A' || c == 'B') {
+        // a[i][j] = c - 'A' + 2;
+        a[i][j] = -1;
+        if (c == 'A') sx = i, sy = j;
+        if (c == 'B') ex = i, ey = j;
+        continue;
+      }
+      a[i][j] = (c == '#') ? 0 : 1;
+    }
+  }
+
+  queue<vector<int>> q;
+  vector<vector<int>> vis(n, vector<int>(m));
+  vector<vector<char>> p(n, vector<char>(m));
+  q.push({ sx, sy });
+  int found = 0;
+  while (!q.empty()) {
+    if (found) break;
+    int x = q.front()[0], y = q.front()[1];
+    // vis[x][y] = 1;
+    q.pop();
+    int dx[] = { -1, 1, 0, 0 };
+    int dy[] = { 0, 0, -1, 1 };
+    for (int i = 0; i < 4; i++) {
+      if (x + dx[i] < 0 || dx[i] + x >= n) continue;
+      if (y + dy[i] < 0 || dy[i] + y >= m) continue;
+      if (vis[x + dx[i]][y + dy[i]]) continue;
+      if (i == 0) p[x + dx[i]][y + dy[i]] = 'U';
+      else if (i == 1) p[x + dx[i]][y + dy[i]] = 'D';
+      else if (i == 2) p[x + dx[i]][y + dy[i]] = 'L';
+      else p[x + dx[i]][y + dy[i]] = 'R';
+
+      if (!vis[x + dx[i]][y + dy[i]] && a[x + dx[i]][y + dy[i]] == 1) {
+        vis[x + dx[i]][y + dy[i]] = 1;
+        q.push({ x + dx[i], y + dy[i] });
+      } else if (x + dx[i] == ex && y + dy[i] == ey) {
+        found = 1;
+      }
+    }
+  }
+
+  if (!found) {
+    cout << "NO" << endl;
+    return;
+  }
+
+  cout << "YES" << endl;
+  string ans;
+  int tx = ex, ty = ey;
+  while (tx != sx || ty != sy) {
+    ans += p[tx][ty];
+    if (p[tx][ty] == 'U') tx++;
+    else if (p[tx][ty] == 'D') tx--;
+    else if (p[tx][ty] == 'L') ty++;
+    else ty--;
+  }
+
+  cout << ans.size() << endl;
+  reverse(ans.begin(), ans.end());
+  cout << ans << endl;
+}
+```
 
 # Q3: Building Roads
 
@@ -39,6 +156,59 @@ Simply count the number of times you had to run DFS.
 2. For each component, find 1 node
 3. Connect all the other components (the node selected from them), to one of the component's nodes, or connect them in a chain. Your wish. Need components - 1 connections
 
+```cpp
+class DSU {
+public:
+  vector<int> parent;
+  vector<int> size;
+ 
+  DSU(int n) {
+    parent.resize(n);
+    size.resize(n, 1);
+    for (int i = 0; i < n; i++) {
+      parent[i] = i;
+    }
+  }
+ 
+  int find(int x) {
+    if (parent[x] != x) {
+      parent[x] = find(parent[x]);
+    }
+    return parent[x];
+  }
+ 
+  void union_sets(int a, int b) {
+    a = find(a);
+    b = find(b);
+    if (a != b) {
+      if (size[a] < size[b]) swap(a, b);
+      parent[b] = a;
+      size[a] += size[b];
+    }
+  }
+};
+ 
+void solve() {
+  int n, m;
+  cin >> n >> m;
+  DSU dsu(n);
+  for (int i = 0; i < m; i++) {
+    int a, b;
+    cin >> a >> b;
+    a--; b--;
+    dsu.union_sets(a, b);
+  }
+  vector<int> par;
+  for (int i = 0; i < n; i++) {
+    if (dsu.parent[i] == i) par.pba(i);
+  }
+  cout << par.size() - 1 << endl;
+  for (int i = 1; i < par.size(); i++) {
+    cout << par[i - 1] + 1 << " " << par[i] + 1 << endl;
+  }
+}
+```
+
 # Q4: Message Route
 
 > [!abstract] ### [Message Route](https://cses.fi/problemset/task/1667) 
@@ -48,6 +218,55 @@ Simply count the number of times you had to run DFS.
 
 1. No need for dijkstra, as the weight of all is 1
 2. Just run a BFS from the starting node, and as soon as you find the destination, stop (use parents like in labyrinth)
+
+```cpp
+void solve() {
+  int n, m;
+  cin >> n >> m;
+  vector<vector<int>> adj(n);
+  for (int i = 0; i < m; i++) {
+    int a, b;
+    cin >> a >> b;
+    a--; b--;
+    adj[a].pba(b);
+    adj[b].pba(a);
+  }
+  queue<int> q;
+  vector<int> dist(n, -1);
+  vector<bool> vis(n, false);
+  vector<int> par(n, -1);
+  q.push(0);
+  vis[0] = true;
+  while (!q.empty()) {
+    int u = q.front();
+    q.pop();
+    for (int v : adj[u]) {
+      if (vis[v]) continue;
+      vis[v] = true;
+      dist[v] = dist[u] + 1;
+      q.push(v);
+      par[v] = u;
+    }
+  }
+ 
+  vector<int> ans;
+  int v = n - 1;
+  while (par[v] != -1) {
+    ans.pba(v + 1);
+    v = par[v];
+  }
+  if (dist[n - 1] == -1) {
+    cout << "IMPOSSIBLE" << endl;
+    return;
+  }
+  cout << ans.size() + 1 << endl;
+  cout << 1 << " ";
+  for (int i = ans.size() - 1; i >= 0; i--) {
+    cout << ans[i] << " ";
+  }
+  cout << endl;
+}
+```
 
 # Q5: Building Teams
 

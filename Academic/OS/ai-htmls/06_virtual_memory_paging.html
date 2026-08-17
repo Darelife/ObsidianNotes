@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virtual Memory &amp; Paging — OS Field Manual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a0f1a; --panel:#111a2b; --panel2:#0d1522; --line:#26374f;
+  --accent:#5aa6f0; --accent-dim:#3d6f9c; --amber:#f0a742; --green:#5fcb9d;
+  --red:#ef6f6c; --text:#e7ecf5; --muted:#8ea0bd; --mono-bg:#0b1220;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--ink); color:var(--text);
+  font-family:'IBM Plex Sans',system-ui,sans-serif; line-height:1.65;
+  font-size:16px;
+}
+::selection{background:var(--accent-dim); color:#fff;}
+a{color:var(--accent); text-decoration:none;}
+a:hover{text-decoration:underline;}
+h1,h2,h3,h4{font-family:'Space Grotesk',system-ui,sans-serif; font-weight:600; letter-spacing:-0.01em; color:#fff;}
+code,pre,.mono{font-family:'IBM Plex Mono',monospace;}
+
+/* ===== Layout ===== */
+.shell{display:flex; min-height:100vh;}
+.sidebar{
+  width:272px; flex-shrink:0; background:var(--panel2); border-right:1px solid var(--line);
+  position:sticky; top:0; height:100vh; overflow-y:auto; padding:22px 0 40px;
+}
+.sidebar::-webkit-scrollbar{width:8px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--line); border-radius:4px;}
+.brand{
+  padding:0 22px 18px; margin-bottom:12px; border-bottom:1px solid var(--line);
+}
+.brand .path{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted);}
+.brand .path b{color:var(--accent);}
+.brand h1{font-size:17px; margin:6px 0 2px; line-height:1.3;}
+.brand .sub{font-size:12px; color:var(--muted);}
+.tree{padding:6px 10px 18px; border-bottom:1px solid var(--line); margin-bottom:10px;}
+.tree-title{font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); padding:6px 12px 8px;}
+.tree a{
+  display:block; font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--muted);
+  padding:5px 12px 5px 26px; position:relative; border-left:2px solid transparent;
+}
+.tree a::before{content:"├─"; position:absolute; left:8px; color:var(--line);}
+.tree a:last-child::before{content:"└─";}
+.tree a:hover{color:var(--text); text-decoration:none; background:rgba(90,166,240,.06);}
+.tree a.current{color:var(--accent); border-left:2px solid var(--accent); background:rgba(90,166,240,.08); font-weight:600;}
+.chapters{padding:6px 10px;}
+.chapters .tree-title{padding-left:12px;}
+.chapters a{
+  display:flex; gap:8px; align-items:baseline; font-family:'IBM Plex Mono',monospace; font-size:12px;
+  color:var(--muted); padding:6px 12px; border-radius:4px;
+}
+.chapters a .n{color:var(--accent-dim); min-width:20px;}
+.chapters a:hover{background:rgba(90,166,240,.08); color:var(--text); text-decoration:none;}
+.chapters a.current{background:rgba(90,166,240,.12); color:var(--accent); font-weight:600;}
+.chapters a.current .n{color:var(--accent);}
+
+main{flex:1; min-width:0; padding:56px 60px 100px; max-width:900px;}
+
+/* ===== Hero ===== */
+.hero{margin-bottom:46px; padding-bottom:30px; border-bottom:1px solid var(--line);}
+.hero .tag{
+  font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--amber);
+  display:inline-flex; align-items:center; gap:8px; padding:4px 10px;
+  border:1px solid rgba(240,167,66,.35); border-radius:20px; margin-bottom:16px;
+}
+.hero h1{font-size:38px; margin:0 0 12px; line-height:1.15;}
+.hero p.desc{color:var(--muted); font-size:16px; max-width:640px; margin:0;}
+.hero .stats{display:flex; gap:22px; margin-top:22px; flex-wrap:wrap;}
+.hero .stat{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted);}
+.hero .stat b{display:block; color:var(--text); font-size:15px; font-family:'Space Grotesk',sans-serif;}
+
+/* ===== Sections ===== */
+section{margin-bottom:52px;}
+h2{
+  font-size:23px; margin:0 0 18px; padding-bottom:10px; border-bottom:1px solid var(--line);
+  display:flex; align-items:baseline; gap:10px;
+}
+h2 .idx{font-family:'IBM Plex Mono',monospace; color:var(--accent-dim); font-size:15px;}
+h3{font-size:17px; margin:26px 0 10px; color:var(--accent);}
+h4{font-size:14.5px; margin:18px 0 8px; color:var(--text); text-transform:uppercase; letter-spacing:.04em; font-family:'IBM Plex Mono',monospace; font-weight:500;}
+p{margin:0 0 14px; color:#cdd7e6;}
+ul,ol{margin:0 0 16px; padding-left:22px; color:#cdd7e6;}
+li{margin-bottom:6px;}
+li::marker{color:var(--accent-dim);}
+strong{color:#fff; font-weight:600;}
+hr{border:none; border-top:1px solid var(--line); margin:30px 0;}
+
+/* ===== Code ===== */
+.code-block{margin:16px 0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--mono-bg);}
+.code-block .tag{
+  display:flex; justify-content:space-between; padding:7px 14px; background:var(--panel2);
+  border-bottom:1px solid var(--line); font-family:'IBM Plex Mono',monospace; font-size:11px;
+  color:var(--muted); text-transform:uppercase; letter-spacing:.06em;
+}
+.code-block pre{margin:0; padding:16px; overflow-x:auto; font-size:13px; line-height:1.55; color:#c3d3ea;}
+.code-block code{background:none;}
+p code, li code, td code{
+  background:rgba(90,166,240,.1); color:#a9d0f7; padding:1px 6px; border-radius:4px; font-size:.88em;
+}
+
+/* ===== Callouts ===== */
+.callout{border-radius:8px; padding:16px 18px; margin:18px 0; border:1px solid; position:relative;}
+.callout .ctitle{font-family:'IBM Plex Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.07em; margin-bottom:6px; display:flex; gap:8px; align-items:center;}
+.callout p:last-child{margin-bottom:0;}
+.callout.info{background:rgba(90,166,240,.07); border-color:rgba(90,166,240,.3);}
+.callout.info .ctitle{color:var(--accent);}
+.callout.warn{background:rgba(240,167,66,.07); border-color:rgba(240,167,66,.32);}
+.callout.warn .ctitle{color:var(--amber);}
+.callout.gotcha{background:rgba(239,111,108,.07); border-color:rgba(239,111,108,.32);}
+.callout.gotcha .ctitle{color:var(--red);}
+.callout.qa{background:rgba(95,203,157,.06); border-color:rgba(95,203,157,.3);}
+.callout.qa .ctitle{color:var(--green);}
+
+/* ===== Tables ===== */
+table{width:100%; border-collapse:collapse; margin:18px 0; font-size:13.5px;}
+th,td{padding:9px 13px; border:1px solid var(--line); text-align:left;}
+th{background:var(--panel2); font-family:'IBM Plex Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);}
+td{color:#cdd7e6;}
+tr:nth-child(even) td{background:rgba(255,255,255,.015);}
+
+/* ===== Misc components ===== */
+.diagram{
+  background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:20px;
+  font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#a9c3e0; white-space:pre; overflow-x:auto; margin:16px 0; line-height:1.5;
+}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0;}
+.card{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px 18px;}
+.card h4{margin-top:0;}
+.pill{display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:11px; padding:2px 9px; border-radius:20px; background:rgba(90,166,240,.12); color:var(--accent); margin-right:6px;}
+.summary-box{
+  background:linear-gradient(135deg, rgba(90,166,240,.09), rgba(95,203,157,.05));
+  border:1px solid var(--line); border-radius:10px; padding:20px 24px; margin:0 0 40px;
+}
+.summary-box h3{margin-top:0; color:#fff; font-size:15px; text-transform:uppercase; letter-spacing:.05em; font-family:'IBM Plex Mono',monospace;}
+.summary-box ul{columns:2; column-gap:30px; margin-bottom:0;}
+.summary-box li{font-size:13.5px; break-inside:avoid; color:#cdd7e6;}
+.footnav{display:flex; justify-content:space-between; margin-top:60px; padding-top:24px; border-top:1px solid var(--line);}
+.footnav a{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--muted); display:flex; flex-direction:column; gap:4px;}
+.footnav a:hover{color:var(--accent);}
+.footnav .lbl{font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted);}
+.footnav .right{text-align:right;}
+@media(max-width:900px){
+  .shell{flex-direction:column;}
+  .sidebar{position:relative; width:100%; height:auto;}
+  main{padding:34px 20px 80px;}
+  .summary-box ul{columns:1;}
+  .grid2{grid-template-columns:1fr;}
+}
+
+</style>
+</head>
+<body>
+<div class="shell">
+<nav class="sidebar">
+  <div class="brand">
+    <div class="path">~/os-field-manual/<b>06_virtual_memory_paging.html</b></div>
+    <h1>OS Field Manual</h1>
+    <div class="sub">CS F372 &middot; Placement Revision Set</div>
+  </div>
+  <div class="tree">
+    <div class="tree-title">On this page</div>
+    <a href="#vm-intro">1. Virtual Memory: the Illusion</a>
+<a href="#paging">2. Paging &amp; Page Tables</a>
+<a href="#demand-paging">3. Demand Paging</a>
+<a href="#malloc">4. malloc &amp; the Free List</a>
+<a href="#qbank">5. Rapid-fire Recall</a>
+  </div>
+  <div class="chapters">
+    <div class="tree-title">All chapters</div>
+    <a href="01_foundations_booting.html" class=""><span class="n">01</span>Foundations & Booting</a>
+<a href="02_processes_syscalls.html" class=""><span class="n">02</span>Processes & System Calls</a>
+<a href="03_cpu_scheduling.html" class=""><span class="n">03</span>CPU Scheduling</a>
+<a href="04_threads_locks.html" class=""><span class="n">04</span>Threads & Locks</a>
+<a href="05_cv_semaphores.html" class=""><span class="n">05</span>Condition Variables & Semaphores</a>
+<a href="06_virtual_memory_paging.html" class="current"><span class="n">06</span>Virtual Memory & Paging</a>
+<a href="07_filesystems_storage_ipc.html" class=""><span class="n">07</span>File Systems, Storage & IPC</a>
+
+  </div>
+</nav>
+<main>
+  <div class="hero">
+    <span class="tag">CHAPTER 06 &middot; INODE 0x06</span>
+    <h1>Virtual Memory &amp; Paging</h1>
+    <p class="desc">From base-and-bound to multi-level page tables and TLBs, then demand paging, page replacement, and how malloc actually gets its memory.</p>
+    <div class="stats"><div class="stat"><b>22 min</b>read</div><div class="stat"><b>VM_and_Paging.md + 2 decks</b>source</div><div class="stat"><b>5</b>topics</div></div>
+  </div>
+  
+<div class="summary-box">
+<h3>Quick revision — the 60 second version</h3>
+<ul>
+<li>Every process sees a private virtual address space; MMU translates VA &rarr; PA on every access</li>
+<li>Base &amp; bound &rarr; segmentation (per-region base/bound) &rarr; paging (fixed-size chunks)</li>
+<li>Page table: array indexed by VPN, PTE holds frame number + valid + present + dirty bits</li>
+<li>Multi-level page tables trade a small lookup cost for massively less wasted memory</li>
+<li>TLB = MMU's cache for VA-&gt;PA; flushed on context switch</li>
+<li>Present bit = 0 &rarr; page fault; valid bit = 0 &rarr; segfault</li>
+<li>malloc/free is userland, built on top of brk/sbrk/mmap; free list tracks + splits/coalesces chunks</li>
+</ul>
+</div>
+
+<section id="vm-intro">
+<h2><span class="idx">&sect;1</span> Virtual Memory: the Illusion</h2>
+<p>Processes believe they own the entire address space, but they only ever see their <strong>virtual</strong> memory space. On a 32-bit machine that's 2<sup>32</sup> = 4 GB max. All CPU register/pointer accesses, all loads and stores, operate purely on virtual addresses (VAs).</p>
+<div class="callout info">
+<div class="ctitle">&sect; The OS lives inside every address space</div>
+<p>The OS is not a separate process with its own address space — it's mapped into the high addresses of <em>every</em> process's virtual address space (so a trap can jump straight to OS code). There's still only one physical copy of the OS in RAM, loaded at boot.</p>
+</div>
+
+<h3>Address Translation: Base &amp; Bound</h3>
+<p>Simplest scheme: place the whole memory image contiguously starting at a base address B. <code>PA = B + VA</code>, and it must satisfy <code>PA &lt;= N</code> (the bound). The MMU does this addition on every access using two registers.</p>
+<div class="callout gotcha"><div class="ctitle">&#10005; The problem</div><p>Lots of unused space between heap and stack still occupies physical memory — wasteful.</p></div>
+
+<h3>Segmentation</h3>
+<p>Split the address into an explicit segment field + offset (e.g. top 2 bits = segment: 00 code, 01 heap, 11 stack).</p>
+<div class="code-block">
+<div class="tag"><span>c</span><span>segmented address check</span></div>
+<pre>if (offset &gt;= bounds[segment]) {
+    RaiseException(PROTECTION_FAULT);
+} else {
+    PhysAddr = base[segment] + offset;
+    Register = AccessMemory(PhysAddr);
+}</pre>
+</div>
+<table>
+<tr><th>Segment</th><th>Base</th><th>Size (max 4K)</th><th>Grows +</th><th>Protection</th></tr>
+<tr><td>Code (00)</td><td>32K</td><td>2K</td><td>1</td><td>Read-Execute</td></tr>
+<tr><td>Heap (01)</td><td>34K</td><td>3K</td><td>1</td><td>Read-Write</td></tr>
+<tr><td>Stack (11)</td><td>28K</td><td>2K</td><td>0</td><td>Read-Write</td></tr>
+</table>
+<p>Still costly for the OS: it must map contiguous VA space onto separate physical segments and re-map when the heap grows.</p>
+</section>
+
+<section id="paging">
+<h2><span class="idx">&sect;2</span> Paging</h2>
+<p>Chop memory into fixed-sized pieces instead. Still has some internal fragmentation, but is far simpler to manage.</p>
+<div class="callout info"><div class="ctitle">&sect; Internal vs external fragmentation</div><p><strong>Internal</strong>: the allocated region is bigger than what's needed, wasting space inside it. <strong>External</strong>: free space is broken into scattered small chunks, so no single region can satisfy a bigger request even though total free space is enough.</p></div>
+
+<h3>The Page Table</h3>
+<p>Each process gets a page table mapping VA &rarr; PA — an array where entry <em>i</em> holds the physical frame number for the process's <em>i</em>-th page. The MMU always has a register pointing at the current process's page table (updated on every context switch).</p>
+<div class="diagram">VA = (Virtual Page Number)(Offset)
+PTE[VPN] = { Valid, Physical Frame Number, ... }
+
+if (!valid)  -&gt; trap
+else         -&gt; PA = PhysicalFrameNumber + Offset</pre></div>
+
+<div class="callout qa">
+<div class="ctitle">? Why is the page table a fixed array, not a dynamic structure?</div>
+<p>The MMU is <em>hardware</em> — it needs constant-time, deterministic lookup billions of times per second. A dynamic/pointer-based structure would need search logic and variable latency, which hardware can't afford. (The wasted space this causes is fixed separately, with multi-level page tables.)</p>
+</div>
+
+<h3>PTE fields</h3>
+<ul>
+<li><strong>Valid bit</strong> = 1 if the page is actually part of the process</li>
+<li><strong>Present bit</strong> = 1 if it's currently in RAM; 0 means swapped out, unallocated, or illegal &rarr; triggers a page fault</li>
+<li>Also: dirty bit, protection bits, etc.</li>
+</ul>
+
+<h3>The size problem</h3>
+<p>32-bit VA space = 4GB. With 4KB pages (2<sup>12</sup>), that's 2<sup>20</sup> = 1M PTEs. At 4 bytes each, that's 4MB of page table <em>per process</em> — clearly too much to keep flat.</p>
+
+<h3>Multi-level Page Tables</h3>
+<p>Split the flat 1M-entry table into 1024 chunks of 1024 entries each: one outer table points to 1024 inner tables. The MMU walks each level in turn during translation.</p>
+<div class="callout qa">
+<div class="ctitle">? Worked example: 48-bit VA, 4KB pages, 8-byte PTEs — how many levels?</div>
+<p>4KB pages &rarr; 12 offset bits, leaving 36 bits for page numbers. Each 4KB page-table block holds 4096/8 = 512 = 2<sup>9</sup> entries, so each level covers 9 bits. <code>ceil(36 / 9) = 4</code> levels required.</p>
+</div>
+
+<h3>TLB — Translation Lookaside Buffer</h3>
+<p>A hardware cache for VA &rarr; PA mappings inside the MMU. Without it, a multi-level walk means touching memory once <em>per level</em> for every single access — brutally slow. TLB is flushed on every context switch (mappings belong to the outgoing process).</p>
+<table>
+<tr><th></th><th>Steps</th></tr>
+<tr><td>TLB hit</td><td>MMU finds the PTE in the TLB &rarr; computes PA directly &rarr; access memory once</td></tr>
+<tr><td>TLB miss</td><td>MMU walks the page table in memory &rarr; populates the TLB &rarr; computes PA &rarr; access memory</td></tr>
+</table>
+
+<h3>Page-level security</h3>
+<p>Each PTE also carries permissions (user/kernel accessible, read/write). The MMU traps to the OS on any violation, so user programs can only touch memory they're actually permitted to.</p>
+
+<h3>Inverted Page Table</h3>
+<p>Instead of one page table per process, keep a <strong>single</strong> table with one entry per <em>physical</em> frame, storing which process and VA maps to it (via a hash table). Saves huge amounts of memory, but a linear scan would be expensive — hence the hash table.</p>
+</section>
+
+<section id="demand-paging">
+<h2><span class="idx">&sect;3</span> Demand Paging</h2>
+<p>Not all pages of all processes need to sit in RAM simultaneously — most programs don't touch all of their address space at once, and total virtual memory across processes can vastly exceed physical RAM (the OS <strong>overcommits</strong> memory on purpose).</p>
+<ul>
+<li>Some pages aren't allocated at all (invalid)</li>
+<li>Some valid pages are in physical frames; others are temporarily parked in <strong>swap space</strong> on disk and brought back in when accessed</li>
+</ul>
+<div class="callout info">
+<div class="ctitle">&sect; Valid vs Present, combined</div>
+<p><strong>Valid=1, Present=1</strong>: page is in DRAM. <strong>Valid=1, Present=0</strong>: page exists but lives in swap space. <strong>Valid=0</strong>: not part of the process at all.</p>
+</div>
+
+<h3>Page Fault Handling</h3>
+<div class="diagram">MMU walks PTE during translation, finds something unexpected -&gt; trap (page fault)
+   |
+   +-- valid bit not set          -&gt; segmentation fault, terminate process
+   +-- illegal access (e.g. write to read-only) -&gt; terminate process
+   +-- valid set, present not set -&gt; OS allocates a frame, updates PTE, restarts the instruction</div>
+
+<h3>What if memory is full?</h3>
+<p>OS evicts a <strong>victim page</strong> to swap space, freeing its frame for the faulting page. It updates both PTEs and restarts the process. In practice, the OS doesn't wait for memory to be literally full — it uses <strong>low/high watermarks</strong> and a background <strong>swap/page daemon</strong> to reclaim memory proactively.</p>
+
+<h3>File-backed vs Anonymous, Dirty vs Clean</h3>
+<table>
+<tr><th>Type</th><th>Meaning</th></tr>
+<tr><td>File-backed</td><td>Backed by a file on disk (e.g. executable code)</td></tr>
+<tr><td>Anonymous</td><td>Not backed by any file (e.g. stack, heap)</td></tr>
+<tr><td>Dirty</td><td>Content differs from its on-disk copy</td></tr>
+</table>
+<p>Eviction only needs to write a victim page back to swap if it's <strong>dirty</strong> — clean pages can just be dropped and re-fetched later.</p>
+
+<h3>Thrashing</h3>
+<p>Every process has a <strong>working set</strong>: the frequently-used pages it needs resident to make progress. If assigned memory is smaller than the working set, page faults become constant. <strong>Thrashing</strong> = the system spends more time servicing page faults than doing real work. Fix: reduce working sets, or the OS reclaims/terminates processes.</p>
+
+<h3>Page Replacement Policies</h3>
+<table>
+<tr><th>Policy</th><th>Idea</th><th>Weakness</th></tr>
+<tr><td>FIFO</td><td>Evict the oldest-loaded page</td><td>May evict hot pages; suffers <strong>Belady's Anomaly</strong> — hit rate can get <em>worse</em> with a bigger cache</td></tr>
+<tr><td>Optimal (Belady's)</td><td>Evict the page not needed for the longest time in the future</td><td>Impossible to know the future — only useful as a theoretical upper bound</td></tr>
+<tr><td>LRU</td><td>Evict the Least Recently Used page (temporal locality)</td><td>OS isn't involved in every memory access, so tracking "recently used" has real overhead</td></tr>
+</table>
+<div class="callout info">
+<div class="ctitle">&sect; Approximating LRU: the Clock Algorithm</div>
+<p>The MMU sets an <strong>accessed bit</strong> on every PTE it touches. Periodically, the OS scans pages: if the accessed bit is 1, clear it (give it a second chance); the first page found with the bit still 0 becomes the victim. Dirty pages are avoided when possible, since evicting them costs an extra disk write.</p>
+</div>
+</section>
+
+<section id="malloc">
+<h2><span class="idx">&sect;4</span> Memory From the User's Point of View</h2>
+<p>How does a process actually get more memory as it runs?</p>
+<table>
+<tr><th>Call</th><th>What it does</th></tr>
+<tr><td><code>brk()</code> / <code>sbrk()</code></td><td>Moves the "program break" (end of the data segment) — increasing it allocates memory, decreasing frees it</td></tr>
+<tr><td><code>mmap()</code></td><td>Maps new memory (anonymous or file-backed) directly into the process's virtual address space; unmapped with <code>munmap()</code></td></tr>
+</table>
+<p><code>mmap</code> memory is contiguous in the <em>virtual</em> address space, not necessarily in physical memory, and is allocated lazily — on first touch, a page fault brings in the real frame.</p>
+<div class="callout info">
+<div class="ctitle">&sect; malloc doesn't talk to the kernel every time</div>
+<p>User code calls <code>malloc/calloc/realloc</code> from the C library, which internally uses <code>brk/sbrk/mmap</code> only when its existing heap pool runs out — not on every allocation.</p>
+</div>
+
+<h3>The Free List</h3>
+<p>A linked list tracking free chunks in the heap. <code>malloc</code> searches it for a fit; freed chunks are added back.</p>
+<ul>
+<li><strong>Splitting</strong>: a small request may carve a piece out of a larger free chunk</li>
+<li><strong>Coalescing</strong>: adjacent freed chunks are merged back into one bigger chunk</li>
+<li><strong>Headers</strong>: each allocated chunk stores metadata (size, a "magic" guard value) invisible to the caller, so <code>free()</code> knows how much to reclaim and can detect overflow corruption</li>
+<li><strong>Embedded free list</strong>: the "next free chunk" pointer is stored <em>inside</em> the free chunk itself — the allocator only needs to remember the head</li>
+</ul>
+
+<h3>Choosing a chunk: fit strategies</h3>
+<table>
+<tr><th>Strategy</th><th>Picks</th></tr>
+<tr><td>First fit</td><td>The first free chunk big enough</td></tr>
+<tr><td>Best fit</td><td>The closest-sized chunk (minimizes leftover waste)</td></tr>
+<tr><td>Worst fit</td><td>The largest chunk (leaves a bigger, more reusable remainder)</td></tr>
+</table>
+
+<h3>Scaling it up</h3>
+<ul>
+<li><strong>Segregated free lists</strong>: separate lists per popular chunk size — avoids split/coalesce overhead for common sizes</li>
+<li><strong>Slab allocator</strong>: pre-allocated slabs of a fixed chunk size, ready to hand out instantly</li>
+<li><strong>Buddy allocation</strong>: always allocate in powers of two, so two adjacent "buddy" blocks can always cleanly merge back into the next size up</li>
+</ul>
+</section>
+
+<section id="qbank">
+<h2><span class="idx">&sect;5</span> Rapid-fire Recall</h2>
+<div class="callout qa">
+<div class="ctitle">? Common questions</div>
+<p><strong>Q: Difference between the valid bit and the present bit in a PTE?</strong><br>A: Valid = page belongs to the process at all. Present = page is currently resident in RAM (vs. swapped out).</p>
+<p><strong>Q: Why do multi-level page tables save memory over a flat table?</strong><br>A: Unused regions of the address space never need their inner-level table allocated at all — only outer entries that are actually in use point anywhere.</p>
+<p><strong>Q: What's Belady's Anomaly?</strong><br>A: With FIFO replacement, increasing the number of available frames can, counter-intuitively, <em>increase</em> the number of page faults.</p>
+<p><strong>Q: Why does eviction only sometimes require a disk write?</strong><br>A: Only dirty pages need to be written back to swap/disk; clean pages can simply be dropped since an unmodified copy already exists on disk (or nowhere, if never used).</p>
+<p><strong>Q: What's the point of the "magic number" in a malloc chunk header?</strong><br>A: To detect heap corruption — if a previous chunk overflowed into this one, the magic value will have been clobbered.</p>
+</div>
+</section>
+
+  <div class="footnav"><a href="05_cv_semaphores.html"><span class="lbl">&larr; prev</span>Condition Variables & Semaphores</a><a href="07_filesystems_storage_ipc.html" class="right"><span class="lbl">next &rarr;</span>File Systems, Storage & IPC</a></div>
+</main>
+</div>
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condition Variables &amp; Semaphores — OS Field Manual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a0f1a; --panel:#111a2b; --panel2:#0d1522; --line:#26374f;
+  --accent:#5aa6f0; --accent-dim:#3d6f9c; --amber:#f0a742; --green:#5fcb9d;
+  --red:#ef6f6c; --text:#e7ecf5; --muted:#8ea0bd; --mono-bg:#0b1220;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--ink); color:var(--text);
+  font-family:'IBM Plex Sans',system-ui,sans-serif; line-height:1.65;
+  font-size:16px;
+}
+::selection{background:var(--accent-dim); color:#fff;}
+a{color:var(--accent); text-decoration:none;}
+a:hover{text-decoration:underline;}
+h1,h2,h3,h4{font-family:'Space Grotesk',system-ui,sans-serif; font-weight:600; letter-spacing:-0.01em; color:#fff;}
+code,pre,.mono{font-family:'IBM Plex Mono',monospace;}
+
+/* ===== Layout ===== */
+.shell{display:flex; min-height:100vh;}
+.sidebar{
+  width:272px; flex-shrink:0; background:var(--panel2); border-right:1px solid var(--line);
+  position:sticky; top:0; height:100vh; overflow-y:auto; padding:22px 0 40px;
+}
+.sidebar::-webkit-scrollbar{width:8px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--line); border-radius:4px;}
+.brand{
+  padding:0 22px 18px; margin-bottom:12px; border-bottom:1px solid var(--line);
+}
+.brand .path{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted);}
+.brand .path b{color:var(--accent);}
+.brand h1{font-size:17px; margin:6px 0 2px; line-height:1.3;}
+.brand .sub{font-size:12px; color:var(--muted);}
+.tree{padding:6px 10px 18px; border-bottom:1px solid var(--line); margin-bottom:10px;}
+.tree-title{font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); padding:6px 12px 8px;}
+.tree a{
+  display:block; font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--muted);
+  padding:5px 12px 5px 26px; position:relative; border-left:2px solid transparent;
+}
+.tree a::before{content:"├─"; position:absolute; left:8px; color:var(--line);}
+.tree a:last-child::before{content:"└─";}
+.tree a:hover{color:var(--text); text-decoration:none; background:rgba(90,166,240,.06);}
+.tree a.current{color:var(--accent); border-left:2px solid var(--accent); background:rgba(90,166,240,.08); font-weight:600;}
+.chapters{padding:6px 10px;}
+.chapters .tree-title{padding-left:12px;}
+.chapters a{
+  display:flex; gap:8px; align-items:baseline; font-family:'IBM Plex Mono',monospace; font-size:12px;
+  color:var(--muted); padding:6px 12px; border-radius:4px;
+}
+.chapters a .n{color:var(--accent-dim); min-width:20px;}
+.chapters a:hover{background:rgba(90,166,240,.08); color:var(--text); text-decoration:none;}
+.chapters a.current{background:rgba(90,166,240,.12); color:var(--accent); font-weight:600;}
+.chapters a.current .n{color:var(--accent);}
+
+main{flex:1; min-width:0; padding:56px 60px 100px; max-width:900px;}
+
+/* ===== Hero ===== */
+.hero{margin-bottom:46px; padding-bottom:30px; border-bottom:1px solid var(--line);}
+.hero .tag{
+  font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--amber);
+  display:inline-flex; align-items:center; gap:8px; padding:4px 10px;
+  border:1px solid rgba(240,167,66,.35); border-radius:20px; margin-bottom:16px;
+}
+.hero h1{font-size:38px; margin:0 0 12px; line-height:1.15;}
+.hero p.desc{color:var(--muted); font-size:16px; max-width:640px; margin:0;}
+.hero .stats{display:flex; gap:22px; margin-top:22px; flex-wrap:wrap;}
+.hero .stat{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted);}
+.hero .stat b{display:block; color:var(--text); font-size:15px; font-family:'Space Grotesk',sans-serif;}
+
+/* ===== Sections ===== */
+section{margin-bottom:52px;}
+h2{
+  font-size:23px; margin:0 0 18px; padding-bottom:10px; border-bottom:1px solid var(--line);
+  display:flex; align-items:baseline; gap:10px;
+}
+h2 .idx{font-family:'IBM Plex Mono',monospace; color:var(--accent-dim); font-size:15px;}
+h3{font-size:17px; margin:26px 0 10px; color:var(--accent);}
+h4{font-size:14.5px; margin:18px 0 8px; color:var(--text); text-transform:uppercase; letter-spacing:.04em; font-family:'IBM Plex Mono',monospace; font-weight:500;}
+p{margin:0 0 14px; color:#cdd7e6;}
+ul,ol{margin:0 0 16px; padding-left:22px; color:#cdd7e6;}
+li{margin-bottom:6px;}
+li::marker{color:var(--accent-dim);}
+strong{color:#fff; font-weight:600;}
+hr{border:none; border-top:1px solid var(--line); margin:30px 0;}
+
+/* ===== Code ===== */
+.code-block{margin:16px 0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--mono-bg);}
+.code-block .tag{
+  display:flex; justify-content:space-between; padding:7px 14px; background:var(--panel2);
+  border-bottom:1px solid var(--line); font-family:'IBM Plex Mono',monospace; font-size:11px;
+  color:var(--muted); text-transform:uppercase; letter-spacing:.06em;
+}
+.code-block pre{margin:0; padding:16px; overflow-x:auto; font-size:13px; line-height:1.55; color:#c3d3ea;}
+.code-block code{background:none;}
+p code, li code, td code{
+  background:rgba(90,166,240,.1); color:#a9d0f7; padding:1px 6px; border-radius:4px; font-size:.88em;
+}
+
+/* ===== Callouts ===== */
+.callout{border-radius:8px; padding:16px 18px; margin:18px 0; border:1px solid; position:relative;}
+.callout .ctitle{font-family:'IBM Plex Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.07em; margin-bottom:6px; display:flex; gap:8px; align-items:center;}
+.callout p:last-child{margin-bottom:0;}
+.callout.info{background:rgba(90,166,240,.07); border-color:rgba(90,166,240,.3);}
+.callout.info .ctitle{color:var(--accent);}
+.callout.warn{background:rgba(240,167,66,.07); border-color:rgba(240,167,66,.32);}
+.callout.warn .ctitle{color:var(--amber);}
+.callout.gotcha{background:rgba(239,111,108,.07); border-color:rgba(239,111,108,.32);}
+.callout.gotcha .ctitle{color:var(--red);}
+.callout.qa{background:rgba(95,203,157,.06); border-color:rgba(95,203,157,.3);}
+.callout.qa .ctitle{color:var(--green);}
+
+/* ===== Tables ===== */
+table{width:100%; border-collapse:collapse; margin:18px 0; font-size:13.5px;}
+th,td{padding:9px 13px; border:1px solid var(--line); text-align:left;}
+th{background:var(--panel2); font-family:'IBM Plex Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);}
+td{color:#cdd7e6;}
+tr:nth-child(even) td{background:rgba(255,255,255,.015);}
+
+/* ===== Misc components ===== */
+.diagram{
+  background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:20px;
+  font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#a9c3e0; white-space:pre; overflow-x:auto; margin:16px 0; line-height:1.5;
+}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0;}
+.card{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px 18px;}
+.card h4{margin-top:0;}
+.pill{display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:11px; padding:2px 9px; border-radius:20px; background:rgba(90,166,240,.12); color:var(--accent); margin-right:6px;}
+.summary-box{
+  background:linear-gradient(135deg, rgba(90,166,240,.09), rgba(95,203,157,.05));
+  border:1px solid var(--line); border-radius:10px; padding:20px 24px; margin:0 0 40px;
+}
+.summary-box h3{margin-top:0; color:#fff; font-size:15px; text-transform:uppercase; letter-spacing:.05em; font-family:'IBM Plex Mono',monospace;}
+.summary-box ul{columns:2; column-gap:30px; margin-bottom:0;}
+.summary-box li{font-size:13.5px; break-inside:avoid; color:#cdd7e6;}
+.footnav{display:flex; justify-content:space-between; margin-top:60px; padding-top:24px; border-top:1px solid var(--line);}
+.footnav a{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--muted); display:flex; flex-direction:column; gap:4px;}
+.footnav a:hover{color:var(--accent);}
+.footnav .lbl{font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted);}
+.footnav .right{text-align:right;}
+@media(max-width:900px){
+  .shell{flex-direction:column;}
+  .sidebar{position:relative; width:100%; height:auto;}
+  main{padding:34px 20px 80px;}
+  .summary-box ul{columns:1;}
+  .grid2{grid-template-columns:1fr;}
+}
+
+</style>
+</head>
+<body>
+<div class="shell">
+<nav class="sidebar">
+  <div class="brand">
+    <div class="path">~/os-field-manual/<b>05_cv_semaphores.html</b></div>
+    <h1>OS Field Manual</h1>
+    <div class="sub">CS F372 &middot; Placement Revision Set</div>
+  </div>
+  <div class="tree">
+    <div class="tree-title">On this page</div>
+    <a href="#cv-intro">1. Condition Variables</a>
+<a href="#producer-consumer">2. Producer/Consumer (CV)</a>
+<a href="#batch">3. Worked Problem: Batching</a>
+<a href="#semaphores">4. Semaphores</a>
+<a href="#prodcons-sem">5. Producer/Consumer (Sem)</a>
+<a href="#qbank">6. Rapid-fire Recall</a>
+  </div>
+  <div class="chapters">
+    <div class="tree-title">All chapters</div>
+    <a href="01_foundations_booting.html" class=""><span class="n">01</span>Foundations & Booting</a>
+<a href="02_processes_syscalls.html" class=""><span class="n">02</span>Processes & System Calls</a>
+<a href="03_cpu_scheduling.html" class=""><span class="n">03</span>CPU Scheduling</a>
+<a href="04_threads_locks.html" class=""><span class="n">04</span>Threads & Locks</a>
+<a href="05_cv_semaphores.html" class="current"><span class="n">05</span>Condition Variables & Semaphores</a>
+<a href="06_virtual_memory_paging.html" class=""><span class="n">06</span>Virtual Memory & Paging</a>
+<a href="07_filesystems_storage_ipc.html" class=""><span class="n">07</span>File Systems, Storage & IPC</a>
+
+  </div>
+</nav>
+<main>
+  <div class="hero">
+    <span class="tag">CHAPTER 05 &middot; INODE 0x05</span>
+    <h1>Condition Variables &amp; Semaphores</h1>
+    <p class="desc">Waiting for state changes correctly, the classic producer/consumer problem solved two ways, and the semaphore as a general synchronization primitive.</p>
+    <div class="stats"><div class="stat"><b>20 min</b>read</div><div class="stat"><b>CV_s_and_Semaphores.md</b>source</div><div class="stat"><b>6</b>topics</div></div>
+  </div>
+  
+<div class="summary-box">
+<h3>Quick revision — the 60 second version</h3>
+<ul>
+<li>CV = an explicit wait queue for "state isn't right yet"; always paired with a mutex</li>
+<li>Always use <code>while</code>, never <code>if</code>, around a CV wait — recheck the condition after waking</li>
+<li>Producer/consumer needs <strong>two</strong> CVs (empty, fill), not one shared CV</li>
+<li>Semaphore = integer counter + down(wait)/up(signal); blocks on negative, wakes on <code>&lt;= 0</code></li>
+<li>Lock via semaphore &rarr; init to 1. Ordering (wait-for-child) &rarr; init to 0</li>
+<li>Down never releases other locks it's holding &rarr; watch for deadlock ordering</li>
+</ul>
+</div>
+
+<section id="cv-intro">
+<h2><span class="idx">&sect;1</span> Condition Variables</h2>
+<p>Say T2 must run only after T1 finishes some task. Polling periodically wastes CPU. Adding T2 to T1's lock wait-queue is also wrong — wait queues are for locks/critical sections, not arbitrary ordering, and would block unrelated threads too.</p>
+<p>A <strong>condition variable</strong> is an explicit queue threads put themselves on when the current state isn't what they want. A thread calls <code>wait(cv)</code> and blocks; another thread calls <code>signal(cv)</code> to wake one waiter.</p>
+
+<h3>Why wait/signal must be atomic with the check</h3>
+<table>
+<tr><th>T1</th><th>T2 (broken interleaving)</th></tr>
+<tr><td></td><td><code>if (!done)</code> then <strong>context switch</strong></td></tr>
+<tr><td><code>done = true; signal(cv)</code></td><td></td></tr>
+<tr><td></td><td><code>wait(cv)</code> &mdash; sleeps forever, the signal already fired</td></tr>
+</table>
+<p>The fix: lock around the check-and-wait, and lock around the update-and-signal.</p>
+<table>
+<tr><th>T1</th><th>T2</th></tr>
+<tr><td></td><td><code>lock(mutex); if (!done) wait(cv, mutex)</code></td></tr>
+<tr><td><code>lock(mutex); done=true; signal(cv); unlock(mutex)</code></td><td></td></tr>
+<tr><td></td><td><code>unlock(mutex)</code></td></tr>
+</table>
+<ol>
+<li>T2 holds the lock, checks the condition, calls wait — the pthread implementation of <code>wait()</code> atomically releases the lock <em>and</em> adds itself to the queue, then reacquires the lock before returning</li>
+<li>T1 must also acquire the same lock before signaling, so signal can never happen in the gap between T2's check and T2's wait</li>
+<li>When T1 signals, T2 leaves the CV queue and tries to reacquire the mutex; if T1 still holds it, T2 waits on the <em>mutex's</em> queue instead until T1 unlocks</li>
+</ol>
+
+<div class="code-block">
+<div class="tag"><span>c</span><span>pintos-style implementation (Mesa semantics)</span></div>
+<pre>void cond_wait (struct condition *cond, struct lock *lock) {
+  struct semaphore_elem waiter;
+  sema_init (&amp;waiter.semaphore, 0);
+  list_push_back (&amp;cond-&gt;waiters, &amp;waiter.elem);
+  lock_release (lock);
+  sema_down (&amp;waiter.semaphore);
+  lock_acquire (lock);
+}
+
+void cond_signal (struct condition *cond, struct lock *lock) {
+  if (!list_empty (&amp;cond-&gt;waiters))
+    sema_up (&amp;list_entry(list_pop_front(&amp;cond-&gt;waiters),
+                          struct semaphore_elem, elem)-&gt;semaphore);
+}</pre>
+</div>
+<div class="callout info"><div class="ctitle">&sect; Mesa vs Hoare semantics</div><p>This is <strong>Mesa-style</strong>: signal and wake-up aren't atomic — a signaled thread merely becomes runnable, it doesn't run immediately. That's exactly why you must re-check the condition (with <code>while</code>, not <code>if</code>) after waking.</p></div>
+</section>
+
+<section id="producer-consumer">
+<h2><span class="idx">&sect;2</span> Producer / Consumer with CVs</h2>
+<div class="callout gotcha">
+<div class="ctitle">&#10005; What's wrong with this code? (buffer size 1)</div>
+<div class="code-block"><div class="tag"><span>c</span><span>broken producer/consumer</span></div>
+<pre>void *producer(void *arg) {
+    for (int i = 0; i &lt; loops; i++) {
+        Pthread_mutex_lock(&amp;mutex);
+        if (count == 1)                       // BUG 1: should be while
+            Pthread_cond_wait(&amp;cond, &amp;mutex); // BUG 2: shared cond
+        put(i);
+        Pthread_cond_signal(&amp;cond);
+        Pthread_mutex_unlock(&amp;mutex);
+    }
+}</pre></div>
+<p><strong>Bug 1:</strong> <code>if</code> instead of <code>while</code> — after being woken, execution proceeds without re-verifying the state is actually usable. <strong>Bug 2:</strong> producer and consumer share one CV — a producer waking another producer (instead of a consumer) is pointless and can deadlock the system.</p>
+</div>
+
+<div class="code-block">
+<div class="tag"><span>c</span><span>correct — two condition variables (MAX = buffer size)</span></div>
+<pre>cond_t empty, fill;
+mutex_t mutex;
+
+void *producer(void *arg) {
+    for (int i = 0; i &lt; loops; i++) {
+        Pthread_mutex_lock(&amp;mutex);
+        while (count == MAX) Pthread_cond_wait(&amp;empty, &amp;mutex);
+        put(i);
+        Pthread_cond_signal(&amp;fill);
+        Pthread_mutex_unlock(&amp;mutex);
+    }
+}
+
+void *consumer(void *arg) {
+    for (int i = 0; i &lt; loops; i++) {
+        Pthread_mutex_lock(&amp;mutex);
+        while (count == 0) Pthread_cond_wait(&amp;fill, &amp;mutex);
+        int t = get();
+        Pthread_cond_signal(&amp;empty);
+        Pthread_mutex_unlock(&amp;mutex);
+    }
+}</pre>
+</div>
+<p><strong>Signal vs Broadcast:</strong> <code>signal</code> wakes exactly one waiter; <code>broadcast</code> wakes all of them (they all recheck the condition) — more expensive but sometimes necessary when multiple threads could proceed.</p>
+</section>
+
+<section id="batch">
+<h2><span class="idx">&sect;3</span> Worked Problem: Batch Processing</h2>
+<p>Wait for N requests to accumulate, process them together as a batch, then wait for the next batch.</p>
+<div class="code-block">
+<div class="tag"><span>c</span><span>request thread / batch processor thread</span></div>
+<pre>// request thread
+lock(mutex)
+count++
+if (count == N) signal(cv_batch_processor)
+while (!batch_started) wait(cv_request, mutex)
+unlock(mutex)
+
+// batch processor thread
+lock(mutex)
+while (count &lt; N) wait(cv_batch_processor, mutex)
+batch_started = true
+signal_broadcast(cv_request)
+unlock(mutex)</pre>
+</div>
+<p>Two separate CVs again — one for requesters waiting on the batch to start, one for the processor waiting on enough requests.</p>
+</section>
+
+<section id="semaphores">
+<h2><span class="idx">&sect;4</span> Semaphores</h2>
+<table>
+<tr><th>Feature</th><th>Semaphore</th><th>Condition Variable</th></tr>
+<tr><td>Integer counter</td><td>Yes</td><td>No</td></tr>
+<tr><td>Resource counting</td><td>Yes</td><td>No</td></tr>
+<tr><td>Works alone (no external lock)</td><td>Yes</td><td>No — always needs a mutex</td></tr>
+<tr><td>Wake-up logic built in</td><td>Yes</td><td>No — waiter re-checks manually</td></tr>
+<tr><td>Typical use</td><td>Bounded buffers, resource counting</td><td>Waiting on an arbitrary state change</td></tr>
+</table>
+<p>Two operations: <strong>down/wait/P</strong> decrements and blocks if the result is negative. <strong>up/signal/post/V</strong> increments and wakes one blocked thread if needed.</p>
+<div class="diagram">wait(S):
+    S.value = S.value - 1
+    if S.value &lt; 0: block the calling thread
+
+signal(S):
+    S.value = S.value + 1
+    if S.value &lt;= 0: wake up one blocked thread</div>
+<div class="callout info">
+<div class="ctitle">&sect; Reading the sign of S</div>
+<p>If S &gt; 0: that many resources are free. If S == 0: no free resources, but nobody is waiting. If S &lt; 0: <code>|S|</code> threads are currently blocked waiting. The <code>&lt;= 0</code> check in <code>signal</code> exists because after incrementing from -1 to 0, there's still exactly one thread that needs waking — it was the last one queued.</p>
+</div>
+
+<h3>Semaphore as a lock (binary semaphore)</h3>
+<div class="code-block">
+<div class="tag"><span>c</span><span>init to 1 for locking</span></div>
+<pre>sem_t m;
+sem_init(&amp;m, 0, 1);       // X = 1: willing to hand the lock out immediately
+
+sem_wait(&amp;m);              // acquire
+// critical section
+sem_post(&amp;m);              // release</pre>
+</div>
+
+<h3>Semaphores for ordering (parent waits for child)</h3>
+<div class="code-block">
+<div class="tag"><span>c</span><span>init to 0 for ordering</span></div>
+<pre>sem_t s;
+
+void *child(void *arg) {
+    printf("child\n");
+    sem_post(&amp;s);
+    return NULL;
+}
+
+int main() {
+    sem_init(&amp;s, 0, 0);     // X = 0: nothing to give away yet
+    pthread_t c;
+    pthread_create(&amp;c, NULL, child, NULL);
+    sem_wait(&amp;s);            // parent blocks until child posts
+    printf("parent: end\n");
+}</pre>
+</div>
+<div class="callout qa">
+<div class="ctitle">? Why 0 here but 1 for locking?</div>
+<p>With a lock, we're fine handing it out immediately (init 1). With ordering, there's nothing to hand out at the start — we must force the parent to block until the child actively produces the signal, so it starts at 0.</p>
+</div>
+
+<h3>Threads waiting for each other (barrier of 2)</h3>
+<p>Both T1 and T2 must finish step 1 before either starts step 2. Use two semaphores <code>T1done</code>, <code>T2done</code>, both init 0 — and always <code>up</code> before <code>down</code> in each thread, or you deadlock (the count could never rise).</p>
+<table>
+<tr><th>T1 (step 1)</th><th>T2 (step 1)</th></tr>
+<tr><td><code>up(T1done)</code></td><td><code>up(T2done)</code></td></tr>
+<tr><td><code>down(T2done)</code></td><td><code>down(T1done)</code></td></tr>
+</table>
+
+<h3>Generalizing to N threads: the barrier</h3>
+<div class="code-block">
+<div class="tag"><span>c</span><span>barrier for N threads</span></div>
+<pre>int count = 0;
+sem_t mutex, barrier;
+int N = &lt;number of threads&gt;;
+
+sem_init(&amp;mutex, 0, 1);    // protects updates to count
+sem_init(&amp;barrier, 0, 0);  // blocks everyone till all N arrive
+
+void barrier_point() {
+    sem_wait(&amp;mutex);
+    count++;
+    if (count == N)
+        for (int i = 0; i &lt; N; i++) sem_post(&amp;barrier); // release everyone
+    sem_post(&amp;mutex);
+    sem_wait(&amp;barrier);   // each thread waits its turn to pass
+}</pre>
+</div>
+</section>
+
+<section id="prodcons-sem">
+<h2><span class="idx">&sect;5</span> Producer/Consumer with Semaphores</h2>
+<div class="code-block">
+<div class="tag"><span>c</span><span>unsafe first draft</span></div>
+<pre>// Producer                         // Consumer
+down(sem_empty);                    down(sem_filled);
+produce item                        consume item
+up(sem_filled);                     up(sem_empty);</pre>
+</div>
+<div class="callout gotcha"><div class="ctitle">&#10005; Not safe</div><p>Nothing stops two producers from touching the buffer simultaneously — a plain mutex is still needed.</p></div>
+
+<div class="code-block">
+<div class="tag"><span>c</span><span>correct ordering of mutex vs empty/filled</span></div>
+<pre>// Producer                         // Consumer
+down(sem_empty);   // OUTSIDE       down(sem_filled); // OUTSIDE
+down(mutex);                        down(mutex);
+produce item                        consume item
+up(mutex);                          up(mutex);
+up(sem_filled);                     up(sem_empty);</pre>
+</div>
+<div class="callout warn">
+<div class="ctitle">&#9888; Lock ordering matters</div>
+<p>If <code>down(mutex)</code> came <em>before</em> <code>down(sem_empty)</code>, a full buffer would deadlock the system: the producer holds the mutex while blocked on <code>sem_empty</code>, but only a consumer (which needs the mutex to run) can ever post <code>sem_empty</code>.</p>
+</div>
+<p><strong>Guidelines:</strong> down~wait, up~signal — but semaphores have <em>no</em> broadcast equivalent. Use separate semaphores for signaling vs. mutual exclusion. Down never releases any lock it's already holding, so watch dependency ordering carefully. Choosing the right initial value is half the design.</p>
+</section>
+
+<section id="qbank">
+<h2><span class="idx">&sect;6</span> Rapid-fire Recall</h2>
+<div class="callout qa">
+<div class="ctitle">? Common questions</div>
+<p><strong>Q: Why must a CV wait always be wrapped in <code>while</code>, not <code>if</code>?</strong><br>A: Mesa-style signaling only makes the thread runnable — by the time it actually runs, another thread may have changed the state again. Re-checking is mandatory.</p>
+<p><strong>Q: Give the one-line intuition difference between a semaphore and a CV.</strong><br>A: A semaphore is a gatekeeper that counts slots and wakes automatically; a CV is a doorbell you still have to check after answering.</p>
+<p><strong>Q: What should a semaphore used purely as a mutex be initialized to?</strong><br>A: 1.</p>
+<p><strong>Q: What should a semaphore used purely for ordering (wait-for-event) be initialized to?</strong><br>A: 0.</p>
+<p><strong>Q: In the producer/consumer semaphore solution, why must the buffer-availability <code>down</code> happen before the mutex <code>down</code>?</strong><br>A: Otherwise a producer can hold the mutex while blocked waiting for space, but only a consumer — who needs the mutex to run — can free that space: deadlock.</p>
+</div>
+</section>
+
+  <div class="footnav"><a href="04_threads_locks.html"><span class="lbl">&larr; prev</span>Threads & Locks</a><a href="06_virtual_memory_paging.html" class="right"><span class="lbl">next &rarr;</span>Virtual Memory & Paging</a></div>
+</main>
+</div>
+</body>
+</html>

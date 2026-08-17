@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Processes &amp; System Calls — OS Field Manual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a0f1a; --panel:#111a2b; --panel2:#0d1522; --line:#26374f;
+  --accent:#5aa6f0; --accent-dim:#3d6f9c; --amber:#f0a742; --green:#5fcb9d;
+  --red:#ef6f6c; --text:#e7ecf5; --muted:#8ea0bd; --mono-bg:#0b1220;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--ink); color:var(--text);
+  font-family:'IBM Plex Sans',system-ui,sans-serif; line-height:1.65;
+  font-size:16px;
+}
+::selection{background:var(--accent-dim); color:#fff;}
+a{color:var(--accent); text-decoration:none;}
+a:hover{text-decoration:underline;}
+h1,h2,h3,h4{font-family:'Space Grotesk',system-ui,sans-serif; font-weight:600; letter-spacing:-0.01em; color:#fff;}
+code,pre,.mono{font-family:'IBM Plex Mono',monospace;}
+
+/* ===== Layout ===== */
+.shell{display:flex; min-height:100vh;}
+.sidebar{
+  width:272px; flex-shrink:0; background:var(--panel2); border-right:1px solid var(--line);
+  position:sticky; top:0; height:100vh; overflow-y:auto; padding:22px 0 40px;
+}
+.sidebar::-webkit-scrollbar{width:8px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--line); border-radius:4px;}
+.brand{
+  padding:0 22px 18px; margin-bottom:12px; border-bottom:1px solid var(--line);
+}
+.brand .path{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted);}
+.brand .path b{color:var(--accent);}
+.brand h1{font-size:17px; margin:6px 0 2px; line-height:1.3;}
+.brand .sub{font-size:12px; color:var(--muted);}
+.tree{padding:6px 10px 18px; border-bottom:1px solid var(--line); margin-bottom:10px;}
+.tree-title{font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); padding:6px 12px 8px;}
+.tree a{
+  display:block; font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--muted);
+  padding:5px 12px 5px 26px; position:relative; border-left:2px solid transparent;
+}
+.tree a::before{content:"├─"; position:absolute; left:8px; color:var(--line);}
+.tree a:last-child::before{content:"└─";}
+.tree a:hover{color:var(--text); text-decoration:none; background:rgba(90,166,240,.06);}
+.tree a.current{color:var(--accent); border-left:2px solid var(--accent); background:rgba(90,166,240,.08); font-weight:600;}
+.chapters{padding:6px 10px;}
+.chapters .tree-title{padding-left:12px;}
+.chapters a{
+  display:flex; gap:8px; align-items:baseline; font-family:'IBM Plex Mono',monospace; font-size:12px;
+  color:var(--muted); padding:6px 12px; border-radius:4px;
+}
+.chapters a .n{color:var(--accent-dim); min-width:20px;}
+.chapters a:hover{background:rgba(90,166,240,.08); color:var(--text); text-decoration:none;}
+.chapters a.current{background:rgba(90,166,240,.12); color:var(--accent); font-weight:600;}
+.chapters a.current .n{color:var(--accent);}
+
+main{flex:1; min-width:0; padding:56px 60px 100px; max-width:900px;}
+
+/* ===== Hero ===== */
+.hero{margin-bottom:46px; padding-bottom:30px; border-bottom:1px solid var(--line);}
+.hero .tag{
+  font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--amber);
+  display:inline-flex; align-items:center; gap:8px; padding:4px 10px;
+  border:1px solid rgba(240,167,66,.35); border-radius:20px; margin-bottom:16px;
+}
+.hero h1{font-size:38px; margin:0 0 12px; line-height:1.15;}
+.hero p.desc{color:var(--muted); font-size:16px; max-width:640px; margin:0;}
+.hero .stats{display:flex; gap:22px; margin-top:22px; flex-wrap:wrap;}
+.hero .stat{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted);}
+.hero .stat b{display:block; color:var(--text); font-size:15px; font-family:'Space Grotesk',sans-serif;}
+
+/* ===== Sections ===== */
+section{margin-bottom:52px;}
+h2{
+  font-size:23px; margin:0 0 18px; padding-bottom:10px; border-bottom:1px solid var(--line);
+  display:flex; align-items:baseline; gap:10px;
+}
+h2 .idx{font-family:'IBM Plex Mono',monospace; color:var(--accent-dim); font-size:15px;}
+h3{font-size:17px; margin:26px 0 10px; color:var(--accent);}
+h4{font-size:14.5px; margin:18px 0 8px; color:var(--text); text-transform:uppercase; letter-spacing:.04em; font-family:'IBM Plex Mono',monospace; font-weight:500;}
+p{margin:0 0 14px; color:#cdd7e6;}
+ul,ol{margin:0 0 16px; padding-left:22px; color:#cdd7e6;}
+li{margin-bottom:6px;}
+li::marker{color:var(--accent-dim);}
+strong{color:#fff; font-weight:600;}
+hr{border:none; border-top:1px solid var(--line); margin:30px 0;}
+
+/* ===== Code ===== */
+.code-block{margin:16px 0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--mono-bg);}
+.code-block .tag{
+  display:flex; justify-content:space-between; padding:7px 14px; background:var(--panel2);
+  border-bottom:1px solid var(--line); font-family:'IBM Plex Mono',monospace; font-size:11px;
+  color:var(--muted); text-transform:uppercase; letter-spacing:.06em;
+}
+.code-block pre{margin:0; padding:16px; overflow-x:auto; font-size:13px; line-height:1.55; color:#c3d3ea;}
+.code-block code{background:none;}
+p code, li code, td code{
+  background:rgba(90,166,240,.1); color:#a9d0f7; padding:1px 6px; border-radius:4px; font-size:.88em;
+}
+
+/* ===== Callouts ===== */
+.callout{border-radius:8px; padding:16px 18px; margin:18px 0; border:1px solid; position:relative;}
+.callout .ctitle{font-family:'IBM Plex Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.07em; margin-bottom:6px; display:flex; gap:8px; align-items:center;}
+.callout p:last-child{margin-bottom:0;}
+.callout.info{background:rgba(90,166,240,.07); border-color:rgba(90,166,240,.3);}
+.callout.info .ctitle{color:var(--accent);}
+.callout.warn{background:rgba(240,167,66,.07); border-color:rgba(240,167,66,.32);}
+.callout.warn .ctitle{color:var(--amber);}
+.callout.gotcha{background:rgba(239,111,108,.07); border-color:rgba(239,111,108,.32);}
+.callout.gotcha .ctitle{color:var(--red);}
+.callout.qa{background:rgba(95,203,157,.06); border-color:rgba(95,203,157,.3);}
+.callout.qa .ctitle{color:var(--green);}
+
+/* ===== Tables ===== */
+table{width:100%; border-collapse:collapse; margin:18px 0; font-size:13.5px;}
+th,td{padding:9px 13px; border:1px solid var(--line); text-align:left;}
+th{background:var(--panel2); font-family:'IBM Plex Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);}
+td{color:#cdd7e6;}
+tr:nth-child(even) td{background:rgba(255,255,255,.015);}
+
+/* ===== Misc components ===== */
+.diagram{
+  background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:20px;
+  font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#a9c3e0; white-space:pre; overflow-x:auto; margin:16px 0; line-height:1.5;
+}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0;}
+.card{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px 18px;}
+.card h4{margin-top:0;}
+.pill{display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:11px; padding:2px 9px; border-radius:20px; background:rgba(90,166,240,.12); color:var(--accent); margin-right:6px;}
+.summary-box{
+  background:linear-gradient(135deg, rgba(90,166,240,.09), rgba(95,203,157,.05));
+  border:1px solid var(--line); border-radius:10px; padding:20px 24px; margin:0 0 40px;
+}
+.summary-box h3{margin-top:0; color:#fff; font-size:15px; text-transform:uppercase; letter-spacing:.05em; font-family:'IBM Plex Mono',monospace;}
+.summary-box ul{columns:2; column-gap:30px; margin-bottom:0;}
+.summary-box li{font-size:13.5px; break-inside:avoid; color:#cdd7e6;}
+.footnav{display:flex; justify-content:space-between; margin-top:60px; padding-top:24px; border-top:1px solid var(--line);}
+.footnav a{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--muted); display:flex; flex-direction:column; gap:4px;}
+.footnav a:hover{color:var(--accent);}
+.footnav .lbl{font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted);}
+.footnav .right{text-align:right;}
+@media(max-width:900px){
+  .shell{flex-direction:column;}
+  .sidebar{position:relative; width:100%; height:auto;}
+  main{padding:34px 20px 80px;}
+  .summary-box ul{columns:1;}
+  .grid2{grid-template-columns:1fr;}
+}
+
+</style>
+</head>
+<body>
+<div class="shell">
+<nav class="sidebar">
+  <div class="brand">
+    <div class="path">~/os-field-manual/<b>02_processes_syscalls.html</b></div>
+    <h1>OS Field Manual</h1>
+    <div class="sub">CS F372 &middot; Placement Revision Set</div>
+  </div>
+  <div class="tree">
+    <div class="tree-title">On this page</div>
+    <a href="#what-is-a-process">1. What is a Process?</a>
+<a href="#modes-privileges">2. Syscalls, POSIX &amp; ABI</a>
+<a href="#trap">3. Function Call vs Syscall</a>
+<a href="#pcb">4. The PCB (struct proc)</a>
+<a href="#qbank">5. Rapid-fire Recall</a>
+  </div>
+  <div class="chapters">
+    <div class="tree-title">All chapters</div>
+    <a href="01_foundations_booting.html" class=""><span class="n">01</span>Foundations & Booting</a>
+<a href="02_processes_syscalls.html" class="current"><span class="n">02</span>Processes & System Calls</a>
+<a href="03_cpu_scheduling.html" class=""><span class="n">03</span>CPU Scheduling</a>
+<a href="04_threads_locks.html" class=""><span class="n">04</span>Threads & Locks</a>
+<a href="05_cv_semaphores.html" class=""><span class="n">05</span>Condition Variables & Semaphores</a>
+<a href="06_virtual_memory_paging.html" class=""><span class="n">06</span>Virtual Memory & Paging</a>
+<a href="07_filesystems_storage_ipc.html" class=""><span class="n">07</span>File Systems, Storage & IPC</a>
+
+  </div>
+</nav>
+<main>
+  <div class="hero">
+    <span class="tag">CHAPTER 02 &middot; INODE 0x02</span>
+    <h1>Processes &amp; System Calls</h1>
+    <p class="desc">Process states, fork/exec/wait, the difference between a function call and a system call, traps, and the PCB that ties it all together.</p>
+    <div class="stats"><div class="stat"><b>16 min</b>read</div><div class="stat"><b>Processes.md</b>source</div><div class="stat"><b>5</b>topics</div></div>
+  </div>
+  
+<div class="summary-box">
+<h3>Quick revision — the 60 second version</h3>
+<ul>
+<li>Process = memory image (code+data+heap+stack) + saved CPU context, identified by a PID</li>
+<li>States: Ready, Running, Blocked/Sleeping, Zombie (exited, not yet reaped)</li>
+<li>fork() &rarr; 0 in child, child's PID in parent. exec() &rarr; replaces the memory image. wait() &rarr; reaps a zombie child</li>
+<li># processes after N forks = 2<sup>N</sup></li>
+<li>Function call: jump via <code>call</code>, save context on user stack</li>
+<li>System call: jump via trap instruction through the IDT, save context on the <strong>kernel stack</strong> — never trust the user stack</li>
+<li>Trapframe = the saved CPU snapshot on the kernel stack when a trap fires</li>
+<li>return-from-trap restores context, drops privilege, and may switch to a different process entirely</li>
+</ul>
+</div>
+
+<section id="what-is-a-process">
+<h2><span class="idx">&sect;1</span> What is a Process?</h2>
+<p>A process is a program that's running. The OS allocates memory, initializes CPU context, and starts it in <strong>User Mode</strong> — until a system call, interrupt, or fault switches it to <strong>Kernel Mode</strong>.</p>
+<p>Each process has a <strong>PID</strong>, code + data (from the executable), and space for a stack and heap allocated at runtime. When paused, its execution context (register values) is saved in memory; when resumed, it's restored.</p>
+
+<h3>Process States</h3>
+<table>
+<tr><th>State</th><th>Meaning</th></tr>
+<tr><td>Ready</td><td>Can run, but the scheduler hasn't picked it (only 1 process runs per core at a time)</td></tr>
+<tr><td>Running</td><td>Currently executing on the CPU</td></tr>
+<tr><td>Blocked / Sleeping / Suspended</td><td>Waiting on some event; context saved until the event occurs</td></tr>
+<tr><td>Zombie</td><td>Exited, but not yet reaped — its exit code is still available for the parent to inspect</td></tr>
+</table>
+
+<div class="callout info">
+<div class="ctitle">&sect; Why zombies exist</div>
+<p>A zombie lets another process (the parent) examine the exit code (0 = success, non-zero = failure) before the OS reclaims its memory. The parent calls <code>wait()</code> to both read that status and tell the OS to clean up.</p>
+</div>
+</section>
+
+<section id="modes-privileges">
+<h2><span class="idx">&sect;2</span> System Calls, POSIX &amp; ABI</h2>
+<p>A <strong>system call</strong> is a function call into OS code that runs at a higher privilege level — the API for managing processes and resources. Some are blocking (<code>read()</code> from disk), some return instantly (<code>getpid()</code>).</p>
+
+<div class="grid2">
+<div class="card"><h4>POSIX</h4><p style="margin:0">A standard set of system calls + C library functions for portability. POSIX-compliant programs run on any POSIX-compliant OS (recompilation for architecture may still be needed). <code>printf</code> internally calls the <code>write()</code> syscall.</p></div>
+<div class="card"><h4>ABI</h4><p style="margin:0">Application Binary Interface — the compiled-level equivalent of an API. An API says <em>what</em> functions exist and their argument order; an ABI says <em>how</em> — which registers, stack layout, calling convention.</p></div>
+</div>
+
+<h3>The Core Process System Calls</h3>
+<table>
+<tr><th>Call</th><th>What it does</th></tr>
+<tr><td><code>fork()</code></td><td>Creates a new child process by duplicating the parent's memory image</td></tr>
+<tr><td><code>exec()</code></td><td>Replaces the calling process's memory image with a new executable</td></tr>
+<tr><td><code>exit()</code></td><td>Terminates the process (doesn't clean up memory by itself)</td></tr>
+<tr><td><code>wait()</code></td><td>Blocks the parent until a child terminates, then reaps it</td></tr>
+</table>
+
+<h4>fork()</h4>
+<ul>
+<li>Creates a new process with a new PID; the parent's memory image is copied into the child</li>
+<li>Parent and child run <strong>independent copies</strong> of the same code from the point of the fork onward</li>
+<li><code>fork()</code> returns <strong>0</strong> in the child, and the <strong>child's PID</strong> in the parent</li>
+<li>Changes to the parent's data after the fork don't affect the child (and vice versa)</li>
+<li>Number of processes after N forks = <code>2<sup>N</sup></code></li>
+</ul>
+
+<h4>exit() &amp; wait()</h4>
+<ul>
+<li><code>exit()</code> switches the process out permanently, but does <strong>not</strong> clean up memory — the process becomes a zombie</li>
+<li><code>wait()</code> reaps a zombie child: cleans its memory, returns its exit status. If the child is still running, the parent blocks until it exits</li>
+<li>If a parent never calls <code>wait()</code>, zombies pile up and can exhaust system memory</li>
+<li><code>waitpid()</code> waits for a specific PID</li>
+<li>If a parent exits before its child, the child becomes an <strong>orphan</strong>, gets adopted by <code>init</code>, and is reaped when init eventually cleans it up</li>
+</ul>
+
+<h4>exec()</h4>
+<ul>
+<li>Switches the calling process to run a different program entirely — new code, data, heap, and stack</li>
+<li>6 Linux variants: <code>execl, execlp, execle, execv, execvp, execvpe</code></li>
+<li>Any code written <em>after</em> a successful <code>exec()</code> call never runs — the whole memory image is replaced</li>
+</ul>
+
+<div class="callout qa">
+<div class="ctitle">? Why fork + exec instead of just "run this program"?</div>
+<p>Splitting process creation (<code>fork</code>) from program replacement (<code>exec</code>) lets the shell tweak the child's environment — redirecting file descriptors, changing directory, setting up pipes — <em>before</em> the new program's code starts running, without touching the shell's own state.</p>
+</div>
+
+<h3>How it all pans out: bootup to shell</h3>
+<ul>
+<li>After boot, <code>init</code> spawns a shell (bash/zsh)</li>
+<li>The shell reads a command, <strong>forks</strong> a child, <strong>execs</strong> the command, <strong>waits</strong> for it, then reads the next command</li>
+<li>The shell forks rather than exec-ing directly, because it must not terminate itself</li>
+<li><code>cd</code> is special: it calls <code>chdir()</code> directly on the <strong>parent</strong> (the shell) — no child is forked, since we want the shell's own working directory to change</li>
+</ul>
+
+<h4>Foreground / Background &amp; I/O Redirection</h4>
+<ul>
+<li>By default commands run in the foreground; the shell blocks until they finish</li>
+<li><code>&amp;</code> runs a command in the background — the shell doesn't wait</li>
+<li>Every process has STDIN, STDOUT, STDERR open by default as file descriptors</li>
+<li>Output redirection: close STDOUT, then open a regular file — it reclaims the freed low-numbered descriptor</li>
+</ul>
+<div class="code-block">
+<div class="tag"><span>c</span><span>output redirection</span></div>
+<pre>close(STDOUT_FILENO);
+open("./redir_output.txt", O_CREAT|O_WRONLY|O_TRUNC, S_IRWXU);
+// open() always uses the first available file descriptor -&gt; STDOUT here</pre>
+</div>
+</section>
+
+<section id="trap">
+<h2><span class="idx">&sect;3</span> Function Call vs System Call</h2>
+<div class="callout info">
+<div class="ctitle">&sect; The two key differences</div>
+<p><strong>1. Jump target trust</strong> — in a function call, the address is known and baked into the executable; the CPU can just <code>call</code> it. In a system call, the user <em>cannot</em> be trusted to jump to the correct OS address, so a special <strong>trap instruction</strong> is used instead, which looks the address up in a table the user can't touch.</p>
+<p><strong>2. Which stack</strong> — a function call saves register context on the <strong>user stack</strong>. A system call cannot use the user stack (a hostile process could have pushed malicious return addresses onto it), so it uses a separate, protected <strong>kernel stack</strong>.</p>
+</div>
+
+<h3>Kernel Stack &amp; the IDT</h3>
+<ul>
+<li>Every process has its own <strong>kernel stack</strong> — part of its PCB, in kernel memory, inaccessible from user mode</li>
+<li>Context is pushed onto it during a trap, popped when the trap is serviced</li>
+<li>The <strong>Interrupt Descriptor Table (IDT)</strong> / Trap Table is set up by the OS at boot and holds the addresses of kernel handler code for each event type</li>
+</ul>
+
+<div class="diagram">IDT layout (xv6-style)
+0   - 31   : System traps &amp; exceptions
+31  - 127  : Device interrupts
+128        : int80 syscall interface
+129 - 255  : other interrupts</div>
+
+<h3>The Hardware Trap Instruction</h3>
+<p>When user code wants a syscall, it invokes a trap instruction with an argument identifying the type. E.g. in xv6:</p>
+<div class="code-block">
+<div class="tag"><span>asm</span><span>invoking fork (syscall #1)</span></div>
+<pre>movl $SYS_fork, %eax       # SYS_fork = 1, placed in EAX
+int  $T_SYSCALL            # triggers the software interrupt (usually 64)
+ret</pre>
+</div>
+
+<p>When the trap fires, the CPU:</p>
+<ol>
+<li>Moves to a higher privilege level</li>
+<li>Shifts the stack pointer to this process's kernel stack</li>
+<li>Saves the register context onto the kernel stack</li>
+<li>Looks up the OS handler's address in the IDT and jumps the PC there</li>
+<li>Runs OS code, now on a secure stack</li>
+</ol>
+
+<h3>Trapframe</h3>
+<p>The trapframe is the saved snapshot of every register, flag, and segment selector at the moment of the trap, stored on the kernel stack.</p>
+<div class="code-block">
+<div class="tag"><span>asm</span><span>xv6 alltraps</span></div>
+<pre>alltraps:
+  pushl %ds
+  pushl %es
+  pushl %fs
+  pushl %gs
+  pusha                # push all general registers
+  movw $(SEG_KDATA&lt;&lt;3), %ax
+  movw %ax, %ds        # switch to kernel data segments
+  movw %ax, %es
+  pushl %esp           # pointer to trapframe, so C code can find it
+  call trap             # call C function trap(tf)
+  addl $4, %esp</pre>
+</div>
+
+<h3>Return-from-trap</h3>
+<p>Once the OS finishes handling the syscall/interrupt, a special instruction (<code>iret</code> on x86) does the reverse: restores CPU context from the kernel stack, drops privilege back to user mode, and resumes the PC where the trap happened. The user code has no idea it was ever suspended.</p>
+
+<div class="callout warn">
+<div class="ctitle">&#9888; It doesn't always return to the same process</div>
+<p>Before returning to user mode, the OS checks whether it should switch to a different process instead — because the current one exited/faulted, made a blocking call, or has simply run too long. That decision is the scheduler's job (next chapter).</p>
+</div>
+</section>
+
+<section id="pcb">
+<h2><span class="idx">&sect;4</span> The PCB — <code>struct proc</code> in xv6</h2>
+<div class="code-block">
+<div class="tag"><span>c</span><span>xv6 proc.h (essentials)</span></div>
+<pre>struct context {
+    uint edi, esi, ebx, ebp, eip;
+};
+
+enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
+
+struct proc {
+    uint sz;                     // size of process memory (bytes)
+    pde_t* pgdir;                // page table
+    char* kstack;                // bottom of kernel stack for this process
+    enum procstate state;        // process state
+    int pid;                     // process ID
+    struct proc* parent;         // parent process
+    struct trapframe* tf;        // trap frame for current syscall
+    struct context* context;     // swtch() here to run process
+    void* chan;                  // if non-zero, sleeping on chan
+    int killed;                  // if non-zero, process has been killed
+    struct file* ofile[NOFILE];  // open files
+    struct inode* cwd;           // current directory
+    char name[16];               // process name, for debugging
+};</pre>
+</div>
+<p>Notice this struct is the union of everything we just discussed: a page table (memory), a kernel stack + trapframe (trap handling), a state (scheduling), and a file table (the subject of chapter 7).</p>
+</section>
+
+<section id="qbank">
+<h2><span class="idx">&sect;5</span> Rapid-fire Recall</h2>
+<div class="callout qa">
+<div class="ctitle">? Common questions</div>
+<p><strong>Q: What does <code>fork()</code> return in the parent vs. the child?</strong><br>A: Child's PID in the parent, 0 in the child.</p>
+<p><strong>Q: Why can't a system call reuse the user stack for saving context?</strong><br>A: The user (or malicious code) could have corrupted stack values; the kernel needs a trusted, private stack.</p>
+<p><strong>Q: What happens to a process's memory when it calls <code>exit()</code>?</strong><br>A: Nothing is freed immediately — it becomes a zombie until a parent calls <code>wait()</code>.</p>
+<p><strong>Q: What's the difference between an orphan and a zombie?</strong><br>A: An orphan is a running child whose parent died (gets adopted by init). A zombie is an exited child waiting to be reaped.</p>
+<p><strong>Q: How does the CPU know where to jump on a trap?</strong><br>A: It looks up the handler address in the IDT using the trap's numeric argument.</p>
+</div>
+</section>
+
+  <div class="footnav"><a href="01_foundations_booting.html"><span class="lbl">&larr; prev</span>Foundations & Booting</a><a href="03_cpu_scheduling.html" class="right"><span class="lbl">next &rarr;</span>CPU Scheduling</a></div>
+</main>
+</div>
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Threads &amp; Locks — OS Field Manual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a0f1a; --panel:#111a2b; --panel2:#0d1522; --line:#26374f;
+  --accent:#5aa6f0; --accent-dim:#3d6f9c; --amber:#f0a742; --green:#5fcb9d;
+  --red:#ef6f6c; --text:#e7ecf5; --muted:#8ea0bd; --mono-bg:#0b1220;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--ink); color:var(--text);
+  font-family:'IBM Plex Sans',system-ui,sans-serif; line-height:1.65;
+  font-size:16px;
+}
+::selection{background:var(--accent-dim); color:#fff;}
+a{color:var(--accent); text-decoration:none;}
+a:hover{text-decoration:underline;}
+h1,h2,h3,h4{font-family:'Space Grotesk',system-ui,sans-serif; font-weight:600; letter-spacing:-0.01em; color:#fff;}
+code,pre,.mono{font-family:'IBM Plex Mono',monospace;}
+
+/* ===== Layout ===== */
+.shell{display:flex; min-height:100vh;}
+.sidebar{
+  width:272px; flex-shrink:0; background:var(--panel2); border-right:1px solid var(--line);
+  position:sticky; top:0; height:100vh; overflow-y:auto; padding:22px 0 40px;
+}
+.sidebar::-webkit-scrollbar{width:8px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--line); border-radius:4px;}
+.brand{
+  padding:0 22px 18px; margin-bottom:12px; border-bottom:1px solid var(--line);
+}
+.brand .path{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted);}
+.brand .path b{color:var(--accent);}
+.brand h1{font-size:17px; margin:6px 0 2px; line-height:1.3;}
+.brand .sub{font-size:12px; color:var(--muted);}
+.tree{padding:6px 10px 18px; border-bottom:1px solid var(--line); margin-bottom:10px;}
+.tree-title{font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); padding:6px 12px 8px;}
+.tree a{
+  display:block; font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--muted);
+  padding:5px 12px 5px 26px; position:relative; border-left:2px solid transparent;
+}
+.tree a::before{content:"├─"; position:absolute; left:8px; color:var(--line);}
+.tree a:last-child::before{content:"└─";}
+.tree a:hover{color:var(--text); text-decoration:none; background:rgba(90,166,240,.06);}
+.tree a.current{color:var(--accent); border-left:2px solid var(--accent); background:rgba(90,166,240,.08); font-weight:600;}
+.chapters{padding:6px 10px;}
+.chapters .tree-title{padding-left:12px;}
+.chapters a{
+  display:flex; gap:8px; align-items:baseline; font-family:'IBM Plex Mono',monospace; font-size:12px;
+  color:var(--muted); padding:6px 12px; border-radius:4px;
+}
+.chapters a .n{color:var(--accent-dim); min-width:20px;}
+.chapters a:hover{background:rgba(90,166,240,.08); color:var(--text); text-decoration:none;}
+.chapters a.current{background:rgba(90,166,240,.12); color:var(--accent); font-weight:600;}
+.chapters a.current .n{color:var(--accent);}
+
+main{flex:1; min-width:0; padding:56px 60px 100px; max-width:900px;}
+
+/* ===== Hero ===== */
+.hero{margin-bottom:46px; padding-bottom:30px; border-bottom:1px solid var(--line);}
+.hero .tag{
+  font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--amber);
+  display:inline-flex; align-items:center; gap:8px; padding:4px 10px;
+  border:1px solid rgba(240,167,66,.35); border-radius:20px; margin-bottom:16px;
+}
+.hero h1{font-size:38px; margin:0 0 12px; line-height:1.15;}
+.hero p.desc{color:var(--muted); font-size:16px; max-width:640px; margin:0;}
+.hero .stats{display:flex; gap:22px; margin-top:22px; flex-wrap:wrap;}
+.hero .stat{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted);}
+.hero .stat b{display:block; color:var(--text); font-size:15px; font-family:'Space Grotesk',sans-serif;}
+
+/* ===== Sections ===== */
+section{margin-bottom:52px;}
+h2{
+  font-size:23px; margin:0 0 18px; padding-bottom:10px; border-bottom:1px solid var(--line);
+  display:flex; align-items:baseline; gap:10px;
+}
+h2 .idx{font-family:'IBM Plex Mono',monospace; color:var(--accent-dim); font-size:15px;}
+h3{font-size:17px; margin:26px 0 10px; color:var(--accent);}
+h4{font-size:14.5px; margin:18px 0 8px; color:var(--text); text-transform:uppercase; letter-spacing:.04em; font-family:'IBM Plex Mono',monospace; font-weight:500;}
+p{margin:0 0 14px; color:#cdd7e6;}
+ul,ol{margin:0 0 16px; padding-left:22px; color:#cdd7e6;}
+li{margin-bottom:6px;}
+li::marker{color:var(--accent-dim);}
+strong{color:#fff; font-weight:600;}
+hr{border:none; border-top:1px solid var(--line); margin:30px 0;}
+
+/* ===== Code ===== */
+.code-block{margin:16px 0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--mono-bg);}
+.code-block .tag{
+  display:flex; justify-content:space-between; padding:7px 14px; background:var(--panel2);
+  border-bottom:1px solid var(--line); font-family:'IBM Plex Mono',monospace; font-size:11px;
+  color:var(--muted); text-transform:uppercase; letter-spacing:.06em;
+}
+.code-block pre{margin:0; padding:16px; overflow-x:auto; font-size:13px; line-height:1.55; color:#c3d3ea;}
+.code-block code{background:none;}
+p code, li code, td code{
+  background:rgba(90,166,240,.1); color:#a9d0f7; padding:1px 6px; border-radius:4px; font-size:.88em;
+}
+
+/* ===== Callouts ===== */
+.callout{border-radius:8px; padding:16px 18px; margin:18px 0; border:1px solid; position:relative;}
+.callout .ctitle{font-family:'IBM Plex Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.07em; margin-bottom:6px; display:flex; gap:8px; align-items:center;}
+.callout p:last-child{margin-bottom:0;}
+.callout.info{background:rgba(90,166,240,.07); border-color:rgba(90,166,240,.3);}
+.callout.info .ctitle{color:var(--accent);}
+.callout.warn{background:rgba(240,167,66,.07); border-color:rgba(240,167,66,.32);}
+.callout.warn .ctitle{color:var(--amber);}
+.callout.gotcha{background:rgba(239,111,108,.07); border-color:rgba(239,111,108,.32);}
+.callout.gotcha .ctitle{color:var(--red);}
+.callout.qa{background:rgba(95,203,157,.06); border-color:rgba(95,203,157,.3);}
+.callout.qa .ctitle{color:var(--green);}
+
+/* ===== Tables ===== */
+table{width:100%; border-collapse:collapse; margin:18px 0; font-size:13.5px;}
+th,td{padding:9px 13px; border:1px solid var(--line); text-align:left;}
+th{background:var(--panel2); font-family:'IBM Plex Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);}
+td{color:#cdd7e6;}
+tr:nth-child(even) td{background:rgba(255,255,255,.015);}
+
+/* ===== Misc components ===== */
+.diagram{
+  background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:20px;
+  font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#a9c3e0; white-space:pre; overflow-x:auto; margin:16px 0; line-height:1.5;
+}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0;}
+.card{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px 18px;}
+.card h4{margin-top:0;}
+.pill{display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:11px; padding:2px 9px; border-radius:20px; background:rgba(90,166,240,.12); color:var(--accent); margin-right:6px;}
+.summary-box{
+  background:linear-gradient(135deg, rgba(90,166,240,.09), rgba(95,203,157,.05));
+  border:1px solid var(--line); border-radius:10px; padding:20px 24px; margin:0 0 40px;
+}
+.summary-box h3{margin-top:0; color:#fff; font-size:15px; text-transform:uppercase; letter-spacing:.05em; font-family:'IBM Plex Mono',monospace;}
+.summary-box ul{columns:2; column-gap:30px; margin-bottom:0;}
+.summary-box li{font-size:13.5px; break-inside:avoid; color:#cdd7e6;}
+.footnav{display:flex; justify-content:space-between; margin-top:60px; padding-top:24px; border-top:1px solid var(--line);}
+.footnav a{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--muted); display:flex; flex-direction:column; gap:4px;}
+.footnav a:hover{color:var(--accent);}
+.footnav .lbl{font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted);}
+.footnav .right{text-align:right;}
+@media(max-width:900px){
+  .shell{flex-direction:column;}
+  .sidebar{position:relative; width:100%; height:auto;}
+  main{padding:34px 20px 80px;}
+  .summary-box ul{columns:1;}
+  .grid2{grid-template-columns:1fr;}
+}
+
+</style>
+</head>
+<body>
+<div class="shell">
+<nav class="sidebar">
+  <div class="brand">
+    <div class="path">~/os-field-manual/<b>04_threads_locks.html</b></div>
+    <h1>OS Field Manual</h1>
+    <div class="sub">CS F372 &middot; Placement Revision Set</div>
+  </div>
+  <div class="tree">
+    <div class="tree-title">On this page</div>
+    <a href="#threads-intro">1. Threads: Lightweight Processes</a>
+<a href="#race-condition">2. Race Conditions</a>
+<a href="#locks">3. Building a Lock</a>
+<a href="#spin-vs-sleep">4. Spin Lock vs Sleeping Mutex</a>
+<a href="#guidelines">5. Locking Discipline</a>
+<a href="#qbank">6. Rapid-fire Recall</a>
+  </div>
+  <div class="chapters">
+    <div class="tree-title">All chapters</div>
+    <a href="01_foundations_booting.html" class=""><span class="n">01</span>Foundations & Booting</a>
+<a href="02_processes_syscalls.html" class=""><span class="n">02</span>Processes & System Calls</a>
+<a href="03_cpu_scheduling.html" class=""><span class="n">03</span>CPU Scheduling</a>
+<a href="04_threads_locks.html" class="current"><span class="n">04</span>Threads & Locks</a>
+<a href="05_cv_semaphores.html" class=""><span class="n">05</span>Condition Variables & Semaphores</a>
+<a href="06_virtual_memory_paging.html" class=""><span class="n">06</span>Virtual Memory & Paging</a>
+<a href="07_filesystems_storage_ipc.html" class=""><span class="n">07</span>File Systems, Storage & IPC</a>
+
+  </div>
+</nav>
+<main>
+  <div class="hero">
+    <span class="tag">CHAPTER 04 &middot; INODE 0x04</span>
+    <h1>Threads &amp; Locks</h1>
+    <p class="desc">Threads vs processes, why race conditions happen, and how mutual exclusion is actually built from hardware atomics upward.</p>
+    <div class="stats"><div class="stat"><b>15 min</b>read</div><div class="stat"><b>Threads.md + Locks.md</b>source</div><div class="stat"><b>5</b>topics</div></div>
+  </div>
+  
+<div class="summary-box">
+<h3>Quick revision — the 60 second version</h3>
+<ul>
+<li>Threads share code/data/heap, but each has its own stack, PC, and CPU context</li>
+<li>Concurrency = illusion of parallelism via switching; parallelism = truly simultaneous (needs multiple cores)</li>
+<li>Race condition = unfortunate interleaving breaks atomicity of a shared-data update</li>
+<li>Locks need an atomic hardware primitive: Test-and-Set or Compare-and-Swap</li>
+<li>Naive spin locks waste CPU; futex-based queued locks are fairer and faster</li>
+<li>Spinlock &rarr; short critical sections. Sleeping mutex &rarr; long critical sections. Two-phase lock = best of both</li>
+</ul>
+</div>
+
+<section id="threads-intro">
+<h2><span class="idx">&sect;1</span> Threads: Lightweight Processes</h2>
+<p>A process might want to run multiple copies of itself in parallel across CPU cores. Forking copies the <em>entire</em> memory segment; threads instead all share the same code, data, and heap of their parent process, but each gets its <strong>own stack</strong>. Each thread also has its own <strong>PC</strong> and <strong>CPU context</strong> during execution.</p>
+
+<h3>Concurrency vs Parallelism</h3>
+<div class="grid2">
+<div class="card"><h4>Concurrency</h4><p style="margin:0">Rapidly switching between threads/processes, giving the <em>illusion</em> of simultaneity. Useful even on a single core — if one thread blocks on I/O, another can keep the CPU busy.</p></div>
+<div class="card"><h4>Parallelism</h4><p style="margin:0">Actually running things at the same time — bounded by the number of physical cores.</p></div>
+</div>
+
+<h3>POSIX Threads (pthreads)</h3>
+<div class="code-block">
+<div class="tag"><span>c</span><span>pthread lifecycle</span></div>
+<pre>#include &lt;pthread.h&gt;
+
+int pthread_create(
+    pthread_t *restrict thread,
+    const pthread_attr_t *restrict attr,
+    void *(*start_routine)(void *),
+    void *restrict arg
+);
+
+int pthread_join(pthread_t thread, void **retval);</pre>
+</div>
+<div class="code-block">
+<div class="tag"><span>c</span><span>minimal example — compile with -lpthread</span></div>
+<pre>void *mythread(void *arg) {
+    printf("%s\n", (char *) arg);
+    return NULL;
+}
+
+int main(int argc, char *argv[]) {
+    pthread_t p1, p2;
+    printf("main: begin\n");
+    pthread_create(&amp;p1, NULL, mythread, "A");
+    pthread_create(&amp;p2, NULL, mythread, "B");
+    pthread_join(p1, NULL);   // join waits for the thread to finish
+    pthread_join(p2, NULL);
+    printf("main: end\n");
+    return 0;
+}
+// "A" and "B" can print in either order — the scheduler decides</pre>
+</div>
+</section>
+
+<section id="race-condition">
+<h2><span class="idx">&sect;2</span> Race Conditions</h2>
+<div class="code-block">
+<div class="tag"><span>c</span><span>the classic broken counter</span></div>
+<pre>int counter;
+
+void *incrementBy100000() {
+    for (int i = 0; i &lt; 100000; i++) counter++;
+}
+// two threads run this. final counter value?</pre>
+</div>
+<div class="callout gotcha">
+<div class="ctitle">&#10005; Not 200,000</div>
+<p><code>counter++</code> is not atomic — it's a <em>read</em>, then an <em>increment</em>, then a <em>write</em>. If T1 reads counter (say, 0) into a register and gets context-switched out before writing it back, T2 can run the entire increment and store 1. When T1 resumes, it still has the stale value 0 in its register, increments to 1, and overwrites T2's update. The final value ends up <strong>less than</strong> 200,000, and it's non-deterministic exactly how much less.</p>
+</div>
+<p>The fix is <strong>mutual exclusion</strong> via a lock (mutex):</p>
+<div class="code-block">
+<div class="tag"><span>c</span><span>fixed with a mutex</span></div>
+<pre>int counter;
+pthread_mutex_t m;
+
+void *incrementBy100000() {
+    for (int i = 0; i &lt; 100000; i++) {
+        pthread_mutex_lock(&amp;m);      // acquire
+        counter++;                    // critical section
+        pthread_mutex_unlock(&amp;m);    // release
+    }
+}</pre>
+</div>
+</section>
+
+<section id="locks">
+<h2><span class="idx">&sect;3</span> Building a Lock</h2>
+<p>Goals of any lock implementation: <strong>mutual exclusion</strong>, <strong>fairness</strong>, <strong>low overhead</strong>.</p>
+
+<h3>Attempt 1 — Disable Interrupts</h3>
+<p>Lock = disable interrupts, unlock = re-enable. Only trustworthy inside the kernel itself. Fails on multi-core (another core can still touch the lock), and delays important interrupts like DMA completion.</p>
+
+<h3>Attempt 2 — Naive Spin Wait</h3>
+<div class="code-block">
+<div class="tag"><span>c</span><span>broken — has a race of its own</span></div>
+<pre>int is_locked = 0;
+
+void acquire_lock() {
+    while (is_locked == 1);   // wait till free
+    is_locked = 1;
+}
+
+void release_lock() { is_locked = 0; }</pre>
+</div>
+<div class="callout gotcha">
+<div class="ctitle">&#10005; Still racy</div>
+<p>If a context switch happens right after the <code>while</code> check passes but before <code>is_locked = 1</code> executes, another thread can slip in — the check and the set aren't atomic. Also wastes CPU cycles spinning.</p>
+</div>
+
+<h3>Attempt 3 — Test-and-Set (hardware atomic)</h3>
+<p>A single hardware instruction that writes a new value and returns the <em>old</em> value, atomically, in one step (SPARC: <code>ldstub</code>, x86: locked <code>xchg</code>).</p>
+<div class="code-block">
+<div class="tag"><span>c</span><span>TAS-based spinlock</span></div>
+<pre>typedef struct __lock_t { int flag; } lock_t;
+
+void init(lock_t *lock) { lock-&gt;flag = 0; }
+
+void lock(lock_t *lock) {
+    while (TestAndSet(&amp;lock-&gt;flag, 1) == 1);   // 1 = already held, keep spinning
+}
+
+void unlock(lock_t *lock) { lock-&gt;flag = 0; }</pre>
+</div>
+
+<h3>Compare-And-Swap (CAS)</h3>
+<p>Takes address, expected old value, and new value. Writes the new value only if the current value matches expected; always returns the actual old value.</p>
+<div class="code-block">
+<div class="tag"><span>c</span><span>CAS-based lock</span></div>
+<pre>void lock(lock_t *lock) {
+    while (CompareAndSwap(&amp;lock-&gt;flag, 0, 1) == 1);
+}</pre>
+</div>
+
+<div class="callout warn">
+<div class="ctitle">&#9888; Not fair</div>
+<p>None of the above guarantees fairness — there's no ordering of who gets the lock next. Linux uses <strong>futex-based</strong> locks with a built-in wait queue to fix both fairness and wasted spinning (the kernel wakes a specific waiting thread when the lock is released, instead of everyone racing).</p>
+</div>
+
+<h3>Yielding while spinning</h3>
+<div class="code-block">
+<div class="tag"><span>c</span><span>spin + yield</span></div>
+<pre>void lock() {
+    while (TestAndSet(&amp;flag, 1) == 1) yield();
+}
+void unlock() { flag = 0; }</pre>
+</div>
+</section>
+
+<section id="spin-vs-sleep">
+<h2><span class="idx">&sect;4</span> Spin Lock vs Sleeping Mutex</h2>
+<table>
+<tr><th></th><th>Spin Lock</th><th>Sleeping Mutex</th></tr>
+<tr><td>Waiting behaviour</td><td>Burns CPU cycles polling</td><td>Thread sleeps; OS context switches to something else</td></tr>
+<tr><td>Best for</td><td>Short critical sections (avoid context-switch overhead)</td><td>Long critical sections</td></tr>
+</table>
+<div class="callout info">
+<div class="ctitle">&sect; Two-Phase Locks</div>
+<p>Phase 1: spin for a short while. Phase 2: fall back to a sleeping mutex if it's still not free. This hybrid is almost always the best practical choice.</p>
+</div>
+</section>
+
+<section id="guidelines">
+<h2><span class="idx">&sect;5</span> Locking Discipline &amp; Counters</h2>
+<ul>
+<li>Protect each data structure with (at least) one lock</li>
+<li>Locks can be <strong>coarse-grained</strong> (one big lock) or <strong>fine-grained</strong> (many small locks) — coarse is simpler, fine-grained scales better</li>
+<li>Lock for both reads and writes of shared state</li>
+</ul>
+<div class="code-block">
+<div class="tag"><span>c</span><span>a thread-safe counter</span></div>
+<pre>typedef struct __counter_t {
+    int value;
+    pthread_mutex_t lock;
+} counter_t;
+
+void init(counter_t *c) {
+    c-&gt;value = 0;
+    pthread_mutex_init(&amp;c-&gt;lock, NULL);
+}
+
+void increment(counter_t *c) {
+    pthread_mutex_lock(&amp;c-&gt;lock);
+    c-&gt;value++;
+    pthread_mutex_unlock(&amp;c-&gt;lock);
+}
+
+int get(counter_t *c) {
+    pthread_mutex_lock(&amp;c-&gt;lock);
+    int rc = c-&gt;value;
+    pthread_mutex_unlock(&amp;c-&gt;lock);
+    return rc;
+}</pre>
+</div>
+</section>
+
+<section id="qbank">
+<h2><span class="idx">&sect;6</span> Rapid-fire Recall</h2>
+<div class="callout qa">
+<div class="ctitle">? Common questions</div>
+<p><strong>Q: What do threads of the same process share, and what's private to each?</strong><br>A: Shared: code, data, heap. Private: stack, PC, CPU registers/context.</p>
+<p><strong>Q: Why can't <code>while(is_locked); is_locked=1;</code> ever be a correct lock?</strong><br>A: The check and the set are two separate instructions — a context switch between them lets two threads both think they got the lock.</p>
+<p><strong>Q: When would you prefer a spinlock over a sleeping mutex?</strong><br>A: When critical sections are very short — the cost of a context switch would exceed the cost of just spinning briefly.</p>
+<p><strong>Q: What's the actual hardware guarantee Test-and-Set gives you?</strong><br>A: The read-and-write of the flag happens as one indivisible step — no interleaving is possible.</p>
+</div>
+</section>
+
+  <div class="footnav"><a href="03_cpu_scheduling.html"><span class="lbl">&larr; prev</span>CPU Scheduling</a><a href="05_cv_semaphores.html" class="right"><span class="lbl">next &rarr;</span>Condition Variables & Semaphores</a></div>
+</main>
+</div>
+</body>
+</html>

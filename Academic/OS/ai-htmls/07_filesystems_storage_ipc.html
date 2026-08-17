@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>File Systems, Storage &amp; IPC — OS Field Manual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a0f1a; --panel:#111a2b; --panel2:#0d1522; --line:#26374f;
+  --accent:#5aa6f0; --accent-dim:#3d6f9c; --amber:#f0a742; --green:#5fcb9d;
+  --red:#ef6f6c; --text:#e7ecf5; --muted:#8ea0bd; --mono-bg:#0b1220;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--ink); color:var(--text);
+  font-family:'IBM Plex Sans',system-ui,sans-serif; line-height:1.65;
+  font-size:16px;
+}
+::selection{background:var(--accent-dim); color:#fff;}
+a{color:var(--accent); text-decoration:none;}
+a:hover{text-decoration:underline;}
+h1,h2,h3,h4{font-family:'Space Grotesk',system-ui,sans-serif; font-weight:600; letter-spacing:-0.01em; color:#fff;}
+code,pre,.mono{font-family:'IBM Plex Mono',monospace;}
+
+/* ===== Layout ===== */
+.shell{display:flex; min-height:100vh;}
+.sidebar{
+  width:272px; flex-shrink:0; background:var(--panel2); border-right:1px solid var(--line);
+  position:sticky; top:0; height:100vh; overflow-y:auto; padding:22px 0 40px;
+}
+.sidebar::-webkit-scrollbar{width:8px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--line); border-radius:4px;}
+.brand{
+  padding:0 22px 18px; margin-bottom:12px; border-bottom:1px solid var(--line);
+}
+.brand .path{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted);}
+.brand .path b{color:var(--accent);}
+.brand h1{font-size:17px; margin:6px 0 2px; line-height:1.3;}
+.brand .sub{font-size:12px; color:var(--muted);}
+.tree{padding:6px 10px 18px; border-bottom:1px solid var(--line); margin-bottom:10px;}
+.tree-title{font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); padding:6px 12px 8px;}
+.tree a{
+  display:block; font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--muted);
+  padding:5px 12px 5px 26px; position:relative; border-left:2px solid transparent;
+}
+.tree a::before{content:"├─"; position:absolute; left:8px; color:var(--line);}
+.tree a:last-child::before{content:"└─";}
+.tree a:hover{color:var(--text); text-decoration:none; background:rgba(90,166,240,.06);}
+.tree a.current{color:var(--accent); border-left:2px solid var(--accent); background:rgba(90,166,240,.08); font-weight:600;}
+.chapters{padding:6px 10px;}
+.chapters .tree-title{padding-left:12px;}
+.chapters a{
+  display:flex; gap:8px; align-items:baseline; font-family:'IBM Plex Mono',monospace; font-size:12px;
+  color:var(--muted); padding:6px 12px; border-radius:4px;
+}
+.chapters a .n{color:var(--accent-dim); min-width:20px;}
+.chapters a:hover{background:rgba(90,166,240,.08); color:var(--text); text-decoration:none;}
+.chapters a.current{background:rgba(90,166,240,.12); color:var(--accent); font-weight:600;}
+.chapters a.current .n{color:var(--accent);}
+
+main{flex:1; min-width:0; padding:56px 60px 100px; max-width:900px;}
+
+/* ===== Hero ===== */
+.hero{margin-bottom:46px; padding-bottom:30px; border-bottom:1px solid var(--line);}
+.hero .tag{
+  font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--amber);
+  display:inline-flex; align-items:center; gap:8px; padding:4px 10px;
+  border:1px solid rgba(240,167,66,.35); border-radius:20px; margin-bottom:16px;
+}
+.hero h1{font-size:38px; margin:0 0 12px; line-height:1.15;}
+.hero p.desc{color:var(--muted); font-size:16px; max-width:640px; margin:0;}
+.hero .stats{display:flex; gap:22px; margin-top:22px; flex-wrap:wrap;}
+.hero .stat{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted);}
+.hero .stat b{display:block; color:var(--text); font-size:15px; font-family:'Space Grotesk',sans-serif;}
+
+/* ===== Sections ===== */
+section{margin-bottom:52px;}
+h2{
+  font-size:23px; margin:0 0 18px; padding-bottom:10px; border-bottom:1px solid var(--line);
+  display:flex; align-items:baseline; gap:10px;
+}
+h2 .idx{font-family:'IBM Plex Mono',monospace; color:var(--accent-dim); font-size:15px;}
+h3{font-size:17px; margin:26px 0 10px; color:var(--accent);}
+h4{font-size:14.5px; margin:18px 0 8px; color:var(--text); text-transform:uppercase; letter-spacing:.04em; font-family:'IBM Plex Mono',monospace; font-weight:500;}
+p{margin:0 0 14px; color:#cdd7e6;}
+ul,ol{margin:0 0 16px; padding-left:22px; color:#cdd7e6;}
+li{margin-bottom:6px;}
+li::marker{color:var(--accent-dim);}
+strong{color:#fff; font-weight:600;}
+hr{border:none; border-top:1px solid var(--line); margin:30px 0;}
+
+/* ===== Code ===== */
+.code-block{margin:16px 0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--mono-bg);}
+.code-block .tag{
+  display:flex; justify-content:space-between; padding:7px 14px; background:var(--panel2);
+  border-bottom:1px solid var(--line); font-family:'IBM Plex Mono',monospace; font-size:11px;
+  color:var(--muted); text-transform:uppercase; letter-spacing:.06em;
+}
+.code-block pre{margin:0; padding:16px; overflow-x:auto; font-size:13px; line-height:1.55; color:#c3d3ea;}
+.code-block code{background:none;}
+p code, li code, td code{
+  background:rgba(90,166,240,.1); color:#a9d0f7; padding:1px 6px; border-radius:4px; font-size:.88em;
+}
+
+/* ===== Callouts ===== */
+.callout{border-radius:8px; padding:16px 18px; margin:18px 0; border:1px solid; position:relative;}
+.callout .ctitle{font-family:'IBM Plex Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.07em; margin-bottom:6px; display:flex; gap:8px; align-items:center;}
+.callout p:last-child{margin-bottom:0;}
+.callout.info{background:rgba(90,166,240,.07); border-color:rgba(90,166,240,.3);}
+.callout.info .ctitle{color:var(--accent);}
+.callout.warn{background:rgba(240,167,66,.07); border-color:rgba(240,167,66,.32);}
+.callout.warn .ctitle{color:var(--amber);}
+.callout.gotcha{background:rgba(239,111,108,.07); border-color:rgba(239,111,108,.32);}
+.callout.gotcha .ctitle{color:var(--red);}
+.callout.qa{background:rgba(95,203,157,.06); border-color:rgba(95,203,157,.3);}
+.callout.qa .ctitle{color:var(--green);}
+
+/* ===== Tables ===== */
+table{width:100%; border-collapse:collapse; margin:18px 0; font-size:13.5px;}
+th,td{padding:9px 13px; border:1px solid var(--line); text-align:left;}
+th{background:var(--panel2); font-family:'IBM Plex Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);}
+td{color:#cdd7e6;}
+tr:nth-child(even) td{background:rgba(255,255,255,.015);}
+
+/* ===== Misc components ===== */
+.diagram{
+  background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:20px;
+  font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#a9c3e0; white-space:pre; overflow-x:auto; margin:16px 0; line-height:1.5;
+}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0;}
+.card{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px 18px;}
+.card h4{margin-top:0;}
+.pill{display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:11px; padding:2px 9px; border-radius:20px; background:rgba(90,166,240,.12); color:var(--accent); margin-right:6px;}
+.summary-box{
+  background:linear-gradient(135deg, rgba(90,166,240,.09), rgba(95,203,157,.05));
+  border:1px solid var(--line); border-radius:10px; padding:20px 24px; margin:0 0 40px;
+}
+.summary-box h3{margin-top:0; color:#fff; font-size:15px; text-transform:uppercase; letter-spacing:.05em; font-family:'IBM Plex Mono',monospace;}
+.summary-box ul{columns:2; column-gap:30px; margin-bottom:0;}
+.summary-box li{font-size:13.5px; break-inside:avoid; color:#cdd7e6;}
+.footnav{display:flex; justify-content:space-between; margin-top:60px; padding-top:24px; border-top:1px solid var(--line);}
+.footnav a{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--muted); display:flex; flex-direction:column; gap:4px;}
+.footnav a:hover{color:var(--accent);}
+.footnav .lbl{font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted);}
+.footnav .right{text-align:right;}
+@media(max-width:900px){
+  .shell{flex-direction:column;}
+  .sidebar{position:relative; width:100%; height:auto;}
+  main{padding:34px 20px 80px;}
+  .summary-box ul{columns:1;}
+  .grid2{grid-template-columns:1fr;}
+}
+
+</style>
+</head>
+<body>
+<div class="shell">
+<nav class="sidebar">
+  <div class="brand">
+    <div class="path">~/os-field-manual/<b>07_filesystems_storage_ipc.html</b></div>
+    <h1>OS Field Manual</h1>
+    <div class="sub">CS F372 &middot; Placement Revision Set</div>
+  </div>
+  <div class="tree">
+    <div class="tree-title">On this page</div>
+    <a href="#file-basics">1. Files &amp; Directories</a>
+<a href="#fs-design">2. Designing a File System</a>
+<a href="#storage-devices">3. Storage Devices</a>
+<a href="#ipc">4. Inter-Process Communication</a>
+<a href="#qbank">5. Rapid-fire Recall</a>
+  </div>
+  <div class="chapters">
+    <div class="tree-title">All chapters</div>
+    <a href="01_foundations_booting.html" class=""><span class="n">01</span>Foundations & Booting</a>
+<a href="02_processes_syscalls.html" class=""><span class="n">02</span>Processes & System Calls</a>
+<a href="03_cpu_scheduling.html" class=""><span class="n">03</span>CPU Scheduling</a>
+<a href="04_threads_locks.html" class=""><span class="n">04</span>Threads & Locks</a>
+<a href="05_cv_semaphores.html" class=""><span class="n">05</span>Condition Variables & Semaphores</a>
+<a href="06_virtual_memory_paging.html" class=""><span class="n">06</span>Virtual Memory & Paging</a>
+<a href="07_filesystems_storage_ipc.html" class="current"><span class="n">07</span>File Systems, Storage & IPC</a>
+
+  </div>
+</nav>
+<main>
+  <div class="hero">
+    <span class="tag">CHAPTER 07 &middot; INODE 0x07</span>
+    <h1>File Systems, Storage &amp; IPC</h1>
+    <p class="desc">The fd-to-inode chain, how a simple file system is laid out on disk, the physical mechanics of storage devices, and every major IPC mechanism.</p>
+    <div class="stats"><div class="stat"><b>24 min</b>read</div><div class="stat"><b>File_System.md + IPC.md + 3 decks</b>source</div><div class="stat"><b>5</b>topics</div></div>
+  </div>
+  
+<div class="summary-box">
+<h3>Quick revision — the 60 second version</h3>
+<ul>
+<li>File/dir = low-level name (inode number) + user-readable name pairs stored in directory data blocks</li>
+<li>fd table (per-process) &rarr; Open File Table (system-wide, has offset+refcount) &rarr; inode</li>
+<li>fork() shares OFT entries (shared offset); open() twice creates independent OFT entries</li>
+<li>Superblock, inode bitmap, data bitmap, inode table, data region — the anatomy of a simple FS</li>
+<li>12 direct + indirect + double + triple indirect pointers &rarr; huge max file size from few metadata bits</li>
+<li>Creating a file = ~10 I/Os; each new-block write = 5 I/Os (read+write bitmap, read+write inode, write data)</li>
+<li>IPC = pipes, message queues, shared memory, sockets, signals — pick based on speed vs simplicity vs relation</li>
+<li>Disk: platter &rarr; track &rarr; sector; LBA abstracts CHS complexity away for the OS</li>
+</ul>
+</div>
+
+<section id="file-basics">
+<h2><span class="idx">&sect;1</span> Files &amp; Directories — the Interface</h2>
+<p>A file is a linear array of bytes with a low-level name: an <strong>inode number</strong>. A directory is also identified by an inode number, and its contents are simply a list of <code>&lt;user-readable-name, inode-number&gt;</code> pairs — each entry can itself be a file or another directory.</p>
+
+<h3>Core syscalls</h3>
+<div class="code-block">
+<div class="tag"><span>c</span><span>open / read / write / lseek</span></div>
+<pre>int fd = open("foo", O_CREAT|O_WRONLY|O_TRUNC, S_IRUSR|S_IWUSR);
+ssize_t read(int fd, void *buf, size_t count);
+ssize_t write(int fd, const void *buf, size_t count);
+off_t   lseek(int fd, off_t offset, int whence);
+// whence: SEEK_SET (absolute), SEEK_CUR (relative), SEEK_END (from EOF)
+// SEEK_HOLE / SEEK_DATA (Linux 3.1+) jump to the next hole/data region</pre>
+</div>
+<p>A successful <code>write()</code> can transfer <em>fewer</em> bytes than requested (disk full, interrupted blocking write on a socket/pipe) — callers must be ready to retry.</p>
+
+<h3>The fd &rarr; OFT &rarr; inode chain</h3>
+<div class="diagram">Process FD table [fd] --&gt; Open File Table entry (struct file*) --&gt; inode in memory
+      (private per process)      (system-wide, has offset + refcount)</div>
+<div class="code-block">
+<div class="tag"><span>c</span><span>xv6 structs</span></div>
+<pre>struct file {
+    enum { FD_NONE, FD_PIPE, FD_INODE } type;
+    int ref;            // reference count
+    char readable, writable;
+    struct pipe *pipe;
+    struct inode *ip;
+    uint off;            // current offset — lives HERE, not in the fd table
+};
+
+struct proc {
+    ...
+    struct file *ofile[NOFILE];   // this process's fd table
+};</pre>
+</div>
+<div class="callout qa">
+<div class="ctitle">? Why does the offset live in the Open File Table, not the fd table?</div>
+<p>Because offset needs to be <em>shared</em> when a descriptor is duplicated (via <code>fork()</code> or <code>dup()</code>) but <em>independent</em> when the same file is opened twice separately. Process A opening <code>file1</code> twice gets two OFT entries, each with its own offset; process A forking after one <code>open()</code> gives child and parent an fd pointing to the <em>same</em> OFT entry — advancing the offset in one advances it for both.</p>
+</div>
+
+<h3>Useful extras</h3>
+<table>
+<tr><th>Call</th><th>Purpose</th></tr>
+<tr><td><code>dup(oldfd)</code> / <code>dup2</code></td><td>New fd pointing at the same OFT entry as oldfd</td></tr>
+<tr><td><code>fsync(fd)</code></td><td>Blocks until modified pages are actually flushed to disk</td></tr>
+<tr><td><code>rename()</code></td><td>Atomic — never observably "half-done"</td></tr>
+<tr><td><code>stat()</code></td><td>Metadata: inode #, size, permissions, owner, timestamps, block count...</td></tr>
+<tr><td><code>mkdir()</code> / <code>rmdir()</code></td><td>Create (auto-adds <code>.</code> and <code>..</code>) / remove an empty directory</td></tr>
+<tr><td><code>opendir/readdir/closedir</code></td><td>Iterate a directory's entries</td></tr>
+</table>
+
+<h3>Hard links vs. Symbolic links</h3>
+<div class="grid2">
+<div class="card"><h4>Hard link</h4><p style="margin:0">Another directory entry pointing at the <strong>same inode</strong>. Not a copy — genuinely the same file under two names. Cannot span filesystems or point at directories. Won't overwrite an existing <code>newpath</code>.</p></div>
+<div class="card"><h4>Symbolic link</h4><p style="margin:0">A file of its own (a different type), whose contents are just the <strong>path string</strong> to the target. Deleting the target leaves a dangling reference.</p></div>
+</div>
+</section>
+
+<section id="fs-design">
+<h2><span class="idx">&sect;2</span> Designing a Simple File System</h2>
+<p>Two questions drive every FS design: what on-disk <strong>data structures</strong> organize data/metadata, and what <strong>access methods</strong> map <code>open/read/write</code> onto those structures efficiently?</p>
+
+<h3>Overall layout (vsfs example)</h3>
+<div class="diagram">| Superblock | inode bitmap | data bitmap | Inode Table (5 blks) | Data Region (56 blks) |
+     1 blk        1 blk          1 blk         80 inodes @ 256B         user data
+
+Superblock stores: #inodes, #data blocks, where the inode table begins, a magic number (FS type)</div>
+<ul>
+<li>One block size for the whole simple FS (e.g. 4KB)</li>
+<li>Most blocks go to the <strong>data region</strong></li>
+<li>Reserve blocks for the <strong>inode table</strong> — inodes are small (128&ndash;256B), so a 4KB block holds many</li>
+<li>Reserve <strong>allocation structures</strong>: a free list (points to the first free block, chained) or a bitmap (1 bit per block/inode: free=0, used=1)</li>
+</ul>
+<p><code>mkfs -t type device size</code> writes an empty filesystem (with a root dir) onto a device. <code>mount -t type device target_dir</code> "pastes" that filesystem onto an existing directory in the unified tree — accesses to that directory transparently redirect to the mounted FS.</p>
+
+<h3>Inode</h3>
+<p>Referred to by an <strong>i-number</strong>. Inode 0 = NULL (no inode). Inode 1 = tracks bad blocks. Inode 2 = the root directory, by Unix convention.</p>
+<div class="diagram">blk    = (inumber * sizeof(inode_t)) / blockSize
+sector = ((blk * blockSize) + inodeStartAddr) / sectorSize</div>
+
+<h3>Inode &rarr; data blocks</h3>
+<table>
+<tr><th>Approach</th><th>Trade-off</th></tr>
+<tr><td>Direct pointers</td><td>1 pointer per block, simple, only works for small files</td></tr>
+<tr><td>Multi-level indexing (indirect / double / triple)</td><td>An indirect pointer points to a block <em>full of pointers</em> instead of data — recursively for double/triple. Most flexible, but more metadata per file</td></tr>
+<tr><td>Extents</td><td>A start pointer + length. More compact, less flexible; needs contiguous free space (ext4, XFS)</td></tr>
+<tr><td>Linked list (FAT)</td><td>Each block points to the next; an in-memory File Allocation Table makes random access fast without touching disk repeatedly</td></tr>
+</table>
+<div class="callout qa">
+<div class="ctitle">? Worked example: 12 direct + 1 indirect + 1 double-indirect + 1 triple-indirect, 4KB blocks, 64-bit addresses — max file size?</div>
+<p>Pointers per block = 4KB / 8B = 512. Total pointers = 12 + 512 + 512&sup2; + 512&sup3; = 134,480,396. Max size = that &times; 4KB &asymp; <strong>500.97 GB</strong>.</p>
+</div>
+
+<h3>Directory organization &amp; free space</h3>
+<ul>
+<li>A directory's data block holds <code>&lt;filename, inode#, reclen, strlen&gt;</code> entries — could be a flat list, a linked list, or a B-Tree (XFS uses B-trees for O(log n) lookups)</li>
+<li>On deletion the entry's <code>reclen</code> stays, letting a smaller filename reuse that slot later</li>
+<li>Free space tracked via bitmaps (can check for N contiguous free blocks), a free list, or B-trees (XFS)</li>
+</ul>
+
+<h3>What actually happens on read/write/create</h3>
+<div class="grid2">
+<div class="card"><h4>open("/foo/bar")</h4><p style="margin:0">Read root's inode (predefined #2) &rarr; read its data, find foo's inode# &rarr; read foo's data, find bar's inode# &rarr; read bar's inode &rarr; permission check &rarr; allocate an fd in the OFT.</p></div>
+<div class="card"><h4>read(fd, buf, count)</h4><p style="margin:0">First block found via the inode &rarr; update last-accessed time &rarr; advance in-memory OFT offset for next read. Repeats per block.</p></div>
+</div>
+<div class="callout warn">
+<div class="ctitle">&#9888; Every new-block write costs 5 I/Os</div>
+<p>Read data bitmap &rarr; write data bitmap &rarr; read inode &rarr; write inode (new block + metadata) &rarr; write the actual data block. Creating a brand-new file costs roughly <strong>10 I/Os</strong>: read/write inode bitmap, write new inode, read/write directory data, write directory inode.</p>
+</div>
+<div class="callout info">
+<div class="ctitle">&sect; Reducing I/O cost: caching</div>
+<p><strong>Static partitioning</strong>: fixed % of memory reserved for a block cache (simple, predictable, can waste memory). <strong>Dynamic/unified page cache</strong>: VM and FS share the same page pool (harder to implement, better utilization). Writes can be <strong>write-through</strong> (synchronous, safe, slow) or <strong>write-back</strong> (buffered 5&ndash;30s, faster, riskier — <code>fsync()</code> forces a flush when durability actually matters, e.g. databases).</p>
+</div>
+
+<h3>mmap() recap</h3>
+<p>Maps a file (or anonymous memory) directly into a process's address space; pages load lazily on first access (a page fault), tying straight back into demand paging from the previous chapter. <code>MAP_SHARED</code> writes propagate back to the file/other processes; <code>MAP_PRIVATE</code> is copy-on-write and never touches the underlying file.</p>
+</section>
+
+<section id="storage-devices">
+<h2><span class="idx">&sect;3</span> Storage Devices</h2>
+<p>The file system's abstractions ultimately sit on top of physical hardware with its own quirks.</p>
+<table>
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td>Platter</td><td>Rigid rotating disk where data is physically stored; all platters spin in sync on a shared spindle</td></tr>
+<tr><td>R/W head</td><td>Flies nanometers above the platter surface to read/write; positioning precision is extreme</td></tr>
+<tr><td>Track</td><td>A concentric ring on the platter</td></tr>
+<tr><td>Sector</td><td>Smallest addressable unit, typically 512 or 520 bytes (even a 1-byte write occupies a full sector)</td></tr>
+<tr><td>Cylinder</td><td>The same track number across all platters, stacked</td></tr>
+</table>
+<ul>
+<li><strong>Zoned Data Recording</strong>: outer tracks physically hold more sectors than inner ones, since outer circumference is bigger — outer tracks can be up to ~2&times; faster</li>
+<li><strong>Sequential vs random reads</strong>: contiguous sectors on the same/adjacent tracks read in one rotation; scattered sectors need multiple, much slower</li>
+<li><strong>CHS addressing</strong> (Cylinder-Head-Sector) is drive-specific and complex; <strong>LBA</strong> (Logical Block Addressing) abstracts it into one flat number range implemented by the drive controller</li>
+<li>The <strong>controller</strong> runs firmware, exposes the simple LBA view upward, and silently remaps <strong>bad blocks</strong> to hidden reserved sectors — this remapping is what causes <strong>drive fragmentation</strong> over time</li>
+<li><strong>Queueing</strong>: the drive reorders I/O requests to minimize head movement and rotational latency</li>
+</ul>
+</section>
+
+<section id="ipc">
+<h2><span class="idx">&sect;4</span> Inter-Process Communication</h2>
+<p>Five main mechanisms: Unix domain sockets, message queues, pipes, shared memory, and signals.</p>
+
+<h3>Message Queues</h3>
+<p>An internal linked list in kernel space, identified by an IPC key. <code>msgget()</code> creates it, <code>msgsnd()</code>/<code>msgrcv()</code> send/receive, <code>msgctl()</code> deletes it. Messages are buffered until retrieved.</p>
+<div class="callout qa">
+<div class="ctitle">? How do you build a full-duplex reply channel over one queue?</div>
+<p>Clients send with a fixed <code>mtype</code> (e.g. 1) carrying their PID in the body; the server replies with <code>mtype = client_pid</code>. Each client then reads only messages matching its own PID as the type — this lets many clients safely share one server-side queue.</p>
+</div>
+
+<h3>Shared Memory</h3>
+<p>The <strong>fastest</strong> IPC — other mechanisms copy data sender &rarr; kernel &rarr; receiver twice; shared memory maps the same physical region into both address spaces directly, so a write by one process is instantly visible to the other. Needs external synchronization (semaphores) since the kernel doesn't order the accesses for you.</p>
+<div class="code-block">
+<div class="tag"><span>c</span><span>synchronized reader/writer over shared memory</span></div>
+<pre>sem_writer (init 1)   // writer may write
+sem_reader (init 0)   // reader waits for data
+
+writer: sem_wait(sem_writer);  write();  sem_post(sem_reader);
+reader: sem_wait(sem_reader);  read();   sem_post(sem_writer);</pre>
+</div>
+
+<h3>Pipes</h3>
+<p>Unidirectional FIFO byte channels. <code>pipe(p)</code> returns two fds: <code>p[0]</code> (read end), <code>p[1]</code> (write end). Bidirectional communication needs two pipes.</p>
+<ul>
+<li><strong>Anonymous pipes</strong> — only between related processes (parent/child); open the pipe <em>before</em> forking so both share the same underlying pipe structure, then each side closes the end it doesn't use</li>
+<li><strong>Named pipes (FIFOs)</strong> — for unrelated processes, created with <code>mkfifo(path, mode)</code> and opened by pathname; still unidirectional, and writing with no reader present is an error</li>
+</ul>
+
+<div class="callout info">
+<div class="ctitle">&sect; How the shell wires up <code>cat file | grep x</code></div>
+<p>The shell creates a pipe, forks the first child (<code>cat</code>) and <code>dup2()</code>s the pipe's write end onto its STDOUT, forks the second child (<code>grep</code>) and <code>dup2()</code>s the pipe's read end onto its STDIN, then closes its own copies of both pipe fds. <code>dup2(old, new)</code> closes <code>new</code> first, then makes it refer to the same open-file-description as <code>old</code> — this survives <code>exec()</code>, since <code>exec</code> replaces code/data/heap/stack but leaves the fd table untouched.</p>
+</div>
+
+<h3>Blocking vs. Non-blocking &amp; Signals</h3>
+<ul>
+<li>Blocking send/receive suspend the caller until the op completes (buffer full &rarr; sender blocks; buffer empty &rarr; receiver blocks)</li>
+<li>Non-blocking versions return an error instead — critical for a server juggling many slow clients without stalling everyone else</li>
+<li><strong>Signals</strong> are lightweight, dataless notifications — like interrupts, but for user processes. Sent via <code>kill(pid, signum)</code>, caught via <code>signal()</code>/<code>sigaction()</code></li>
+<li><strong>Process groups</strong>: Ctrl+C sends SIGINT to an entire foreground process group at once (e.g. every stage of a piped command shares one group ID, though each has a distinct PID)</li>
+</ul>
+</section>
+
+<section id="qbank">
+<h2><span class="idx">&sect;5</span> Rapid-fire Recall</h2>
+<div class="callout qa">
+<div class="ctitle">? Common questions</div>
+<p><strong>Q: Where does a file's current read/write offset actually live?</strong><br>A: In the Open File Table entry, not the per-process fd table — so <code>fork()</code>'d processes share a live offset via the same fd, but two separate <code>open()</code> calls get independent offsets.</p>
+<p><strong>Q: Why is creating a file more expensive (I/O-wise) than writing to an existing block?</strong><br>A: Creation touches the inode bitmap, a new inode, the directory's data block, and the directory's inode — a new-block write only touches the data bitmap, the file's inode, and the data block itself.</p>
+<p><strong>Q: Fastest IPC mechanism, and why?</strong><br>A: Shared memory — no double-copy through the kernel; both processes read/write the same physical pages directly.</p>
+<p><strong>Q: What's the difference between a hard link and a symlink at the inode level?</strong><br>A: A hard link's directory entry points straight at the target's inode (same file, two names). A symlink is its own file whose <em>contents</em> are the target's path string.</p>
+<p><strong>Q: Why does <code>lseek(fd, x, SEEK_END)</code> for x &gt; 0 not immediately grow the file on disk?</strong><br>A: It just moves the logical offset past EOF — a "hole" is only actually created once a write happens there.</p>
+</div>
+</section>
+
+  <div class="footnav"><a href="06_virtual_memory_paging.html"><span class="lbl">&larr; prev</span>Virtual Memory & Paging</a><span></span></div>
+</main>
+</div>
+</body>
+</html>

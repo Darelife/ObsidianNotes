@@ -11,13 +11,32 @@
             "id": "08aa241875b012b8",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Academic/DBMS/Introduction.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "Introduction"
+            }
+          },
+          {
+            "id": "e711820ea17590e1",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Competitive Programming/CSES/Graphs ~ darelife.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Graphs ~ darelife"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -37,7 +56,9 @@
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical",
-                "autoReveal": false
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
               },
               "icon": "lucide-folder-closed",
               "title": "Files"
@@ -74,7 +95,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 285.5
+    "width": 285.5,
+    "collapsed": true
   },
   "right": {
     "id": "801455d173a345d4",
@@ -176,7 +198,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 342.5
+    "width": 342.5,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -193,54 +216,57 @@
       "webpage-html-export:Export as HTML": false
     }
   },
-  "active": "c7379874029b748b",
+  "active": "e711820ea17590e1",
   "lastOpenFiles": [
-    "Academic/DSTN/1. Hard Disks.md",
-    "Academic/DSTN/9. GFS.md",
-    "Academic/DSTN/8. Network File System.md",
-    "Academic/DSTN/11. Lustre FS.md",
-    "Academic/DSTN/10. MPI.md",
-    "Academic/DSTN/7. Distributed Systems.md",
-    "Academic/DSTN/6. Log File System.md",
-    "Pasted image 20260511192548.png",
-    "Pasted image 20260511192539.png",
-    "Pasted image 20260511192425.png",
-    "Pasted image 20260511192110.png",
-    "Academic/DSTN/5. Crashes & Journaling.md",
-    "Academic/DSTN/4. Fast File System.md",
-    "Academic/DSTN/3. Designing a Simple File System.md",
-    "Academic/CN/Wireless.md",
-    "Academic/Deep Learning/Lecture 4,5,6,7,8 Neural Network Models.md",
-    "Academic/CN/Link Layer.md",
-    "Academic/CN/Network Layer.md",
-    "Academic/Deep Learning/25-28.md",
-    "Academic/Deep Learning/21-24R.md",
-    "Academic/Deep Learning/21-24.md",
-    "Academic/Deep Learning/29-32.md",
-    "Academic/Deep Learning/Compre v2.md",
-    "Academic/Deep Learning/Back-Propagation.md",
-    "Academic/Deep Learning/Compre.md",
-    "Academic/DSTN/12. RAID.md",
-    "Academic/DSTN/13. Darshan.md",
+    "Academic/DBMS/22-Master-Slave-Architecture-and-Failover.md",
+    "Academic/OS/ai-htmls/01_foundations_booting.html",
+    "Academic/OS/ai-htmls/02_processes_syscalls.html",
+    "Academic/OS/ai-htmls/03_cpu_scheduling.html",
+    "Academic/OS/ai-htmls/04_threads_locks.html",
+    "Academic/OS/ai-htmls/05_cv_semaphores.html",
+    "Academic/OS/ai-htmls/06_virtual_memory_paging.html",
+    "Academic/OS/ai-htmls/07_filesystems_storage_ipc.html",
+    "Academic/OS/ai-htmls",
+    "Academic/OS/claude-files",
+    "Academic/DBMS/19-Database-Scaling-Patterns.md",
+    "Academic/DBMS/18-Clustering-and-Replication-in-DBMS.md",
+    "Academic/DBMS/12-Concurrency-Control-in-DBMS.md",
+    "Academic/OS/Locks.md",
+    "Academic/OS/Scheduling.md",
+    "Academic/OS/Processes.md",
+    "Academic/OS/os doc.md",
+    "Academic/OS/IPC.md",
+    "Academic/OS/Introduction.md",
+    "Academic/OS/File System.md",
+    "Academic/OS/Virtual Memory and Paging.md",
+    "Academic/OS/Threads.md",
+    "Academic/OS/CV's and Semaphores.md",
+    "Academic/OS/Cheat Sheet.md",
+    "Academic/DBMS/01-Introduction-to-DBMS.md",
+    "Academic/DBMS/22-master-slave-architecture.md",
+    "Academic/DBMS/extra/22-master-slave-architecture.md",
+    "Academic/DBMS/extra/21-btrees-bplustrees.md",
+    "Academic/DBMS/extra/20-cap-theorem.md",
+    "Academic/DBMS/extra/19-database-scaling-patterns.md",
+    "Academic/DBMS/extra/18-clustering-replication.md",
+    "Academic/DBMS/extra/17-nosql-vs-sql.md",
+    "Academic/DBMS/extra/16-types-of-databases.md",
+    "Academic/DBMS/extra/15-indexing.md",
+    "Academic/DBMS/extra",
+    "Academic/DBMS/AlgoXXX/frontEnd/public/logos/codeforceslogo.png",
+    "Academic/DBMS/AlgoXXX/frontEnd/public/logos/cflogo.png",
+    "Academic/DBMS/AlgoXXX/frontEnd/public/logos/Copy of AlgoManiaX logo white Poster.png",
+    "Academic/DBMS/AlgoXXX/frontEnd/public/logos/AlgoManiax.png",
+    "Academic/DBMS/AlgoXXX/frontEnd/public/logos/AlgoManiaXLogoWhitePoster.png",
+    "Academic/DBMS/AlgoXXX/frontEnd/public/logos/AlgoManiaXLogoBlackPoster.png",
+    "Academic/DBMS/AlgoXXX/frontEnd/public/logos/AlgoManiaX logo black Banner.png",
+    "Academic/DBMS/AlgoXXX/frontEnd/public/window.svg",
+    "Academic/DBMS/AlgoXXX/frontEnd/public/vercel.svg",
+    "Academic/DBMS/AlgoXXX/frontEnd/public/no-title.jpg",
     "Academic/DSTN/DSTN.canvas",
-    "Academic/CN/Application Layer.md",
-    "Academic/CN/Physical Layer.md",
-    "Academic/CN/Network Layer.pdf",
     "Academic/CN/Computer Networks.canvas",
-    "Academic/CN/test.html",
-    "Academic/CN/output.html~",
-    "Academic/CN/retroma.css",
-    "Academic/CN/output.html",
-    "Academic/CN/Network Layer.html",
-    "Pasted image 20260430151211.png",
     "Competitive Programming/Competitive Programming.canvas",
     "Competitive Programming/CSES/CSES.canvas",
-    "Academic/DSTN/Labs",
-    "Academic/Deep Learning/Deep Learning.canvas",
-    "ObsidianNotes.html",
-    "Competitive Programming/CSES",
-    "daily",
-    "Pasted image 20260307145507.png",
-    "Pasted image 20260127113113.png"
+    "Academic/Deep Learning/Deep Learning.canvas"
   ]
 }

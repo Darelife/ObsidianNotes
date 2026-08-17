@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPU Scheduling — OS Field Manual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a0f1a; --panel:#111a2b; --panel2:#0d1522; --line:#26374f;
+  --accent:#5aa6f0; --accent-dim:#3d6f9c; --amber:#f0a742; --green:#5fcb9d;
+  --red:#ef6f6c; --text:#e7ecf5; --muted:#8ea0bd; --mono-bg:#0b1220;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--ink); color:var(--text);
+  font-family:'IBM Plex Sans',system-ui,sans-serif; line-height:1.65;
+  font-size:16px;
+}
+::selection{background:var(--accent-dim); color:#fff;}
+a{color:var(--accent); text-decoration:none;}
+a:hover{text-decoration:underline;}
+h1,h2,h3,h4{font-family:'Space Grotesk',system-ui,sans-serif; font-weight:600; letter-spacing:-0.01em; color:#fff;}
+code,pre,.mono{font-family:'IBM Plex Mono',monospace;}
+
+/* ===== Layout ===== */
+.shell{display:flex; min-height:100vh;}
+.sidebar{
+  width:272px; flex-shrink:0; background:var(--panel2); border-right:1px solid var(--line);
+  position:sticky; top:0; height:100vh; overflow-y:auto; padding:22px 0 40px;
+}
+.sidebar::-webkit-scrollbar{width:8px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--line); border-radius:4px;}
+.brand{
+  padding:0 22px 18px; margin-bottom:12px; border-bottom:1px solid var(--line);
+}
+.brand .path{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted);}
+.brand .path b{color:var(--accent);}
+.brand h1{font-size:17px; margin:6px 0 2px; line-height:1.3;}
+.brand .sub{font-size:12px; color:var(--muted);}
+.tree{padding:6px 10px 18px; border-bottom:1px solid var(--line); margin-bottom:10px;}
+.tree-title{font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); padding:6px 12px 8px;}
+.tree a{
+  display:block; font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--muted);
+  padding:5px 12px 5px 26px; position:relative; border-left:2px solid transparent;
+}
+.tree a::before{content:"├─"; position:absolute; left:8px; color:var(--line);}
+.tree a:last-child::before{content:"└─";}
+.tree a:hover{color:var(--text); text-decoration:none; background:rgba(90,166,240,.06);}
+.tree a.current{color:var(--accent); border-left:2px solid var(--accent); background:rgba(90,166,240,.08); font-weight:600;}
+.chapters{padding:6px 10px;}
+.chapters .tree-title{padding-left:12px;}
+.chapters a{
+  display:flex; gap:8px; align-items:baseline; font-family:'IBM Plex Mono',monospace; font-size:12px;
+  color:var(--muted); padding:6px 12px; border-radius:4px;
+}
+.chapters a .n{color:var(--accent-dim); min-width:20px;}
+.chapters a:hover{background:rgba(90,166,240,.08); color:var(--text); text-decoration:none;}
+.chapters a.current{background:rgba(90,166,240,.12); color:var(--accent); font-weight:600;}
+.chapters a.current .n{color:var(--accent);}
+
+main{flex:1; min-width:0; padding:56px 60px 100px; max-width:900px;}
+
+/* ===== Hero ===== */
+.hero{margin-bottom:46px; padding-bottom:30px; border-bottom:1px solid var(--line);}
+.hero .tag{
+  font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--amber);
+  display:inline-flex; align-items:center; gap:8px; padding:4px 10px;
+  border:1px solid rgba(240,167,66,.35); border-radius:20px; margin-bottom:16px;
+}
+.hero h1{font-size:38px; margin:0 0 12px; line-height:1.15;}
+.hero p.desc{color:var(--muted); font-size:16px; max-width:640px; margin:0;}
+.hero .stats{display:flex; gap:22px; margin-top:22px; flex-wrap:wrap;}
+.hero .stat{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted);}
+.hero .stat b{display:block; color:var(--text); font-size:15px; font-family:'Space Grotesk',sans-serif;}
+
+/* ===== Sections ===== */
+section{margin-bottom:52px;}
+h2{
+  font-size:23px; margin:0 0 18px; padding-bottom:10px; border-bottom:1px solid var(--line);
+  display:flex; align-items:baseline; gap:10px;
+}
+h2 .idx{font-family:'IBM Plex Mono',monospace; color:var(--accent-dim); font-size:15px;}
+h3{font-size:17px; margin:26px 0 10px; color:var(--accent);}
+h4{font-size:14.5px; margin:18px 0 8px; color:var(--text); text-transform:uppercase; letter-spacing:.04em; font-family:'IBM Plex Mono',monospace; font-weight:500;}
+p{margin:0 0 14px; color:#cdd7e6;}
+ul,ol{margin:0 0 16px; padding-left:22px; color:#cdd7e6;}
+li{margin-bottom:6px;}
+li::marker{color:var(--accent-dim);}
+strong{color:#fff; font-weight:600;}
+hr{border:none; border-top:1px solid var(--line); margin:30px 0;}
+
+/* ===== Code ===== */
+.code-block{margin:16px 0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--mono-bg);}
+.code-block .tag{
+  display:flex; justify-content:space-between; padding:7px 14px; background:var(--panel2);
+  border-bottom:1px solid var(--line); font-family:'IBM Plex Mono',monospace; font-size:11px;
+  color:var(--muted); text-transform:uppercase; letter-spacing:.06em;
+}
+.code-block pre{margin:0; padding:16px; overflow-x:auto; font-size:13px; line-height:1.55; color:#c3d3ea;}
+.code-block code{background:none;}
+p code, li code, td code{
+  background:rgba(90,166,240,.1); color:#a9d0f7; padding:1px 6px; border-radius:4px; font-size:.88em;
+}
+
+/* ===== Callouts ===== */
+.callout{border-radius:8px; padding:16px 18px; margin:18px 0; border:1px solid; position:relative;}
+.callout .ctitle{font-family:'IBM Plex Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.07em; margin-bottom:6px; display:flex; gap:8px; align-items:center;}
+.callout p:last-child{margin-bottom:0;}
+.callout.info{background:rgba(90,166,240,.07); border-color:rgba(90,166,240,.3);}
+.callout.info .ctitle{color:var(--accent);}
+.callout.warn{background:rgba(240,167,66,.07); border-color:rgba(240,167,66,.32);}
+.callout.warn .ctitle{color:var(--amber);}
+.callout.gotcha{background:rgba(239,111,108,.07); border-color:rgba(239,111,108,.32);}
+.callout.gotcha .ctitle{color:var(--red);}
+.callout.qa{background:rgba(95,203,157,.06); border-color:rgba(95,203,157,.3);}
+.callout.qa .ctitle{color:var(--green);}
+
+/* ===== Tables ===== */
+table{width:100%; border-collapse:collapse; margin:18px 0; font-size:13.5px;}
+th,td{padding:9px 13px; border:1px solid var(--line); text-align:left;}
+th{background:var(--panel2); font-family:'IBM Plex Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);}
+td{color:#cdd7e6;}
+tr:nth-child(even) td{background:rgba(255,255,255,.015);}
+
+/* ===== Misc components ===== */
+.diagram{
+  background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:20px;
+  font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#a9c3e0; white-space:pre; overflow-x:auto; margin:16px 0; line-height:1.5;
+}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0;}
+.card{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px 18px;}
+.card h4{margin-top:0;}
+.pill{display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:11px; padding:2px 9px; border-radius:20px; background:rgba(90,166,240,.12); color:var(--accent); margin-right:6px;}
+.summary-box{
+  background:linear-gradient(135deg, rgba(90,166,240,.09), rgba(95,203,157,.05));
+  border:1px solid var(--line); border-radius:10px; padding:20px 24px; margin:0 0 40px;
+}
+.summary-box h3{margin-top:0; color:#fff; font-size:15px; text-transform:uppercase; letter-spacing:.05em; font-family:'IBM Plex Mono',monospace;}
+.summary-box ul{columns:2; column-gap:30px; margin-bottom:0;}
+.summary-box li{font-size:13.5px; break-inside:avoid; color:#cdd7e6;}
+.footnav{display:flex; justify-content:space-between; margin-top:60px; padding-top:24px; border-top:1px solid var(--line);}
+.footnav a{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--muted); display:flex; flex-direction:column; gap:4px;}
+.footnav a:hover{color:var(--accent);}
+.footnav .lbl{font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted);}
+.footnav .right{text-align:right;}
+@media(max-width:900px){
+  .shell{flex-direction:column;}
+  .sidebar{position:relative; width:100%; height:auto;}
+  main{padding:34px 20px 80px;}
+  .summary-box ul{columns:1;}
+  .grid2{grid-template-columns:1fr;}
+}
+
+</style>
+</head>
+<body>
+<div class="shell">
+<nav class="sidebar">
+  <div class="brand">
+    <div class="path">~/os-field-manual/<b>03_cpu_scheduling.html</b></div>
+    <h1>OS Field Manual</h1>
+    <div class="sub">CS F372 &middot; Placement Revision Set</div>
+  </div>
+  <div class="tree">
+    <div class="tree-title">On this page</div>
+    <a href="#scheduler-basics">1. The OS Scheduler</a>
+<a href="#context-switch">2. Context Switching, Precisely</a>
+<a href="#goals">3. Goals of Scheduling</a>
+<a href="#policies">4. Scheduling Policies</a>
+<a href="#qbank">5. Rapid-fire Recall</a>
+  </div>
+  <div class="chapters">
+    <div class="tree-title">All chapters</div>
+    <a href="01_foundations_booting.html" class=""><span class="n">01</span>Foundations & Booting</a>
+<a href="02_processes_syscalls.html" class=""><span class="n">02</span>Processes & System Calls</a>
+<a href="03_cpu_scheduling.html" class="current"><span class="n">03</span>CPU Scheduling</a>
+<a href="04_threads_locks.html" class=""><span class="n">04</span>Threads & Locks</a>
+<a href="05_cv_semaphores.html" class=""><span class="n">05</span>Condition Variables & Semaphores</a>
+<a href="06_virtual_memory_paging.html" class=""><span class="n">06</span>Virtual Memory & Paging</a>
+<a href="07_filesystems_storage_ipc.html" class=""><span class="n">07</span>File Systems, Storage & IPC</a>
+
+  </div>
+</nav>
+<main>
+  <div class="hero">
+    <span class="tag">CHAPTER 03 &middot; INODE 0x03</span>
+    <h1>CPU Scheduling</h1>
+    <p class="desc">Policy vs mechanism, the anatomy of a context switch, and the lineup of scheduling algorithms from FCFS to Linux's CFS.</p>
+    <div class="stats"><div class="stat"><b>13 min</b>read</div><div class="stat"><b>Scheduling.md</b>source</div><div class="stat"><b>4</b>topics</div></div>
+  </div>
+  
+<div class="summary-box">
+<h3>Quick revision — the 60 second version</h3>
+<ul>
+<li>Scheduling = policy (who runs next) + mechanism (context switch), decoupled from each other</li>
+<li>Non-preemptive: only switches on block/exit. Preemptive: can switch anytime via timer interrupt</li>
+<li>FCFS &rarr; convoy effect. SJF &rarr; needs burst time, non-preemptive. SRTF &rarr; preemptive SJF</li>
+<li>Round Robin: fixed quantum, good response time, worse turnaround</li>
+<li>CFS = weighted fair queuing using vruntime + a red-black tree, tunable via nice value</li>
+<li>Context switch = save context of A on its kernel stack, switch ESP to B's kernel stack, restore B</li>
+</ul>
+</div>
+
+<section id="scheduler-basics">
+<h2><span class="idx">&sect;1</span> The OS Scheduler</h2>
+<p>The OS keeps all active PCBs in a list — added on <code>fork()</code>, removed after <code>wait()</code> cleans them up. The scheduler is the code that periodically loops over this list and decides what runs next.</p>
+<div class="diagram">Scheduler outline
+------------------
+1. Save context of whatever is currently running, into its PCB
+2. Loop over ready/runnable processes, pick one to run next
+3. Restore that process's context from its PCB, hand it the CPU
+4. Repeat, forever, as long as the system runs</div>
+<p>Scheduling has two independent halves: the <strong>policy</strong> (which process to run) and the <strong>mechanism</strong> (how to actually switch to it). This chapter is mostly policy — chapter 2 already covered the trap/context-switch mechanism.</p>
+
+<div class="grid2">
+<div class="card"><h4>Non-preemptive (cooperative)</h4><p style="margin:0">Polite scheduler — only switches when the running process blocks or terminates.</p></div>
+<div class="card"><h4>Preemptive (non-cooperative)</h4><p style="margin:0">Can switch anytime, even mid-execution, using periodic timer interrupts to check if the process has run too long.</p></div>
+</div>
+</section>
+
+<section id="context-switch">
+<h2><span class="idx">&sect;2</span> Context Switching, Precisely</h2>
+<p>Say process A is in kernel mode (already trapped in) and can't continue (e.g. it's waiting on a disk read). The scheduler picks process B to run instead.</p>
+<ul>
+<li>OS saves A's <strong>kernel context</strong> (PC, registers, kernel stack pointer) onto A's own kernel stack</li>
+<li>Note there are <strong>two</strong> contexts saved at different times: the <strong>user context</strong> (where execution stopped in user mode — saved by the trap instruction) and the <strong>kernel context</strong> (where execution stopped in kernel mode — saved by the context-switch code)</li>
+<li>The actual switch: OS moves <strong>ESP</strong> from A's kernel stack to B's kernel stack</li>
+<li>B's kernel stack already holds whatever the OS stored there the last time B was switched out — both its kernel and user context</li>
+<li>OS restores B's kernel context, resumes B in kernel mode at the point it gave up the CPU, then pops B's user context and resumes B in user mode exactly where it originally trapped in</li>
+</ul>
+
+<h3>In xv6</h3>
+<ul>
+<li>Every CPU runs a dedicated <strong>scheduler thread</strong></li>
+<li>It loops over the process list, looking for a runnable one</li>
+<li><code>swtch()</code> performs the actual switch: saves registers into a <code>context</code> struct on the old process's kernel stack, switches ESP to the new process's context struct, and pops its registers</li>
+</ul>
+</section>
+
+<section id="goals">
+<h2><span class="idx">&sect;3</span> Goals of CPU Scheduling</h2>
+<ul>
+<li><strong>Maximize</strong> CPU utilization</li>
+<li><strong>Minimize</strong> completion / turnaround time</li>
+<li><strong>Minimize</strong> response time</li>
+<li><strong>Fairness</strong> across processes</li>
+<li><strong>Low overhead</strong> — the decision itself shouldn't take long, and shouldn't trigger excessive context switches (each switch costs roughly a microsecond)</li>
+</ul>
+</section>
+
+<section id="policies">
+<h2><span class="idx">&sect;4</span> Scheduling Policies</h2>
+
+<h3>FIFO / FCFS</h3>
+<p>Simplest: processes run in arrival order, non-preemptively, until they exit or block.</p>
+<div class="callout gotcha"><div class="ctitle">&#10005; Convoy effect</div><p>A short process stuck behind a long one drags average turnaround time way up.</p></div>
+
+<h3>Shortest Job First (SJF)</h3>
+<p>Assumes CPU burst time is known in advance. Always picks the process with the smallest burst next, typically via a heap. Still <strong>non-preemptive</strong> — once a long job starts, a shorter one that arrives mid-way must wait.</p>
+
+<h3>Shortest Remaining Time First (SRTF)</h3>
+<p>a.k.a. STCF / Preemptive SJF. Fixes SJF's blind spot by allowing preemption when a shorter job arrives.</p>
+
+<h3>Round Robin</h3>
+<ul>
+<li>Every process gets a fixed time quantum (not too big, not too small)</li>
+<li>A timer interrupt enforces periodic switching</li>
+<li>Good response time, fair — but worse turnaround time, since every process must wait its turn repeatedly</li>
+<li>xv6 uses this</li>
+</ul>
+
+<h3>Weighted Fair Queuing (WFQ)</h3>
+<ul>
+<li>Round Robin, but with weights/priorities — time slice is proportional to weight</li>
+<li>Real schedulers can't perfectly enforce a time slice (timer interrupts don't align perfectly, processes may block early)</li>
+<li>Practical fix: track actual run time, favor whichever process has used the least fraction of its fair share, and compensate excess/deficit in future slices</li>
+</ul>
+
+<h3>Linux Completely Fair Scheduler (CFS)</h3>
+<p>A refined WFQ variant. Tracks <strong>vruntime</strong> (virtual runtime) per process and always picks the process with the lowest vruntime to run next — the goal is to divide CPU time evenly.</p>
+<table>
+<tr><th>Parameter</th><th>Meaning</th><th>Typical value</th></tr>
+<tr><td><code>sched_latency</code></td><td>How long a process should run before a switch is considered; divided by the # of runnable processes to get each one's time slice</td><td>~48 ms</td></tr>
+<tr><td><code>min_granularity</code></td><td>Floor on the time slice, so scheduling overhead doesn't dominate when there are too many processes</td><td>~6 ms</td></tr>
+</table>
+
+<div class="callout info">
+<div class="ctitle">&sect; Niceness &amp; weight</div>
+<p><code>nice</code> ranges -20 to +19 (default 10); lower = higher priority. It maps to a weight, and the time slice for process <em>k</em> is:</p>
+</div>
+<div class="diagram">time_slice_k = ( weight_k / sum(weight_i for all i) ) * sched_latency
+
+Nice  : -20    -15    -10   -5    0     5    10    15
+Weight: 88761  29154  9548  3121  1024  335  110   36</div>
+<p>CFS stores runnable processes in a <strong>red-black tree</strong> ordered by vruntime, giving <code>O(log n)</code> operations — far better than scanning a flat list every few milliseconds.</p>
+</section>
+
+<section id="qbank">
+<h2><span class="idx">&sect;5</span> Rapid-fire Recall</h2>
+<div class="callout qa">
+<div class="ctitle">? Common questions</div>
+<p><strong>Q: What's the fundamental weakness of pure SJF?</strong><br>A: It's non-preemptive — a job already running blocks a shorter arriving job until it finishes.</p>
+<p><strong>Q: Why does Round Robin have good response time but bad turnaround time?</strong><br>A: Every process is served quickly (low response time) but must repeatedly wait its turn to finish (high turnaround).</p>
+<p><strong>Q: What data structure does CFS use to pick the next process, and why?</strong><br>A: A red-black tree keyed by vruntime — O(log n) insert/find-min, scales far better than a linear scan.</p>
+<p><strong>Q: What are the two pieces of context saved during a switch between A and B?</strong><br>A: A's kernel context is saved on A's kernel stack; when B resumes, both its kernel and user context (saved earlier) are restored from B's kernel stack.</p>
+</div>
+</section>
+
+  <div class="footnav"><a href="02_processes_syscalls.html"><span class="lbl">&larr; prev</span>Processes & System Calls</a><a href="04_threads_locks.html" class="right"><span class="lbl">next &rarr;</span>Threads & Locks</a></div>
+</main>
+</div>
+</body>
+</html>
