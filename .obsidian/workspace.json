@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Academic/System Design/High Level Design.md",
+                "file": "Academic/System Design/Low Level Design.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "High Level Design"
+              "title": "Low Level Design"
             }
           }
         ]
@@ -203,16 +203,17 @@
   },
   "active": "08aa241875b012b8",
   "lastOpenFiles": [
-    "Competitive Programming/Competitive Programming.canvas",
+    "Academic/System Design/High Level Design.md",
+    "Academic/System Design/Low Level Design.md",
     "Competitive Programming/CSES/Graphs ~ darelife.md",
     "Competitive Programming/CSES/DP ~ darelife.md",
+    "Competitive Programming/Competitive Programming.canvas",
     "Competitive Programming/CSES/CSES.canvas",
     "Competitive Programming/CSES",
     "Competitive Programming/CF Div. 3 Round 1076.md",
     "Competitive Programming",
     "daily/2026-02-21.md",
     "daily/2026-04-30.md",
-    "Academic/System Design/High Level Design.md",
     "Academic/DBMS/02-Architecture-of-DBMS.md",
     "Academic/System Design/Untitled",
     "Academic/System Design",

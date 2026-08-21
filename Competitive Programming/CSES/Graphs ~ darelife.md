@@ -279,6 +279,47 @@ void solve() {
 2. Assign opposite colours to adj nodes
 3. If you ever find same coloured adjacent nodes, it's not possible
 
+```cpp
+void solve() {
+  int n, m;
+  cin >> n >> m;
+  vector<vector<int>> adj(n);
+  vector<bool> vis(n, false);
+  vector<int> ans(n);
+  for (int i = 0; i < m; i++) {
+    int a, b;
+    cin >> a >> b;
+    a--; b--;
+    adj[a].pba(b);
+    adj[b].pba(a);
+  }
+ 
+  queue<int> q;
+  for (int i = 0; i < n; i++) {
+    if (vis[i]) continue;
+    q.push(i);
+    vis[i] = true;
+    ans[i] = 1;
+    while (!q.empty()) {
+      int u = q.front();
+      q.pop();
+      for (int v : adj[u]) {
+        if (!vis[v]) {
+          vis[v] = 1;
+          ans[v] = (ans[u] == 1) ? 2 : 1;
+          q.push(v);
+        } else if (ans[v] == ans[u]) {
+          cout << "IMPOSSIBLE" << endl;
+          return;
+        }
+      }
+    }
+  }
+  for (int i = 0; i < n; i++) cout << ans[i] << " ";
+  cout << endl;
+}
+```
+
 # Q6: Round Trip
 
 > [!abstract] ### [Round Trip](https://cses.fi/problemset/task/1669) 

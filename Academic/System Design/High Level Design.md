@@ -160,6 +160,14 @@ problems
 
 do sharding as late as possible, and also mongo has it by default.
 
+---
+
+1. CAP
+2. ACID Implementation
+
+--- 
+
 # Source
 1. [System Design for Beginners (2026) By KodeKloud](https://www.youtube.com/watch?v=SE2KF-vxvS0)
-2. 
+2. [System Design Primer](https://github.com/donnemartin/system-design-primer)
+3. 
