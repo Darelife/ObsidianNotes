@@ -140,11 +140,12 @@ public:
 - **Inheritance:** one class _is a_ specialized version of another.
 - **Composition:** instead of inheriting, a class _contains_ another class as a member and uses its behaviour ("has-a" / "uses-a"). No inheritance relationship needed.
 - Rule of thumb: **favor composition over inheritance** when there's no true "is-a" relationship : more flexible, avoids fragile deep hierarchies.
+- **Realization** is similar to inheritance. Like, same thing, but for unrelated items, & for an interface instead.
 
 **11. Polymorphism:** Different objects usable through the same interface/parent type.
 
 1. **Runtime (dynamic) polymorphism:** `ParentClass* a = new ChildClass()` : behaviour resolved at runtime, depends on actual object type. Requires the method to be declared `virtual` in the base class (else C++ falls back to static binding).
-2. **Compile-time (static) polymorphism:** Overloading (same method name, different parameters) : also includes operator overloading.
+2. **Compile-time (static) polymorphism:** Overloading (same method name, different parameters) : also includes operator overloading (for +, -, etc), and we can also change the return types.
 
 ## Class Relationships
 
@@ -171,6 +172,16 @@ public:
 One subtlety worth adding to your notes: the **strength ordering** is typically taught as: **Dependency < Association < Aggregation < Composition**
 
 Aggregation and Composition are technically special cases of Association (they're all "has-a" / "uses-a" in the broad sense), just with different ownership/lifecycle strength.
+
+# Design Principles
+
+1. **DRY Principle**: Don't Repeat Yourself
+2. **KISS Principle**: Keep it Simple, Stupid
+3. **Law of Demeter**: `a = b.getC().getD().getE().getF()[10].getG();` This is bad. Only talk to your immediate friends. Add more funcs in the classes. just talk with b, and let b figure out how to get the job done, via c, and so on recursively.
+4. **Separation of Concerns**: Split program into small independent parts, and each part just does one job: Better reuse, Less Mixing of diff types of codes together, and a single task for each object.
+5. **Coupling and Cohesion**: Coupling is how much one part of a program relies on another part. Cohesion is how closely the tasks inside a single part fit together. Aim for low coupling, and high cohesion. 
+6. **Composing Objects Principle**: Building complex software by assembling small, independent, and reusable parts ("has-a" relationships) rather than creating deep parent-child class taxonomies ("is-a" relationships)
+
 
 ---
 
