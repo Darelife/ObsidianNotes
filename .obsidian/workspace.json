@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Academic/System Design/Low Level Design.md",
+                "file": "Postmortems/2026_08_17_Github.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Low Level Design"
+              "title": "2026_08_17_Github"
             }
           }
         ]
@@ -203,8 +203,10 @@
   },
   "active": "08aa241875b012b8",
   "lastOpenFiles": [
-    "Academic/System Design/High Level Design.md",
     "Academic/System Design/Low Level Design.md",
+    "Postmortems/2026_08_17_Github.md",
+    "Postmortems",
+    "Academic/System Design/High Level Design.md",
     "Competitive Programming/CSES/Graphs ~ darelife.md",
     "Competitive Programming/CSES/DP ~ darelife.md",
     "Competitive Programming/Competitive Programming.canvas",
@@ -225,7 +227,6 @@
     "Academic/OS/ai-htmls/03_cpu_scheduling.html",
     "Academic/OS/ai-htmls/04_threads_locks.html",
     "Academic/OS/ai-htmls/05_cv_semaphores.html",
-    "Academic/OS/ai-htmls/06_virtual_memory_paging.html",
     "Academic/DBMS/19-Database-Scaling-Patterns.md",
     "Academic/DBMS/18-Clustering-and-Replication-in-DBMS.md",
     "Academic/DBMS/12-Concurrency-Control-in-DBMS.md",
@@ -240,7 +241,6 @@
     "Academic/OS/Threads.md",
     "Academic/OS/CV's and Semaphores.md",
     "Academic/OS/Cheat Sheet.md",
-    "Academic/DBMS/01-Introduction-to-DBMS.md",
     "Academic/DBMS/AlgoXXX/frontEnd/public/logos/codeforceslogo.png",
     "Academic/DBMS/AlgoXXX/frontEnd/public/logos/cflogo.png",
     "Academic/DBMS/AlgoXXX/frontEnd/public/logos/Copy of AlgoManiaX logo white Poster.png",
