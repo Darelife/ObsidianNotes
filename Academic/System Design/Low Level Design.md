@@ -182,6 +182,13 @@ Aggregation and Composition are technically special cases of Association (they'r
 5. **Coupling and Cohesion**: Coupling is how much one part of a program relies on another part. Cohesion is how closely the tasks inside a single part fit together. Aim for low coupling, and high cohesion. 
 6. **Composing Objects Principle**: Building complex software by assembling small, independent, and reusable parts ("has-a" relationships) rather than creating deep parent-child class taxonomies ("is-a" relationships)
 
+# SOLID Principles
+
+1. Single Responsibility Principle
+2. Open/Closed Principle
+3. Liskov Substitution Principle
+4. Interface Segregation Principle
+5. Dependency Inversion Principle
 
 ---
 
