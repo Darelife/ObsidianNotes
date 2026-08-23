@@ -190,6 +190,23 @@ Aggregation and Composition are technically special cases of Association (they'r
 4. Interface Segregation Principle
 5. Dependency Inversion Principle
 
+# Design Patterns
+
+1. Singleton
+2. Builder
+3. Factory Method
+4. Abstract Factory
+5. Prototype
+6. Adapter
+7. Facade
+8. Decorator
+9. Composite
+10. Proxy
+11. Bridge
+12. Flyweight
+13. Strategy
+14. 
+
 ---
 
 1. "is-a", "can-do", "has-a"
