@@ -182,13 +182,64 @@ Aggregation and Composition are technically special cases of Association (they'r
 5. **Coupling and Cohesion**: Coupling is how much one part of a program relies on another part. Cohesion is how closely the tasks inside a single part fit together. Aim for low coupling, and high cohesion. 
 6. **Composing Objects Principle**: Building complex software by assembling small, independent, and reusable parts ("has-a" relationships) rather than creating deep parent-child class taxonomies ("is-a" relationships)
 
+---
+
 # SOLID Principles
 
-1. Single Responsibility Principle
-2. Open/Closed Principle
-3. Liskov Substitution Principle
-4. Interface Segregation Principle
-5. Dependency Inversion Principle
+### 1. Single Responsibility Principle
+
+**Each class should have only 1 reason to change.**
+
+For an employee, it's currently storing the name, salary, logic to calculate pay, logic to save the employee data to db, and the logic to generate a report.
+
+Split the responsibilities to the Employee (attributes only), the Pay Calculator, Employee Repository, and the Employee Report Generator.
+
+Improves readability, maintainability, testability, and reusability.
+
+### 2. Open/Closed Principle
+
+**Software entities should be open to extension, but closed to modification.**
+
+In PayCalculator, currently, we need to modify the calculatePay function, and add a new if condition for the employee type (eg: `if employee instance of Manager`). This class isn't closed to modification.
+
+we make Employee an interface, and force each type of the employee, to make a calculatePay method.
+
+Hence, it's now open for extension, closed for modification, flexible, and also maintainable.
+
+### 3. Liskov Substitution Principle
+
+**Object of the super class should be replaceable with the objects of its sub class.**
+
+Employee has payBonus, but the class that extends Employee overrides it, and throws an error instead.
+
+The code that works with employee should work with its sub types. 
+
+ContractEmployee doesn't need to implement payBonus, so, instead of making it a sub class of employee,
+
+Payable should be an interface, BonusEligible should be another interface, that extends it, with the payBonus method, Employee should be a class that implements payBonus, and ContractEmployee should be a class that implements Payable.
+
+or, we could have the contractEmployee just not return an error, and do nothing instead, or could log a message indicating that the contractEmployee isn't eligible for payBonus.
+
+### 4. Interface Segregation Principle
+
+**Many client specific interfaces are better than one general purpose interface.**
+
+If `interface EmployeeActions` has methods to, work, attendMeetings, and submitTimesheets, every Employee type will also have to implement it, and if a specific Employee type doesn't require it, like, a manager not requiring `submitTimesheet()`, they'll have to throw an error, or log a message or do nothing.
+
+Make 3 separate interfaces, each focusing on separate responsibilities, `Worker`, `MeetingAttendee`, and `TimesheetSubmitter`. So now, we can just do, `class Manager implements Worker, MeetingAttendee`, and be done with it 
+
+Improves flexibility, reduces coupling, cleaner interfaces, and more maintainable.
+
+### 5. Dependency Inversion Principle
+
+**High level modules should depend on abstractions (interfaces). They shouldn't depend on low level modules. Both should depend on abstractions or interfaces.**
+
+Employee shouldn't depend on EmailSender, it should depend on Notifier (an interface), that can have many different classes depending on it, like EmailSender, and SMSSender.
+
+`Loose Coupling`, `Enhanced Reusability`, and `Improved Testability`.
+
+
+---
 
 # Design Patterns
 
@@ -216,4 +267,4 @@ Aggregation and Composition are technically special cases of Association (they'r
 
 # Sources
 1. [Algomaster](https://algomaster.io/learn/lld/)
-2. 
+2. [Solid Principles ~ ByteMonk](https://www.youtube.com/watch?v=5999cgzA95A)

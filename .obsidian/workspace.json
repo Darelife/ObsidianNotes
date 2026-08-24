@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Academic/System Design/Low Level Design.md",
+                "file": "Academic/System Design/LLD/Low Level Design.md",
                 "mode": "source",
                 "source": false
               },
@@ -203,6 +203,7 @@
   },
   "active": "75523a787d957d6a",
   "lastOpenFiles": [
+    "Academic/System Design/LLD/rate_limiter.md",
     "Pasted image 20260823211715.png",
     "Pasted image 20260127113113.png",
     "Academic/System Design/Low Level Design.md",
@@ -250,7 +251,6 @@
     "Academic/DBMS/AlgoXXX/frontEnd/public/logos/AlgoManiaXLogoBlackPoster.png",
     "Academic/DBMS/AlgoXXX/frontEnd/public/logos/AlgoManiaX logo black Banner.png",
     "Academic/DBMS/AlgoXXX/frontEnd/public/window.svg",
-    "Academic/DBMS/AlgoXXX/frontEnd/public/vercel.svg",
     "Academic/DSTN/DSTN.canvas",
     "Academic/CN/Computer Networks.canvas",
     "Academic/Deep Learning/Deep Learning.canvas"
