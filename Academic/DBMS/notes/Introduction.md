@@ -6,13 +6,13 @@ Welcome to the comprehensive, placement-focused Database Management Systems (DBM
 
 ## 📚 Complete Lecture Index
 
-1. [[01-Introduction-to-DBMS]]
+1. [[Academic/DBMS/notes/01-Introduction-to-DBMS]]
    * Data vs. Raw Bytes vs. Information, File System Limitations, Core Advantages of DBMS.
-2. [[02-Architecture-of-DBMS]]
+2. [[Academic/DBMS/notes/02-Architecture-of-DBMS]]
    * ANSI-SPARC 3-Schema Architecture, Logical & Physical Data Independence, DBA Role.
 3. [[03-ER-Model-and-Notations]]
    * Entities, Attributes (Composite, Multivalued, Derived), Relationships, Structural & Participation Constraints.
-4. [[04-Extended-ER-Features]]
+4. [[Academic/DBMS/notes/04-Extended-ER-Features]]
    * Top-Down & Bottom-Up Abstractions, Disjointness & Completeness Constraints, Attribute Inheritance, Aggregation.
 5. [[05-How-to-Think-and-Formulate-ER-Diagrams]]
    * 5-Step Problem-Solving Pipeline, Noun/Verb Heuristic, Fan/Chasm Trap Avoidance, Hospital System Case Study.
@@ -36,13 +36,13 @@ Welcome to the comprehensive, placement-focused Database Management Systems (DBM
     * Wait-Die vs Wound-Wait, Wait-For Graph (WFG), Log-Based Recovery (Deferred vs Immediate), ARIES 3-Phase Recovery.
 15. [[15-Indexing-in-DBMS]]
     * File Organization, Dense vs Sparse Indexing, Primary vs Secondary vs Clustered Indexes, Block I/O Cost Calculations.
-16. [[16-Types-of-Databases]]
+16. [[Academic/DBMS/notes/16-Types-of-Databases]]
     * Taxonomy of RDBMS, NoSQL Categories (Document, Key-Value, Wide-Column, Graph), Legacy Models (Hierarchical, Network).
 17. [[17-NoSQL-vs-SQL-Databases]]
     * Schema-on-Write vs Schema-on-Read, ACID vs BASE, Decision Tree, Tunable Consistency ($R+W>N$), LSM Trees vs B+ Trees.
 18. [[18-Clustering-and-Replication-in-DBMS]]
     * Shared-Disk vs Shared-Nothing, Synchronous/Asynchronous/Semi-Sync Replication, RTO & RPO, Split-Brain & Quorum Consensus.
-19. [[19-Database-Scaling-Patterns]]
+19. [[Academic/DBMS/notes/19-Database-Scaling-Patterns]]
     * Vertical vs Horizontal Scaling, Vertical/Horizontal Partitioning, Range/Hash Sharding, Consistent Hashing & 2PC.
 20. [[20-CAP-Theorem-in-Distributed-Databases]]
     * Consistency (Linearizability), Availability, Partition Tolerance, 2-Node Mathematical Proof, PACELC Theorem Extension.

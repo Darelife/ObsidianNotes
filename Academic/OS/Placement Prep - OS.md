@@ -1,6 +1,6 @@
 # Operating Systems — Placement Prep
 
-Consolidated from: [[Introduction]], [[Processes]], [[Scheduling]], [[Threads]], [[Locks]], [[CV's and Semaphores]], [[IPC]], [[Virtual Memory and Paging]], [[File System]], [[Cheat Sheet]]
+Consolidated from: [[Academic/OS/Introduction]], [[Processes]], [[Scheduling]], [[Threads]], [[Locks]], [[CV's and Semaphores]], [[IPC]], [[Virtual Memory and Paging]], [[File System]], [[Cheat Sheet]]
 
 ## Table of Contents
 1. [System Basics — Compilation, Memory, Modes, Booting](#1-system-basics)

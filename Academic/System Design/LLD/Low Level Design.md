@@ -173,6 +173,8 @@ One subtlety worth adding to your notes: the **strength ordering** is typically 
 
 Aggregation and Composition are technically special cases of Association (they're all "has-a" / "uses-a" in the broad sense), just with different ownership/lifecycle strength.
 
+---
+
 # Design Principles
 
 1. **DRY Principle**: Don't Repeat Yourself
@@ -241,6 +243,9 @@ Employee shouldn't depend on EmailSender, it should depend on Notifier (an inter
 
 ---
 
+
+---
+
 # Design Patterns
 
 1. Singleton
@@ -262,6 +267,9 @@ Employee shouldn't depend on EmailSender, it should depend on Notifier (an inter
 
 1. "is-a", "can-do", "has-a"
 2. Difference between Interface and an abstract class
+
+---
+
 
 ---
 

@@ -1,6 +1,6 @@
 # DBMS — Placement Prep
 
-Consolidated from: [[01-Introduction-to-DBMS]] through [[22-Master-Slave-Architecture-and-Failover]], plus standard SQL interview-query coverage.
+Consolidated from: [[Academic/DBMS/notes/01-Introduction-to-DBMS]] through [[22-Master-Slave-Architecture-and-Failover]], plus standard SQL interview-query coverage.
 
 ## Table of Contents
 0. [DBMS Fundamentals & File System Limitations](#0-dbms-fundamentals--file-system-limitations)
