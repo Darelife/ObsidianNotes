@@ -123,7 +123,7 @@ The Application Binary Interface is an interface between machine code, and the u
   close(STDOUT_FILENO);
   open("./redir_output.txt", O_CREAT|O_WRONLY|O_TRUC, S_IRWXU);
   // open uses the first available file descriptor (STDOUT in this case)
-  ```
+```
 
 ## PIPE
 - The shell can also pipe the output of one command into another by connecting the STDOUT of one child to the STDIN of another child, via a pipe (communication method provided by the kernel).

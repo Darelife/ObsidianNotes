@@ -71,7 +71,7 @@ During a context switch, if a process A has moved to the kernel stack, and after
 - A variant of WFQ
 - Divide the CPU evenly among all of its competing processes. Through a counting based technique known as virtual run time(vruntime), pick the process with the lowest vruntime to run next.
 - One configurable parameter:
-	- Sched_latency : How long a process should run before considering a switch
+	- Sched_latency : The time in which all runnable processes should run atleast once.
 		- Typically 48ms
 		- CFS divides this number by the number of processes running to determine the time slice for each process,  but if there are too many processes, there will be too many context switches.
 - Another configurable parameter:
@@ -85,12 +85,12 @@ During a context switch, if a process A has moved to the kernel stack, and after
 	- 	$$
 \text{time\_slice}_k = \frac{\text{weight}_k}{\sum_{i=0}^{n-1} \text{weight}_i} \cdot \text{sched\_latency}
 $$
-	- prio_to_weight Mapping (Nice → Weight)
-	  ```
+	- prio_to_weight Mapping (Nice → Weight) (less `nice` is better, since it has the most `weight`)
+```
 		| Nice | -20  | -15  | -10 | -5  | 0    | 5   | **10** | 15  |
 		|------|------|------|-----|-----|------|-----|--------|-----|
 		| Wt   | 88761| 29154| 9548| 3121| 1024 | 335 | **110**| 36  |
-		```
+```
 		
 - Uses RB Trees
 	- Simple data structures like lists don’t scale - searching through a long-list every so many milliseconds is wasteful.
