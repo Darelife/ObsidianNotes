@@ -9,21 +9,21 @@
   --text-normal: #f6dcac;
 
   /* Selection colors */
-  --text-selection: #faa968;
+  --text-selection: #134e5a;
 
   /* Border color */
-  --background-modifier-border: #134e5a;
+  --background-modifier-border: #2a6b78;
 
   /* Semantic heading colors */
   --text-title-h1: #f85525;
   --text-title-h2: #028391;
   --text-title-h3: #e97b3c;
-  --text-title-h4: #faa968;
+  --text-title-h4: #3f8f8a;
   --text-title-h5: #3f8f8a;
   --text-title-h6: #3f8f8a;
 
   /* Links and accents */
-  --text-link: #faa968;
+  --text-link: #3f8f8a;
   --text-accent: #faa968;
   --text-accent-hover: #faa968;
   --interactive-accent: #faa968;
@@ -43,12 +43,12 @@
 
   /* Tags */
   --tag-color: #8cbfb8;
-  --tag-background: #134e5a;
+  --tag-background: #2a6b78;
 
   /* Graph */
-  --graph-line: #134e5a;
+  --graph-line: #2a6b78;
   --graph-node: #faa968;
-  --graph-node-focused: #faa968;
+  --graph-node-focused: #3f8f8a;
   --graph-node-tag: #8cbfb8;
   --graph-node-attachment: #028391;
 }
@@ -70,9 +70,9 @@
 .cm-s-obsidian span.cm-keyword { color: #f85525; }
 .cm-s-obsidian span.cm-string { color: #028391; }
 .cm-s-obsidian span.cm-number { color: #e97b3c; }
-.cm-s-obsidian span.cm-comment { color: #134e5a; }
-.cm-s-obsidian span.cm-operator { color: #faa968; }
-.cm-s-obsidian span.cm-def { color: #faa968; }
+.cm-s-obsidian span.cm-comment { color: #2a6b78; }
+.cm-s-obsidian span.cm-operator { color: #3f8f8a; }
+.cm-s-obsidian span.cm-def { color: #3f8f8a; }
 
 /* Links */
 .markdown-rendered a {
