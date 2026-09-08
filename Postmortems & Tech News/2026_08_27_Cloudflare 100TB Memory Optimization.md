@@ -3,7 +3,7 @@
 - Every wasted byte per entry = 250GB across fleet, so they went hunting for waste
 - 5 changes, all in Rust memory layout, cut per-entry size by 56%
 
-1. Both Vec and String have a capacity field which is unnecessary since the entries are write-once and are never modified after being inserted. We therefore replaced `Vec<T>` with `Box<[T]>` and String with `Box<str>`, got rid of the capacity field and stopped over-allocating heap space as a result, saving about 15TB solely from this change.
+1. Both Vec and String have a capacity field which is unnecessary since the entries are write-once and are never modified after being inserted. We therefore replaced `Vec<T>` with `Box<[T]>` and String with `Box<char>`, got rid of the capacity field and stopped over-allocating heap space as a result, saving about 15TB solely from this change.
 
 2. Previously the answer/authority/additional data was stored as three separate lists (three pointers plus three lengths); I have now changed it to a single combined list using u16 offsets to indicate where each section begins. This change saves about 28 bytes per entry.
 
