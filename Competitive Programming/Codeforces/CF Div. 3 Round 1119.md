@@ -78,3 +78,43 @@ We could run a BFS from the elements that we know the value of, and then...
 oh wait, if we run a BFS from the -1 elements, and then validate each of them? (check if treasure could be there)?? nvm the previous approach was better ig, cuz we won't know whether the value in another node could be cuz of it or not.
 faah, we can just ban specific ranges, that can't work out, like, via a difference array or something.
 in the end, any element not in the banned range, can have treasure.
+
+```cpp
+void solve() {
+  int n;
+  cin >> n;
+  vector<int> a(n);
+  vcin(a, n);
+  vector<int> b(n + 1);
+  for (int i = 0; i < n; i++) {
+    if (a[i] > 0) {
+      b[max(0ll, i - a[i] + 1)]++;
+      b[min(n, i + a[i])]--;
+    }
+  }
+  for (int i = 1; i <= n; i++) {
+    b[i] += b[i - 1];
+  }
+  string ans = "";
+  for (int i = 0; i < n; i++) ans += '1';
+  for (int i = 0; i < n; i++) {
+    if (b[i] > 0) ans[i] = '0';
+  }
+  int cnt = 0;
+  for (int i = 0; i < n; i++) cnt += (ans[i] == '1');
+  if (cnt == 0) {
+    cout << -1 << endl;
+    return;
+  }
+  for (int i = 0; i < n; i++) {
+    if (a[i] >= 0) {
+      if (i - a[i] >= 0 && ans[i - a[i]] == '1') continue;
+      if (i + a[i] < n && ans[i + a[i]] == '1') continue;
+      cout << -1 << endl;
+      return;
+    }
+  }
+  cout << ans << endl;
+}
+```
+
