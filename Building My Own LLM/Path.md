@@ -1,0 +1,10 @@
+- [x] Python
+- [ ] NumPy
+- [ ] PyTorch
+- [ ] Implement neural nets from scratch
+- [ ] Transformers
+- [ ] GPU architecture
+- [ ] CUDA
+- [ ] Triton
+- [ ] Distributed training
+- [ ] JAX/XLA/Pallas
