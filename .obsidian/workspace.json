@@ -11,14 +11,21 @@
             "id": "f5660c5c2c94ce0e",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "kanban",
               "state": {
-                "file": "Chess Engine/Eval Bar.md",
-                "mode": "source",
-                "source": false
+                "file": "Algo/Algomaniax Sessions.md",
+                "kanbanViewState": {
+                  "kanban-plugin": "board",
+                  "list-collapse": [
+                    false,
+                    false,
+                    false,
+                    false
+                  ]
+                }
               },
-              "icon": "lucide-file",
-              "title": "Eval Bar"
+              "icon": "lucide-trello",
+              "title": "Algomaniax Sessions"
             }
           }
         ]
@@ -202,7 +209,10 @@
   },
   "active": "f5660c5c2c94ce0e",
   "lastOpenFiles": [
+    "Academic/System Design/LLD/rate_limiter.md",
     "Chess Engine/Eval Bar.md",
+    "Chess Engine/AI Generated/Eval Bar Notes.md",
+    "Chess Engine/AI Generated",
     "Chess Engine",
     "_images/Pasted image 20260911182536.png",
     "_images/Pasted image 20260511192548.png",
@@ -243,11 +253,9 @@
     "Postmortems & Tech News/2026_07_Open AI Hugging Face Attack using Dependency Module as Proxy.md",
     "Academic/OS/Locks.md",
     "Academic/OS/File System.md",
-    "Academic/OS/IPC.md",
     "Academic/Placement",
     "Academic/DBMS/notes",
     "Academic/OOP",
-    "Academic/CN/Placement Prep - CN.md.tmp.11202.6597bef85a6e",
     "Competitive Programming/Competitive Programming.canvas",
     "Competitive Programming/CSES/CSES.canvas",
     "Academic/CN/Computer Networks.canvas",

@@ -30,3 +30,37 @@
 12. Passed pawn: A pawn that has no enemy pawn capable of stopping it directly. For this case, we could have (pawn on the 2nd rank = 10 points, 5th rank = 40 points, and on the 7th rank = 150 points)
 13. King Safety: Having a king exposed is bad. So, evaluate the current position around the king (how exposed is the king?), and based on it, give a score.
 14. Minimax:
+15. Assume that the opponent plays the best move
+16. NegMax:
+17. Search depth:
+18. Alpha-beta pruning:
+19. Alpha and beta:
+20. Alpha-beta does NOT change the answer
+21. Move ordering
+22. MVV-LVA
+23. Iterative deepening
+24. Why iterative deepening can actually make things faster
+25. Horizon effect
+26. Quiescence search
+27. Transposition
+28. Transposition table
+29. Zobrist hashing
+30. Mate scoring
+31. Ply vs move
+32. Principal variation
+33. The eval bar
+34. Why the bar shouldn't be linear
+35. Important caveat: eval isn't exactly win probability
+36. Mate display
+37. Search nodes
+38. Nodes per second
+39. Checkmate and stalemate
+40. Draw detection
+41. Killer move heuristic
+42. History heuristic
+43. Null move pruning
+44. Late Move Reductions
+45. Search extensions
+46. NNUE
+47. Search and evaluation work together
+48. A clean first engine
