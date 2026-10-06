@@ -4,19 +4,24 @@
     "type": "split",
     "children": [
       {
-        "id": "91195ea1f947cf35",
+        "id": "5a158c5f70a3df34",
         "type": "tabs",
         "children": [
           {
-            "id": "b3cfb3c17a4ec393",
+            "id": "d4f009a8a549dc89",
             "type": "leaf",
             "state": {
               "type": "kanban",
               "state": {
-                "file": "Competitive Programming/Algomaniax Sessions.md",
+                "file": "Projects/All Projects.md",
                 "kanbanViewState": {
                   "kanban-plugin": "board",
                   "list-collapse": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
                     false,
                     false,
                     false,
@@ -25,7 +30,7 @@
                 }
               },
               "icon": "lucide-trello",
-              "title": "Algomaniax Sessions"
+              "title": "All Projects"
             }
           }
         ]
@@ -207,24 +212,26 @@
       "webpage-html-export:Export as HTML": false
     }
   },
-  "active": "c7379874029b748b",
+  "active": "d4f009a8a549dc89",
   "lastOpenFiles": [
+    "Projects/Chess Engine/AI Generated/Eval Bar Notes.md",
+    "Projects/All Projects.md",
+    "Postmortems & Tech News/2026_Databricks.md",
+    "Postmortems & Tech News/2026_Postgres19.md",
+    "Competitive Programming/Algomaniax Sessions.md",
     "Competitive Programming/Math.md",
     "daily/2026-10-04.md",
     "Untitled Kanban.md",
     "daily",
-    "Projects/All Projects.md",
     "Projects/Cuda/README.md",
     "Projects/Cuda/cuda-samples/README.md",
     "Projects/CS 231n.md",
     "CS 231n.md",
     "Academic/IR.md",
     "Academic/Drawing 2026-02-21 11.02.32.excalidraw.md",
-    "Competitive Programming/Algomaniax Sessions.md",
     "Projects",
     "Academic/System Design/LLD/rate_limiter.md",
     "Projects/Chess Engine/Eval Bar.md",
-    "Projects/Chess Engine/AI Generated/Eval Bar Notes.md",
     "Projects/Chess Engine/AI Generated",
     "Projects/Chess Engine",
     "_images/Pasted image 20260911182536.png",
@@ -251,8 +258,6 @@
     "Academic/DSTN/7. Distributed Systems.md",
     "Academic/DSTN/8. Network File System.md",
     "Academic/DSTN/9. GFS.md",
-    "Academic/DSTN/10. MPI.md",
-    "Academic/DSTN/11. Lustre FS.md",
     "Academic/DSTN/DSTN.canvas",
     "Competitive Programming/Codeforces",
     "Academic/Placement",
