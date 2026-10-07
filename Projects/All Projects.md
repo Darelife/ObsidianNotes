@@ -19,6 +19,7 @@ kanban-plugin: board
 - [ ] Add 6 Companies with historical data
 - [ ] Add a bunch of potential events
 - [ ] Add virtual users who'll react with a specific "panic/excitement" based on the news (event)
+- [ ] ratelimiting
 
 
 ## Competitive Programming

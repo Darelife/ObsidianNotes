@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "5a158c5f70a3df34",
+        "id": "0323199af09b1009",
         "type": "tabs",
         "children": [
           {
-            "id": "d4f009a8a549dc89",
+            "id": "1526e6795e5096a4",
             "type": "leaf",
             "state": {
               "type": "kanban",
@@ -92,7 +92,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 285.5
+    "width": 285.5,
+    "collapsed": true
   },
   "right": {
     "id": "801455d173a345d4",
@@ -212,7 +213,7 @@
       "webpage-html-export:Export as HTML": false
     }
   },
-  "active": "d4f009a8a549dc89",
+  "active": "1526e6795e5096a4",
   "lastOpenFiles": [
     "Projects/Chess Engine/AI Generated/Eval Bar Notes.md",
     "Projects/All Projects.md",
