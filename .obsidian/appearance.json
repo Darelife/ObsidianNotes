@@ -1,5 +1,6 @@
 {
   "cssTheme": "Ukiyo",
   "accentColor": "#4ee7e9",
-  "theme": "moonstone"
+  "theme": "moonstone",
+  "enabledCssSnippets": []
 }

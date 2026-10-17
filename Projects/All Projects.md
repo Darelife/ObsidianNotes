@@ -6,13 +6,14 @@ kanban-plugin: board
 
 ## Deep Learning & Cuda
 
+- [ ] [[Watching Free Code Camp's video on making a LLM from scratch in python vid]]
 - [ ] [[CS 231n]]
-- [ ] Free Code Camp's Video : [[Projects/Cuda/README|README]]
+- [ ] Free Code Camp's Video on cuda : [[Projects/Cuda/README|README]]
 
 
 ## Trading Simulation Challenge
 
-- [ ] Forgot Password pipeline
+- [x] Forgot Password pipeline
 - [ ] Make a proper list of orders functionality
 - [ ] Make proper APIs for buy & sell
 - [ ] Make a proper API for getting the current price
@@ -24,13 +25,21 @@ kanban-plugin: board
 
 ## Competitive Programming
 
-- [ ] Codeforces Div.2 1123 (2267)
-- [ ] Codeforces Div.2 1121 (2264)
+- [x] Codeforces Div.2 1124 (2269)
+- [x] Codeforces Div.3 1125 (2275)
+- [ ] Solve 2276E (Edu Div. 2 Round 195)
 
 
 ## Avecon
 
 - [ ] Implement the CRDT & OT stuff, so that atleast the live share functionality can be replicated, before we work on the new stuff
+
+
+## Concepts to Learn
+
+- [ ] kernel bypass (e.g., Solarflare/onload)
+- [ ] cache locality
+- [ ] lock-free data structures
 
 
 ## Chess Engine
@@ -67,9 +76,10 @@ kanban-plugin: board
 ## Archive
 
 - [x] Registration Pipeline
+- [ ] Add 6 Companies with historical data
 
 %% kanban:settings
 ```
-{"kanban-plugin":"board","list-collapse":[false,false,false,false,false,false,false,false,false],"show-checkboxes":true,"new-note-folder":"Projects"}
+{"kanban-plugin":"board","list-collapse":[false,false,false,false,false,false,false,false,false,false],"show-checkboxes":true,"new-note-folder":"Projects"}
 ```
 %%

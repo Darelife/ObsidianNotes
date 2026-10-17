@@ -1,5 +1,5 @@
 - [x] Python
-- [ ] NumPy
+- [x] NumPy
 - [ ] PyTorch
 - [ ] Implement neural nets from scratch
 - [ ] Transformers

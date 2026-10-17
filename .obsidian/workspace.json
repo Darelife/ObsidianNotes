@@ -4,33 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "0323199af09b1009",
+        "id": "235f119e58bb1391",
         "type": "tabs",
         "children": [
           {
-            "id": "1526e6795e5096a4",
+            "id": "89f391c495dc88f2",
             "type": "leaf",
             "state": {
-              "type": "kanban",
+              "type": "markdown",
               "state": {
-                "file": "Projects/All Projects.md",
-                "kanbanViewState": {
-                  "kanban-plugin": "board",
-                  "list-collapse": [
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false
-                  ]
-                }
+                "file": "Projects/Building My Own LLM/All the topics.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-trello",
-              "title": "All Projects"
+              "icon": "lucide-file",
+              "title": "All the topics"
             }
           }
         ]
@@ -213,10 +201,19 @@
       "webpage-html-export:Export as HTML": false
     }
   },
-  "active": "1526e6795e5096a4",
+  "active": "89f391c495dc88f2",
   "lastOpenFiles": [
-    "Projects/Chess Engine/AI Generated/Eval Bar Notes.md",
+    "Projects/Watching Free Code Camp's video on making a LLM from scratch in python vid.md",
+    "Projects/Building My Own LLM/All the topics.md",
     "Projects/All Projects.md",
+    "Projects/CS 231n.md",
+    "Projects/Building My Own LLM/Path.md",
+    "Projects/Building My Own LLM/Numpy.md",
+    "Projects/Cuda/README.md",
+    "Academic/Cryptography/Report.md",
+    "Academic/Cryptography/KRChat_Short_Report.md",
+    "Academic/Cryptography",
+    "Projects/Chess Engine/AI Generated/Eval Bar Notes.md",
     "Postmortems & Tech News/2026_Databricks.md",
     "Postmortems & Tech News/2026_Postgres19.md",
     "Competitive Programming/Algomaniax Sessions.md",
@@ -224,9 +221,7 @@
     "daily/2026-10-04.md",
     "Untitled Kanban.md",
     "daily",
-    "Projects/Cuda/README.md",
     "Projects/Cuda/cuda-samples/README.md",
-    "Projects/CS 231n.md",
     "CS 231n.md",
     "Academic/IR.md",
     "Academic/Drawing 2026-02-21 11.02.32.excalidraw.md",
@@ -243,8 +238,6 @@
     "_images/Pasted image 20260430151211.png",
     "_images/Pasted image 20260307145507.png",
     "_images/Pasted image 20260127113113.png",
-    "Projects/Building My Own LLM/Numpy.md",
-    "Projects/Building My Own LLM/Path.md",
     "Algo/AlgoManiax.png",
     "Algo/algo.md",
     "Algo",
@@ -255,13 +248,8 @@
     "_images",
     "Projects/Building My Own LLM",
     "Academic/DSTN/13. Darshan.md",
-    "Academic/DSTN/6. Log File System.md",
-    "Academic/DSTN/7. Distributed Systems.md",
-    "Academic/DSTN/8. Network File System.md",
-    "Academic/DSTN/9. GFS.md",
     "Academic/DSTN/DSTN.canvas",
     "Competitive Programming/Codeforces",
-    "Academic/Placement",
     "Competitive Programming/Competitive Programming.canvas",
     "Competitive Programming/CSES/CSES.canvas",
     "Academic/CN/Computer Networks.canvas",
